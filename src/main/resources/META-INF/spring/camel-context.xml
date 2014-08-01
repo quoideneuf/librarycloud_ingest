@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring 
+    http://camel.apache.org/schema/spring/camel-spring.xsd
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd" 
+    >
+    
+    <context:property-placeholder  location="classpath:/aws.properties" />
+    <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
+        <constructor-arg>
+            <bean class="com.amazonaws.auth.BasicAWSCredentials">
+                <constructor-arg value="${access.key}"/>
+                <constructor-arg value="${secret.key}"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring">
+ 
+        <route id="aleph-ingest">
+            <from uri="file:/temp/aleph" />
+ 			<log message="aleph ingest ${file:name}"/>
+            <convertBodyTo type="java.lang.String" />
+            <to uri="aws-sqs://marc21Ingest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+ 			<log message="areceived on aleph ${file:name}"/>
+
+         </route>
+         <route id="via-ingest">
+            <from uri="file:/temp/via" />
+            <log message="via ingest ${file:name}"/>
+            <convertBodyTo type="java.lang.String" />
+        	<to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+ 			<log message="received on via queue ${file:name}"/>
+        </route>
+        
+        <route id="marc21tomarcxml">
+            <from uri="aws-sqs://marc21Ingest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <to uri="aws-sqs://marcxmlQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
+			<log message="marc21 to marcxml ${file:name}"/>
+        </route>
+        <route id="marctomods">
+            <from uri="aws-sqs://marcxmlQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <to uri="aws-sqs://modsQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
+ 			<log message="marcxml to mods ${file:name}"/>
+        </route>
+        <route id="modstosolr">
+            <from uri="aws-sqs://modsQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <to uri="aws-sqs://solrQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+ 			<log message="to mods do solr ${file:name}"/>
+        </route>        
+              
+    </camelContext>
+    
+    
+</beans>
