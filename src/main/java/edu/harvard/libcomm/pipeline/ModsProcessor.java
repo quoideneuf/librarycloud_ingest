@@ -1,0 +1,92 @@
+package edu.harvard.libcomm.pipeline;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+import org.apache.camel.Processor;
+import org.apache.camel.component.file.GenericFile;
+
+import edu.harvard.libcomm.message.LibCommMessage;
+import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import gov.loc.mods.v3.ModsCollection;
+
+public class ModsProcessor implements LibCommProcessor {
+	private LibCommMessage libCommMessage = null;
+	private ModsCollection modsCollection = null;
+	public void process(Exchange exchange) throws Exception {
+		
+		Message message = exchange.getIn();
+		InputStream messageIS = readMessageBody(message);	 
+		
+		StringReader reader = transformMarcToMods(messageIS); 
+        
+        modsCollection = MessageUtils.unmarshalMessage(reader);
+        
+        modifyMessage(libCommMessage);
+       
+        String messageString = MessageUtils.marshalMessage(libCommMessage);
+        
+		message.setBody(messageString);
+		exchange.setOut(message);
+		
+	}
+
+	@Override
+	public InputStream readMessageBody(Message message) {
+		MessageUtils utils = new MessageUtils();
+		return utils.readMessageBody(message);
+	}
+
+	@Override
+	public LibCommMessage unmarshalMessage(InputStream messageIS) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String marshallMessage(LibCommMessage libCommMessage) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void modifyMessage(LibCommMessage libComMessage) {
+        libCommMessage = new LibCommMessage();
+        libCommMessage.setCommand("NORMALIZE");
+        Payload payload = new Payload();
+        payload.setSource("aleph");
+        payload.setFormat("marcxml");
+
+        payload.setAny(modsCollection);
+        libCommMessage.setPayload(payload);
+	}	
+
+	private StringReader transformMarcToMods (InputStream messageIS) throws Exception {
+		StringWriter writer = new StringWriter();
+		final InputStream xsl = new FileInputStream("src/main/resources/MARC21slim2MODS3-5.xsl");
+
+        final TransformerFactory tFactory = TransformerFactory.newInstance();
+
+        // Use the TransformerFactory to process the stylesheet source and produce a Transformer 
+        StreamSource styleSource = new StreamSource(xsl);
+        Transformer transformer = tFactory.newTransformer(styleSource);
+        
+        // Use the transformer and perform the transformation
+        StreamSource xmlSource = new StreamSource(messageIS);
+        StreamResult result = new StreamResult(writer);
+        transformer.transform(xmlSource, result);
+        StringReader reader = new StringReader(writer.toString());
+        return reader;
+	}
+	
+}

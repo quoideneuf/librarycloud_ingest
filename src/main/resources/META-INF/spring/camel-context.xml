@@ -21,16 +21,30 @@
         </constructor-arg>
     </bean>
 
+	<bean id="marcProcessor" class="edu.harvard.libcomm.pipeline.MarcProcessor"/>
+	<bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
+
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring">
  
         <route id="aleph-ingest">
-            <from uri="file:/temp/aleph" />
- 			<log message="aleph ingest ${file:name}"/>
-            <convertBodyTo type="java.lang.String" />
-            <to uri="aws-sqs://marc21Ingest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
- 			<log message="areceived on aleph ${file:name}"/>
-
+            <from uri="file:/temp/aleph?include=.*.xml" />
+ 			<log message="aleph ingest ${body}"/>
+            <!-- <convertBodyTo type="java.lang.String" /> -->
+            <process ref="marcProcessor"/>
+            <to uri="mock:foo"/>
+            <!-- <to uri="aws-sqs://marc21Ingest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
+ 			<log message="received on aleph ${body}"/>
          </route>
+          
+        <route id="marctomods">
+            <from uri="file:/temp/aleph/marcxml" />
+            <!-- <to uri="xslt:MARC21slim2MODS3-5.xsl"/>-->
+            <process ref="modsProcessor"/>
+            <to uri="file:/temp/aleph/mods"/>
+ 			<log message="marcxml to mods ${file:name}"/>
+        </route>
+        
+<!-- 
          <route id="via-ingest">
             <from uri="file:/temp/via" />
             <log message="via ingest ${file:name}"/>
@@ -54,7 +68,7 @@
             <to uri="aws-sqs://solrQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
  			<log message="to mods do solr ${file:name}"/>
         </route>        
-              
+-->              
     </camelContext>
     
     
