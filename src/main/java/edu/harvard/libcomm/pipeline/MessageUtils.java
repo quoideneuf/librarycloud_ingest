@@ -79,7 +79,7 @@ public class MessageUtils {
 			sw = new StringWriter();
 			Marshaller jaxbMarshaller = context.createMarshaller();
 			// output pretty printed
-			jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			//jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			jaxbMarshaller.marshal(libCommMessage, sw);
 		
 		  } catch (JAXBException e) {
@@ -88,19 +88,4 @@ public class MessageUtils {
 		return sw.toString();
 	}
 	
-	protected InputStream readMessageBody(Message message) {	
-		Object body = message.getBody(); 
-		InputStream messageIS = null; 
-		
-		if (body instanceof GenericFile) { 
-			GenericFile<File> file = (GenericFile<File>) body; 
-			try {
-				messageIS = new FileInputStream(file.getFile());
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return messageIS;
-	}
 }

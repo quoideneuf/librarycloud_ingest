@@ -31,17 +31,25 @@
  			<log message="aleph ingest ${body}"/>
             <!-- <convertBodyTo type="java.lang.String" /> -->
             <process ref="marcProcessor"/>
-            <to uri="mock:foo"/>
+            <to uri="mock:alephFileMessages"/>
             <!-- <to uri="aws-sqs://marc21Ingest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
  			<log message="received on aleph ${body}"/>
          </route>
           
         <route id="marctomods">
             <from uri="file:/temp/aleph/marcxml" />
-            <!-- <to uri="xslt:MARC21slim2MODS3-5.xsl"/>-->
-            <process ref="modsProcessor"/>
-            <to uri="file:/temp/aleph/mods"/>
- 			<log message="marcxml to mods ${file:name}"/>
+            <doTry>
+            	<to uri="validator:file:src/main/resources/MARC21slim.xsd"/>
+	            <process ref="modsProcessor"/>
+	            <to uri="file:/temp/aleph/mods"/>
+	            <!--<to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+	 			<log message="marcxml to mods ${file:name}"/>
+	            <doCatch>
+	            	<exception>org.apache.camel.ValidationException</exception>
+	            	<to uri="file:/temp/aleph/invalidmarcxml"/>
+	            	<log message="invalid marcxml"/>
+	            </doCatch>
+            </doTry>
         </route>
         
 <!-- 

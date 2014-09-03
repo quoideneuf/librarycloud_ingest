@@ -20,9 +20,8 @@ import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
 import gov.loc.mods.v3.ModsCollection;
 
-public class ModsProcessor implements LibCommProcessor {
-	private LibCommMessage libCommMessage = null;
-	private ModsCollection modsCollection = null;
+public class ModsProcessor extends LibCommProcessor {
+
 	public void process(Exchange exchange) throws Exception {
 		
 		Message message = exchange.getIn();
@@ -30,7 +29,7 @@ public class ModsProcessor implements LibCommProcessor {
 		
 		StringReader reader = transformMarcToMods(messageIS); 
         
-        modsCollection = MessageUtils.unmarshalMessage(reader);
+        modsCollection = unmarshalMessage(reader);
         
         modifyMessage(libCommMessage);
        
@@ -41,23 +40,6 @@ public class ModsProcessor implements LibCommProcessor {
 		
 	}
 
-	@Override
-	public InputStream readMessageBody(Message message) {
-		MessageUtils utils = new MessageUtils();
-		return utils.readMessageBody(message);
-	}
-
-	@Override
-	public LibCommMessage unmarshalMessage(InputStream messageIS) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String marshallMessage(LibCommMessage libCommMessage) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public void modifyMessage(LibCommMessage libComMessage) {

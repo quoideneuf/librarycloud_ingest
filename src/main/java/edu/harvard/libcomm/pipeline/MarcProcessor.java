@@ -29,41 +29,24 @@ import org.w3c.dom.Element;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 
-public class MarcProcessor implements LibCommProcessor {
+public class MarcProcessor extends LibCommProcessor {
 
-	private LibCommMessage libCommMessage = null;
 	public void process(Exchange exchange) throws Exception {	
 		
 		Message message = exchange.getIn();
 		InputStream messageIS = readMessageBody(message);	
 		
-		libCommMessage = MessageUtils.unmarshalMessage(messageIS);
+		libCommMessage = unmarshalMessage(messageIS);
 		modifyMessage(libCommMessage);
 		
 		convertMarcToMarcXML();
 		
-		String messageString = MessageUtils.marshalMessage(libCommMessage);
+		String messageString = marshalMessage(libCommMessage);
 	    message.setBody(messageString);
 	    exchange.setOut(message);
 	}
 
 
-	@Override
-	public InputStream readMessageBody(Message message) {
-		MessageUtils utils = new MessageUtils();
-		return utils.readMessageBody(message);
-	}
-	
-	@Override
-	public LibCommMessage unmarshalMessage(InputStream messageIS) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public String marshallMessage(LibCommMessage libCommMessage) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	@Override
 	public void modifyMessage(LibCommMessage libComMessage) {
 		libCommMessage.setCommand("NORMALIZE");
@@ -81,15 +64,15 @@ public class MarcProcessor implements LibCommProcessor {
 	    int count = 1;
 	    while (reader.hasNext()) {
 		    //for testing
-		    //if (count > 2) 
+		    //if (count > 100) 
 		    //	break;
 	    	Record record = reader.next();
-	        if (count == 1 || count % 100 == 1) {
+	        if (count == 1 || count % 25 == 1) {
 	        	output = new FileOutputStream(filepath.split("ab.bib")[0] + "marcxml/aleph" + count + ".xml");
 	        	writer = new MarcXmlWriter(output, true);
 	        }
 	    	writer.write(record);
-	        if (count % 100 == 0) {
+	        if (count % 25 == 0) {
 	        	writer.close();
 	        }
 	        count++;  	
