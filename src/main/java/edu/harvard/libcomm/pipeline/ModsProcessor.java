@@ -68,9 +68,5 @@ public class ModsProcessor extends LibCommProcessor {
         StringReader reader = new StringReader(writer.toString());
         return reader;
 	}
-	
-	public void test() {
-		
-	}
-	
+
 }
