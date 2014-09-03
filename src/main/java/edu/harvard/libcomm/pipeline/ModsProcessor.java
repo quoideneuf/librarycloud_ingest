@@ -29,11 +29,11 @@ public class ModsProcessor extends LibCommProcessor {
 		
 		StringReader reader = transformMarcToMods(messageIS); 
         
-        modsCollection = unmarshalMessage(reader);
+		modsCollection = unmarshalMessage(reader);
         
-        modifyMessage(libCommMessage);
+		modifyMessage(libCommMessage);
        
-        String messageString = MessageUtils.marshalMessage(libCommMessage);
+		String messageString = MessageUtils.marshalMessage(libCommMessage);
         
 		message.setBody(messageString);
 		exchange.setOut(message);
