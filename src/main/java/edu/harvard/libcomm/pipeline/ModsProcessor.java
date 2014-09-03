@@ -59,11 +59,9 @@ public class ModsProcessor extends LibCommProcessor {
 
         final TransformerFactory tFactory = TransformerFactory.newInstance();
 
-        // Use the TransformerFactory to process the stylesheet source and produce a Transformer 
         StreamSource styleSource = new StreamSource(xsl);
         Transformer transformer = tFactory.newTransformer(styleSource);
         
-        // Use the transformer and perform the transformation
         StreamSource xmlSource = new StreamSource(messageIS);
         StreamResult result = new StreamResult(writer);
         transformer.transform(xmlSource, result);
