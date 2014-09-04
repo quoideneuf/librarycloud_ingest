@@ -14,7 +14,7 @@ To run application (standalone, using maven):
 
 1. do mvn camel:run
 2. add the .mrc file to the directory specified in camel-context (default is /temp/aleph)
-3. add the corresponding .xml file to the same directory
+3. add the corresponding .xml file to the same directory (sample message file is at src/test/resources/marcingest.xml)
 
 On the way:
 
