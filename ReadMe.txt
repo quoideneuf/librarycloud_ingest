@@ -1,6 +1,8 @@
-The Library Commons pipeline (alpha) is an application to ingest metadata, transform, enrich and load for use by the Harvard Library Cloud Item api (v2). It is built using the Apache Camel Spring framework, and is meant to be used in conjunction to AWS sqs (amazon web services simple queueing service), though other queueing systems can be substituted).
+The Library Commons pipeline (alpha) is an application to ingest metadata, transform, enrich and load for use by the Harvard Library Cloud Item api (v2). 
+It is built using the Apache Camel Spring framework, and is meant to be used in conjunction to AWS sqs (amazon web services simple queueing service), though other queueing systems can be substituted).
 
-This application is currently under development. To date, the app handles ingesting marc bibliographic records (in marc21 communications format), converts to marcxml and then to mods. More steps for this particular workflow are being developed; additional workflows will be added to handle visual materials and EAD (encoded archival description) archival finding aid component-level data.
+This application is currently under development. To date, the app handles ingesting marc bibliographic records (in marc21 communications format), converts to marcxml and then to mods. 
+More steps for this particular workflow are being developed; additional workflows will be added to handle visual materials and EAD (encoded archival description) archival finding aid component-level data.
 
 Install:
 1. check out from github
