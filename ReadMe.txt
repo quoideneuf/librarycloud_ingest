@@ -18,6 +18,7 @@ To run application (standalone, using maven):
 
 On the way:
 
+Sample marcingest.mrc file to use for testing with marcingest.xml message
 More documentation;
 Configuration files and info for running in a servlet container (Tomcat, etc).;
 Additional steps for marc pipeline, and new pipelines for other data formats
