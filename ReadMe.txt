@@ -8,8 +8,6 @@ Install:
 3. for use with aws sqs, add the appropriate values in src/main/resources/aws.properties
 4. run mvn clean install (maven required)
 
-
-
 To run application (standalone, using maven):
 
 1. do mvn camel:run
