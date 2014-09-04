@@ -26,16 +26,24 @@
 
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring">
  
+ 		<!-- 
+ 		aleph-ingest route reads xml messages from directory that contain corresponding marc (.mrc) files
+ 		converts marc communication format to marcxml, chunks into files of 25 and writes to specified directory
+ 		xml messages sent to queue
+ 		 -->
         <route id="aleph-ingest">
             <from uri="file:/temp/aleph?include=.*.xml" />
  			<log message="aleph ingest ${body}"/>
-            <!-- <convertBodyTo type="java.lang.String" /> -->
             <process ref="marcProcessor"/>
             <to uri="mock:alephFileMessages"/>
             <!-- <to uri="aws-sqs://marc21Ingest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
  			<log message="received on aleph ${body}"/>
          </route>
-          
+ 
+  		<!-- 
+ 		marctomods route reads marcxml from specified dir, validates, converts marcxml to mods
+ 		mods wrapped in libcomm message and sent to queue (can be file, aws, etc)
+ 		 -->         
         <route id="marctomods">
             <from uri="file:/temp/aleph/marcxml" />
             <doTry>
@@ -53,24 +61,6 @@
         </route>
         
 <!-- 
-         <route id="via-ingest">
-            <from uri="file:/temp/via" />
-            <log message="via ingest ${file:name}"/>
-            <convertBodyTo type="java.lang.String" />
-        	<to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
- 			<log message="received on via queue ${file:name}"/>
-        </route>
-        
-        <route id="marc21tomarcxml">
-            <from uri="aws-sqs://marc21Ingest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-            <to uri="aws-sqs://marcxmlQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
-			<log message="marc21 to marcxml ${file:name}"/>
-        </route>
-        <route id="marctomods">
-            <from uri="aws-sqs://marcxmlQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-            <to uri="aws-sqs://modsQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
- 			<log message="marcxml to mods ${file:name}"/>
-        </route>
         <route id="modstosolr">
             <from uri="aws-sqs://modsQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <to uri="aws-sqs://solrQueue?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />

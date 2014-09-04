@@ -47,7 +47,7 @@ public class ModsProcessor extends LibCommProcessor {
         libCommMessage.setCommand("NORMALIZE");
         Payload payload = new Payload();
         payload.setSource("aleph");
-        payload.setFormat("marcxml");
+        payload.setFormat("mods");
 
         payload.setAny(modsCollection);
         libCommMessage.setPayload(payload);
@@ -68,5 +68,5 @@ public class ModsProcessor extends LibCommProcessor {
         StringReader reader = new StringReader(writer.toString());
         return reader;
 	}
-
+	
 }
