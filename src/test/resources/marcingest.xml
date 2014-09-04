@@ -5,20 +5,20 @@
     <payload>
         <source>aleph</source>
         <format>marc21</format>
-        <filepath>/temp/aleph/ab.bib.00.20140808.full.mrc</filepath>
+        <filepath>/temp/aleph/sample.mrc</filepath>
     </payload>
     <watchers>
         <watcher>
             <name>loggingservice</name>
-            <id>ab.bib.00.20140808.full</id>
+            <id>sample</id>
             <notification>trace</notification>
         </watcher>
     </watchers>
-    <initiator>?</initiator>
+    <initiator></initiator>
     <history>
         <event>
             <messagetype>INGEST</messagetype>
-            <messageid>ab.bib.00.20140808.full</messageid>
+            <messageid>sample</messageid>
             <sendingservice>marc_capture</sendingservice>
             <time>20140723:14:42</time>
         </event>
