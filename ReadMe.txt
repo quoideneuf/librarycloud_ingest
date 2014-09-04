@@ -20,4 +20,3 @@ More documentation;
 Configuration files and info for running in a servlet container (Tomcat, etc).;
 Additional steps for marc pipeline, and new pipelines for other data formats
 
-
