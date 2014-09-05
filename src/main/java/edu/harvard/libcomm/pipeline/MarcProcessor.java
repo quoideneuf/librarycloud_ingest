@@ -58,14 +58,13 @@ public class MarcProcessor extends LibCommProcessor {
 		InputStream input = null;
 		input = new FileInputStream(filepath);
 	    MarcReader reader = new MarcStreamReader(input);
-	    //MarcWriter writer = new MarcXmlWriter(output, true);
 	    MarcWriter writer = null;
 	    FileOutputStream output = null;
 	    int count = 1;
 	    while (reader.hasNext()) {
-		    //for testing
-		    //if (count > 100) 
-		    //	break;
+		//for testing
+		//if (count > 100) 
+		//break;
 	    	Record record = reader.next();
 	        if (count == 1 || count % 25 == 1) {
 	        	output = new FileOutputStream(filepath.substring(0, filepath.lastIndexOf("/") + 1) + "marcxml/aleph" + count + ".xml");
