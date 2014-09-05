@@ -25,6 +25,7 @@ import org.marc4j.MarcStreamReader;
 import org.marc4j.MarcWriter;
 import org.marc4j.MarcXmlWriter;
 import org.marc4j.marc.Record;
+import org.marc4j.marc.Leader;
 import org.w3c.dom.Element;
 
 import edu.harvard.libcomm.message.LibCommMessage;
@@ -58,7 +59,6 @@ public class MarcProcessor extends LibCommProcessor {
 		InputStream input = null;
 		input = new FileInputStream(filepath);
 	    MarcReader reader = new MarcStreamReader(input);
-	    //MarcWriter writer = new MarcXmlWriter(output, true);
 	    MarcWriter writer = null;
 	    FileOutputStream output = null;
 	    int count = 1;
@@ -67,8 +67,9 @@ public class MarcProcessor extends LibCommProcessor {
 		    //if (count > 100) 
 		    //	break;
 	    	Record record = reader.next();
+	    	
 	        if (count == 1 || count % 25 == 1) {
-	        	output = new FileOutputStream(filepath.split("ab.bib")[0] + "marcxml/aleph" + count + ".xml");
+	        	output = new FileOutputStream(filepath.substring(0, filepath.lastIndexOf("/") + 1) + "marcxml/aleph" + count + ".xml");
 	        	writer = new MarcXmlWriter(output, true);
 	        }
 	    	writer.write(record);
