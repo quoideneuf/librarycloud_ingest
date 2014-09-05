@@ -68,7 +68,7 @@ public class MarcProcessor extends LibCommProcessor {
 		    //	break;
 	    	Record record = reader.next();
 	        if (count == 1 || count % 25 == 1) {
-	        	output = new FileOutputStream(filepath.split("ab.bib")[0] + "marcxml/aleph" + count + ".xml");
+	        	output = new FileOutputStream(filepath.substring(0, filepath.lastIndexOf("/") + 1) + "marcxml/aleph" + count + ".xml");
 	        	writer = new MarcXmlWriter(output, true);
 	        }
 	    	writer.write(record);
