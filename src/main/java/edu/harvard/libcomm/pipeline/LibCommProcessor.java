@@ -14,10 +14,39 @@ import org.apache.camel.component.file.GenericFile;
 import edu.harvard.libcomm.message.LibCommMessage;
 import gov.loc.mods.v3.ModsCollection;
 
-public abstract class LibCommProcessor implements Processor {
+public abstract class LibCommProcessor implements Processor, IProcessor {
 
 	protected LibCommMessage libCommMessage = null;
 	protected ModsCollection modsCollection = null;
+
+	/**
+	 * Invoked by Camel to process the message 
+	 * @param  exchange
+	 * @throws Exception
+	 */
+	public void process(Exchange exchange) throws Exception {	
+		
+		Message message = exchange.getIn();
+		InputStream messageIS = readMessageBody(message);	
+		
+		libCommMessage = unmarshalMessage(messageIS);
+
+		/* This function will be overriden by child classes */
+		processMessage(libCommMessage);
+		
+		String messageString = marshalMessage(libCommMessage);
+	    message.setBody(messageString);
+	    exchange.setOut(message);
+	}
+
+	/**
+	 * Overriden by child classes to do the actual processing of the message.
+	 * Default implementation does nothing
+	 * @param message
+	 */
+	public void processMessage (LibCommMessage message) {
+		return;
+	}
 	
 	protected InputStream readMessageBody (Message message) {
 		Object body = message.getBody(); 
@@ -46,8 +75,5 @@ public abstract class LibCommProcessor implements Processor {
 	protected String marshalMessage (LibCommMessage libCommMessage) {
 		return MessageUtils.marshalMessage(libCommMessage);
 	}
-	
-	public abstract void modifyMessage(LibCommMessage libComMessage);
-	
-	
+		
 }
