@@ -14,10 +14,11 @@ import org.apache.camel.component.file.GenericFile;
 import edu.harvard.libcomm.message.LibCommMessage;
 import gov.loc.mods.v3.ModsCollection;
 
-public abstract class LibCommProcessor implements Processor, IProcessor {
+public class LibCommProcessor implements Processor {
 
 	protected LibCommMessage libCommMessage = null;
 	protected ModsCollection modsCollection = null;
+	private IProcessor processor;
 
 	/**
 	 * Invoked by Camel to process the message 
@@ -26,13 +27,16 @@ public abstract class LibCommProcessor implements Processor, IProcessor {
 	 */
 	public void process(Exchange exchange) throws Exception {	
 		
+		if (null == processor) {
+			throw new Exception("No processor defined for message");
+		}
+
 		Message message = exchange.getIn();
 		InputStream messageIS = readMessageBody(message);	
 		
 		libCommMessage = unmarshalMessage(messageIS);
 
-		/* This function will be overriden by child classes */
-		processMessage(libCommMessage);
+		processor.processMessage(libCommMessage);
 		
 		String messageString = marshalMessage(libCommMessage);
 	    message.setBody(messageString);
@@ -75,5 +79,12 @@ public abstract class LibCommProcessor implements Processor, IProcessor {
 	protected String marshalMessage (LibCommMessage libCommMessage) {
 		return MessageUtils.marshalMessage(libCommMessage);
 	}
-		
+
+	public void setProcessor(IProcessor p) {
+		this.processor = p;
+	}		
+
+	public IProcessor getProcessor() {
+		return this.processor;
+	}
 }

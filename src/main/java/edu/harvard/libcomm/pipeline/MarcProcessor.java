@@ -18,9 +18,8 @@ import org.w3c.dom.Element;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 
-public class MarcProcessor extends LibCommProcessor {
+public class MarcProcessor implements IProcessor {
 
-	@Override
 	public void processMessage(LibCommMessage libCommMessage) {		
 		libCommMessage.setCommand("NORMALIZE");
 		try {

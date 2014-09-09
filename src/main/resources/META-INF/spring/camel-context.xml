@@ -22,6 +22,11 @@
     </bean>
 
 	<bean id="marcProcessor" class="edu.harvard.libcomm.pipeline.MarcProcessor"/>
+    <bean id="marcProcessorCamel" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <ref bean="marcProcessor"/>
+        </property>
+    </bean>
 	<bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
 
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring">
@@ -34,7 +39,7 @@
         <route id="aleph-ingest">
             <from uri="file:/temp/aleph?include=.*.xml" />
  			<log message="aleph ingest ${body}"/>
-            <process ref="marcProcessor"/>
+            <process ref="marcProcessorCamel"/>
             <to uri="mock:alephFileMessages"/>
             <!-- <to uri="aws-sqs://marc21Ingest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
  			<log message="received on aleph ${body}"/>
