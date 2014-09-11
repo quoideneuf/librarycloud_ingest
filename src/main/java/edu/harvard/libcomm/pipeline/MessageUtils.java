@@ -37,6 +37,26 @@ public class MessageUtils {
     	return context;
     }	
 
+
+	protected static LibCommMessage unmarshalLibComMessage(Reader r) {
+		
+	 	try {
+			 
+			//unmarshal: xml2java
+	 		Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
+			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(r);
+			//libCommMessage.setCommand("NORMALIZE");
+			//System.out.println("UNMARSHALLED: " + libCommMessage.getCommand());
+			
+	 
+		  } catch (JAXBException e) {
+			e.printStackTrace();
+		  }
+		return libCommMessage;
+		
+	}
+	
+
 	protected static LibCommMessage unmarshalMessage(InputStream is) {
 		
 	 	try {

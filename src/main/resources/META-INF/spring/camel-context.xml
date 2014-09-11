@@ -37,9 +37,14 @@
  		xml messages sent to queue
  		 -->
         <route id="aleph-ingest">
-            <from uri="file:/temp/aleph?include=.*.xml" />
+            <from uri="file:/Users/jlicht/Documents/pod/Development/harvard/librarycloud/files?include=.*.xml" />
  			<log message="aleph ingest ${body}"/>
-            <process ref="marcProcessorCamel"/>
+            <split streaming="true">
+                <method bean="marcSplitter" method="splitMarcFile"/>
+                <to uri="file:/Users/jlicht/Documents/pod/Development/harvard/librarycloud/files/splits?fileName=${header.CamelSplitIndex}"/>
+            </split>
+
+            <!-- <process ref="marcProcessorCamel"/> -->
             <to uri="mock:alephFileMessages"/>
             <!-- <to uri="aws-sqs://marc21Ingest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
  			<log message="received on aleph ${body}"/>
