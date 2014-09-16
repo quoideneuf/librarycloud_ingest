@@ -21,13 +21,28 @@
         </constructor-arg>
     </bean>
 
-	<bean id="marcProcessor" class="edu.harvard.libcomm.pipeline.MarcProcessor"/>
-    <bean id="marcProcessorCamel" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+	<bean id="marcSplitter" class="edu.harvard.libcomm.pipeline.MarcSplitter"/>
+	<!-- <bean id="marcProcessor" class="edu.harvard.libcomm.pipeline.MarcProcessor"/>-->
+	<bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
+	<bean id="holdingsProcessor" class="edu.harvard.libcomm.pipeline.HoldingsProcessor"/>
+		
+    <!-- <bean id="marcProcessorCamel" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <ref bean="marcProcessor"/>
         </property>
+    </bean>-->
+
+    <bean id="modsProcessorCamel" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <ref bean="modsProcessor"/>
+        </property>
     </bean>
-	<bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
+
+    <bean id="holdingsProcessorCamel" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <ref bean="holdingsProcessor"/>
+        </property>
+    </bean>
 
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring">
  
@@ -37,11 +52,11 @@
  		xml messages sent to queue
  		 -->
         <route id="aleph-ingest">
-            <from uri="file:/Users/jlicht/Documents/pod/Development/harvard/librarycloud/files?include=.*.xml" />
+            <from uri="file:/temp/aleph?include=.*.xml" />
  			<log message="aleph ingest ${body}"/>
             <split streaming="true">
                 <method bean="marcSplitter" method="splitMarcFile"/>
-                <to uri="file:/Users/jlicht/Documents/pod/Development/harvard/librarycloud/files/splits?fileName=${header.CamelSplitIndex}"/>
+                <to uri="file:/temp/aleph/marcxml?fileName=${header.CamelSplitIndex}"/>
             </split>
 
             <!-- <process ref="marcProcessorCamel"/> -->
@@ -54,20 +69,21 @@
  		marctomods route reads marcxml from specified dir, validates, converts marcxml to mods
  		mods wrapped in libcomm message and sent to queue (can be file, aws, etc)
  		 -->         
+   
         <route id="marctomods">
             <from uri="file:/temp/aleph/marcxml" />
-            <doTry>
-            	<to uri="validator:file:src/main/resources/MARC21slim.xsd"/>
-	            <process ref="modsProcessor"/>
-	            <to uri="file:/temp/aleph/mods"/>
-	            <!--<to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
-	 			<log message="marcxml to mods ${file:name}"/>
-	            <doCatch>
-	            	<exception>org.apache.camel.ValidationException</exception>
-	            	<to uri="file:/temp/aleph/invalidmarcxml"/>
-	            	<log message="invalid marcxml"/>
-	            </doCatch>
-            </doTry>
+            <process ref="modsProcessorCamel"/>
+            <to uri="file:/temp/aleph/mods"/>
+            <!--<to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+ 			<log message="marcxml to mods ${file:name}"/>
+        </route>
+
+        <route id="addholdingstomods">
+            <from uri="file:/temp/aleph/mods" />
+            <process ref="holdingsProcessorCamel"/>
+            <to uri="file:/temp/aleph/enhancedmods"/>
+            <!--<to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+ 			<log message="holdings added ${file:name}"/>
         </route>
         
 <!-- 

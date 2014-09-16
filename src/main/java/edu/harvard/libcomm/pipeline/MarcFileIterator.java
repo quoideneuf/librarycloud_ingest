@@ -31,29 +31,37 @@ public class MarcFileIterator implements Iterator<String> {
     @Override
     public String next() {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        MarcWriter writer = new MarcXmlWriter(output, true);
+        MarcXmlWriter writer = new MarcXmlWriter(output, true);
         int count = 0;
-        while (marcReader.hasNext() && ((count == 0) || (count % chunkSize != 0))) {
+        boolean newChunk = false;
+        int totalSize = 0;
+        while (marcReader.hasNext() && newChunk == false) {
+       // while (marcReader.hasNext() && firstRecord) {
             try {
                 Record record = marcReader.next();
+                writer.setIndent(false);
                 writer.write(record);
-                count++;                    
+                count++;           
+                totalSize += output.toString().length();
+                newChunk = totalSize > 150000 ? true:false;
+                totalSize = 0;
             } catch (org.marc4j.MarcException ex) {
                 ex.printStackTrace();
             }
         }   
         if (count > 0) {
-            return output.toString();
-            // LibCommMessage message = new LibCommMessage();
-            // message.setCommand("NORMALIZE");
-            // Payload payload = new Payload();
-            // payload.setSource("aleph");
-            // payload.setFormat("mods");
-
-            // payload.setAny(output.toString());
-            // message.setPayload(payload);
-
-            // return MessageUtils.marshalMessage(message);
+        	writer.close();
+        	//System.out.println(totalSize);
+        	System.out.println(count);
+        	//return output.toString();
+             LibCommMessage message = new LibCommMessage();
+             message.setCommand("NORMALIZE");
+             Payload payload = new Payload();
+             payload.setSource("aleph");
+             payload.setFormat("mods");
+             payload.setData(output.toString());
+             message.setPayload(payload);
+             return MessageUtils.marshalMessage(message);
         } else {
             throw new NoSuchElementException();
         }

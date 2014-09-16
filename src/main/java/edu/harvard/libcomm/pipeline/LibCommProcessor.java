@@ -12,12 +12,14 @@ import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFile;
 
 import edu.harvard.libcomm.message.LibCommMessage;
+import gov.loc.marc.CollectionType;
 import gov.loc.mods.v3.ModsCollection;
 
 public class LibCommProcessor implements Processor {
 
 	protected LibCommMessage libCommMessage = null;
 	protected ModsCollection modsCollection = null;
+	protected CollectionType collectionType = null;
 	private IProcessor processor;
 
 	/**
@@ -72,10 +74,14 @@ public class LibCommProcessor implements Processor {
 		return MessageUtils.unmarshalMessage(messageIS);
 	}
 	
-	protected ModsCollection unmarshalMessage (StringReader reader) {
-		return modsCollection = MessageUtils.unmarshalMessage(reader);
+	protected ModsCollection unmarshalMods (StringReader reader) {
+		return modsCollection = MessageUtils.unmarshalMods(reader);
 	}
 
+	protected CollectionType unmarshalMarc (StringReader reader) {
+		return collectionType = MessageUtils.unmarshalMarc(reader);
+	}
+	
 	protected String marshalMessage (LibCommMessage libCommMessage) {
 		return MessageUtils.marshalMessage(libCommMessage);
 	}
