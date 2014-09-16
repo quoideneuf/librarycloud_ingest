@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.StringReader;
-
 import java.util.List;
 import java.util.ArrayList;
 
@@ -13,6 +12,7 @@ import org.marc4j.MarcReader;
 import org.marc4j.MarcStreamReader;
 
 import edu.harvard.libcomm.message.LibCommMessage;
+
 
 public class MarcSplitter  {
 

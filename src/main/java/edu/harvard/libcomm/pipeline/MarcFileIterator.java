@@ -17,7 +17,7 @@ import edu.harvard.libcomm.message.LibCommMessage.Payload;
 public class MarcFileIterator implements Iterator<String> {
 
     private MarcReader marcReader;
-    private int chunkSize = 25;
+    //private int chunkSize = 25;
 
     public MarcFileIterator(MarcReader marcReader) {
         this.marcReader = marcReader;
@@ -36,7 +36,7 @@ public class MarcFileIterator implements Iterator<String> {
         boolean newChunk = false;
         int totalSize = 0;
         while (marcReader.hasNext() && newChunk == false) {
-       // while (marcReader.hasNext() && firstRecord) {
+
             try {
                 Record record = marcReader.next();
                 writer.setIndent(false);
@@ -52,7 +52,6 @@ public class MarcFileIterator implements Iterator<String> {
         if (count > 0) {
         	writer.close();
         	//System.out.println(totalSize);
-        	System.out.println(count);
         	//return output.toString();
              LibCommMessage message = new LibCommMessage();
              message.setCommand("NORMALIZE");
