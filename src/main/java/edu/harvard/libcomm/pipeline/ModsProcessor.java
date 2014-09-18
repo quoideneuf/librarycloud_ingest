@@ -2,10 +2,12 @@ package edu.harvard.libcomm.pipeline;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import javax.xml.bind.util.JAXBSource;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
@@ -18,42 +20,31 @@ import org.apache.camel.component.file.GenericFile;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import gov.loc.marc.CollectionType;
 import gov.loc.mods.v3.ModsCollection;
 
-public class ModsProcessor extends LibCommProcessor {
+public class ModsProcessor implements IProcessor {
 
-	public void process(Exchange exchange) throws Exception {
-		
-		Message message = exchange.getIn();
-		InputStream messageIS = readMessageBody(message);	 
-		
-		StringReader reader = transformMarcToMods(messageIS); 
-        
-		modsCollection = unmarshalMessage(reader);
-        
-		modifyMessage(libCommMessage);
-       
-		String messageString = MessageUtils.marshalMessage(libCommMessage);
-        
-		message.setBody(messageString);
-		exchange.setOut(message);
-		
-	}
-
-
-	@Override
-	public void modifyMessage(LibCommMessage libComMessage) {
-        libCommMessage = new LibCommMessage();
-        libCommMessage.setCommand("NORMALIZE");
+	public void processMessage(LibCommMessage libCommMessage) {	
+		String modsCollection = null;
+		libCommMessage.setCommand("ENHANCE");
+		try {
+			modsCollection = transformMarcToMods(libCommMessage);	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
         Payload payload = new Payload();
         payload.setSource("aleph");
         payload.setFormat("mods");
-
-        payload.setAny(modsCollection);
+        payload.setData(modsCollection);
         libCommMessage.setPayload(payload);
-	}	
+	}
 
-	private StringReader transformMarcToMods (InputStream messageIS) throws Exception {
+	private String transformMarcToMods (LibCommMessage libCommMessage) throws Exception {
+		String data = libCommMessage.getPayload().getData();
+		//System.out.println("DATA: " + data);
+		StringReader marcReader = new StringReader(data);
+		
 		StringWriter writer = new StringWriter();
 		final InputStream xsl = new FileInputStream("src/main/resources/MARC21slim2MODS3-5.xsl");
 
@@ -62,11 +53,14 @@ public class ModsProcessor extends LibCommProcessor {
         StreamSource styleSource = new StreamSource(xsl);
         Transformer transformer = tFactory.newTransformer(styleSource);
         
-        StreamSource xmlSource = new StreamSource(messageIS);
+        StreamSource xmlSource = new StreamSource(marcReader);
         StreamResult result = new StreamResult(writer);
+
         transformer.transform(xmlSource, result);
         StringReader reader = new StringReader(writer.toString());
-        return reader;
+        return writer.toString();
 	}
+
+	
 	
 }
