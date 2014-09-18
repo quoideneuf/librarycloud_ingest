@@ -38,7 +38,6 @@ public class ModsProcessor implements IProcessor {
         payload.setFormat("mods");
         payload.setData(modsCollection);
         libCommMessage.setPayload(payload);
-
 	}
 
 	private String transformMarcToMods (LibCommMessage libCommMessage) throws Exception {
