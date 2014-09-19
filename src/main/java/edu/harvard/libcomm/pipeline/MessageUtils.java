@@ -51,17 +51,12 @@ public class MessageUtils {
     	return source;
     }
     
-	protected static LibCommMessage unmarshalLibComMessage(Reader r) {
+	protected static LibCommMessage unmarshalLibCommMessage(Reader r) {
 		
-	 	try {
-			 
+	 	try {			 
 			//unmarshal: xml2java
 	 		Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
 			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(r);
-			//libCommMessage.setCommand("NORMALIZE");
-			//System.out.println("UNMARSHALLED: " + libCommMessage.getCommand());
-			
-	 
 		  } catch (JAXBException e) {
 			e.printStackTrace();
 		  }
@@ -70,22 +65,16 @@ public class MessageUtils {
 	}
 	
 
-	protected static LibCommMessage unmarshalMessage(InputStream is) {
+	protected static LibCommMessage unmarshalLibCommMessage(InputStream is) {
 		
 	 	try {
-			 
 			//unmarshal: xml2java
 	 		Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
 			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(is);
-			//libCommMessage.setCommand("NORMALIZE");
-			//System.out.println("UNMARSHALLED: " + libCommMessage.getCommand());
-			
-	 
 		  } catch (JAXBException e) {
 			e.printStackTrace();
 		  }
-		return libCommMessage;
-		
+		return libCommMessage;		
 	}
 	
 	protected static ModsCollection unmarshalMods(Reader r) {

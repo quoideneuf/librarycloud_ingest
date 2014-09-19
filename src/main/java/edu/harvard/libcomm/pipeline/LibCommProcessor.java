@@ -1,5 +1,6 @@
 package edu.harvard.libcomm.pipeline;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,7 +37,7 @@ public class LibCommProcessor implements Processor {
 		Message message = exchange.getIn();
 		InputStream messageIS = readMessageBody(message);	
 		
-		libCommMessage = unmarshalMessage(messageIS);
+		libCommMessage = unmarshalLibCommMessage(messageIS);
 
 		processor.processMessage(libCommMessage);
 		
@@ -45,15 +46,6 @@ public class LibCommProcessor implements Processor {
 	    exchange.setOut(message);
 	}
 
-	/**
-	 * Overriden by child classes to do the actual processing of the message.
-	 * Default implementation does nothing
-	 * @param message
-	 */
-	public void processMessage (LibCommMessage message) {
-		return;
-	}
-	
 	protected InputStream readMessageBody (Message message) {
 		Object body = message.getBody(); 
 		InputStream messageIS = null; 
@@ -66,12 +58,18 @@ public class LibCommProcessor implements Processor {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		} else if (body instanceof String) {
+			try {
+				messageIS = new ByteArrayInputStream(((String)body).getBytes("UTF-8"));	
+			} catch (java.io.UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}			
 		}
 		return messageIS;
 	}
 	
-	protected LibCommMessage unmarshalMessage (InputStream messageIS) {
-		return MessageUtils.unmarshalMessage(messageIS);
+	protected LibCommMessage unmarshalLibCommMessage (InputStream messageIS) {
+		return MessageUtils.unmarshalLibCommMessage(messageIS);
 	}
 	
 	protected ModsCollection unmarshalMods (StringReader reader) {
