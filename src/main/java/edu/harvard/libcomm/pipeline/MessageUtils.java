@@ -12,11 +12,13 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.util.JAXBSource;
 
 import org.apache.camel.Message;
 import org.apache.camel.component.file.GenericFile;
 
 import edu.harvard.libcomm.message.LibCommMessage;
+import gov.loc.marc.CollectionType;
 import gov.loc.mods.v3.ModsCollection;
 import gov.loc.mods.v3.ModsType;
 
@@ -30,24 +32,31 @@ public class MessageUtils {
     private static JAXBContext initContext()  {
     	JAXBContext context = null;
     	try {
-    		context = JAXBContext.newInstance(LibCommMessage.class,ModsCollection.class);
+    		context = JAXBContext.newInstance(LibCommMessage.class,ModsCollection.class,CollectionType.class);
     	} catch (JAXBException je) {
     		System.out.println(je);
     	}
     	return context;
     }	
 
-	protected static LibCommMessage unmarshalMessage(InputStream is) {
+
+    protected static JAXBSource getJAXBSource(Object o) {
+    	JAXBSource source = null;
+    	try {
+    		source = new JAXBSource(context, o);
+    	}
+    	catch (JAXBException je) {
+    		je.printStackTrace();
+    	}
+    	return source;
+    }
+    
+	protected static LibCommMessage unmarshalLibCommMessage(Reader r) {
 		
-	 	try {
-			 
+	 	try {			 
 			//unmarshal: xml2java
 	 		Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
-			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(is);
-			//libCommMessage.setCommand("NORMALIZE");
-			//System.out.println("UNMARSHALLED: " + libCommMessage.getCommand());
-			
-	 
+			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(r);
 		  } catch (JAXBException e) {
 			e.printStackTrace();
 		  }
@@ -55,7 +64,20 @@ public class MessageUtils {
 		
 	}
 	
-	protected static ModsCollection unmarshalMessage(Reader r) {
+
+	protected static LibCommMessage unmarshalLibCommMessage(InputStream is) {
+		
+	 	try {
+			//unmarshal: xml2java
+	 		Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
+			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(is);
+		  } catch (JAXBException e) {
+			e.printStackTrace();
+		  }
+		return libCommMessage;		
+	}
+	
+	protected static ModsCollection unmarshalMods(Reader r) {
 		ModsCollection modsCollection = null;
 	 	try {
 			 
@@ -67,6 +89,21 @@ public class MessageUtils {
 			e.printStackTrace();
 		  }
 		return modsCollection;
+		
+	}
+
+	protected static CollectionType unmarshalMarc(Reader r) {
+		CollectionType collectionType = null;
+	 	try {
+			 
+			//unmarshal: xml2java
+	 		Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
+	 		collectionType = (CollectionType) jaxbUnmarshaller.unmarshal(r);
+ 
+		  } catch (JAXBException e) {
+			e.printStackTrace();
+		  }
+		return collectionType;
 		
 	}
 	
