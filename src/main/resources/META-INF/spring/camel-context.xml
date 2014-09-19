@@ -27,6 +27,12 @@
         <property name="timeout" value="30"/>
     </bean>  
 
+    <!-- Configure display of trace log messages -->
+    <bean id="traceFormatter" class="org.apache.camel.processor.interceptor.DefaultTraceFormatter">
+        <property name="showBody" value="false"/>
+        <property name="showHeaders" value="false"/>
+    </bean>
+
     <!-- Definition of beans that handle processing of items in the pipeline -->
 	<bean id="marcSplitter" class="edu.harvard.libcomm.pipeline.MarcSplitter"/>		
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
@@ -41,7 +47,7 @@
     </bean>
 
 
-    <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring">
+    <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
 
         <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
@@ -53,13 +59,11 @@
  		 -->
         <route id="aleph-ingest">
             <from uri="file:{{librarycloud.files.basepath}}?include=.*.xml" />
- 			<log message="aleph ingest ${body}"/>
             <split streaming="true">
                 <method bean="marcSplitter" method="splitMarcFile"/>
                 <!-- <to uri="file:{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}"/> -->
                 <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             </split>
- 			<log message="received on aleph ${body}"/>
          </route>
  
   		<!-- 
@@ -73,7 +77,6 @@
             <process ref="modsProcessor"/>
             <!-- <to uri="file:{{librarycloud.files.basepath}}/enrich"/> -->
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
- 			<log message="marcxml to mods ${file:name}"/>
         </route>
 
 <!--        <route id="addholdingstomods">
