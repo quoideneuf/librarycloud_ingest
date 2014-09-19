@@ -18,9 +18,7 @@ public class MarcSplitter  {
 
 	public MarcFileIterator splitMarcFile(String body) throws FileNotFoundException {
 
-		// TODO: The unmarshalMessage method is overloaded to return LibComMessage or ModsCollection
-		// basd on whether it gets passed an InputStream or a Reader. This is not very intuitive.
-		LibCommMessage libCommMessage = MessageUtils.unmarshalLibComMessage(new StringReader(body));
+		LibCommMessage libCommMessage = MessageUtils.unmarshalLibCommMessage(new StringReader(body));
 
 		String filepath = libCommMessage.getPayload().getFilepath();
 		InputStream input = null;

@@ -11,6 +11,7 @@
     http://www.springframework.org/schema/context/spring-context-3.0.xsd" 
     >
     
+    <!-- AWS Configuration -->
     <context:property-placeholder  location="classpath:/aws.properties" />
     <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
         <constructor-arg>
@@ -20,6 +21,11 @@
             </bean>
         </constructor-arg>
     </bean>
+
+    <!-- Set a shorter timeout for shutdown, primarily for testing purposes. Default is 300. -->
+    <bean id="shutdown" class="org.apache.camel.impl.DefaultShutdownStrategy">  
+        <property name="timeout" value="30"/>
+    </bean>  
 
     <!-- Definition of beans that handle processing of items in the pipeline -->
 	<bean id="marcSplitter" class="edu.harvard.libcomm.pipeline.MarcSplitter"/>		
@@ -34,7 +40,10 @@
         </property>
     </bean>
 
+
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring">
+
+        <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
 
  		<!-- 
@@ -47,8 +56,8 @@
  			<log message="aleph ingest ${body}"/>
             <split streaming="true">
                 <method bean="marcSplitter" method="splitMarcFile"/>
-                <to uri="file:{{librarycloud.files.basepath}}/marcxml?fileName=${header.CamelSplitIndex}"/>
-                <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}.normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
+                <!-- <to uri="file:{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}"/> -->
+                <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             </split>
  			<log message="received on aleph ${body}"/>
          </route>
@@ -59,11 +68,11 @@
  		 -->         
    
          <route id="marctomods">
-            <from uri="file:{{librarycloud.files.basepath}}/marcxml" />
-            <!-- <from uri="aws-sqs://{{librarycloud.sqs.environment}}.normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
+            <!-- <from uri="file:{{librarycloud.files.basepath}}/normalize-marcxml" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <process ref="modsProcessor"/>
-            <to uri="file:{{librarycloud.files.basepath}}/mods"/>
-            <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}.enrich-01?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
+            <!-- <to uri="file:{{librarycloud.files.basepath}}/enrich"/> -->
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
  			<log message="marcxml to mods ${file:name}"/>
         </route>
 
