@@ -27,6 +27,12 @@
         <property name="timeout" value="30"/>
     </bean>  
 
+    <!-- Configure display of trace log messages -->
+    <bean id="traceFormatter" class="org.apache.camel.processor.interceptor.DefaultTraceFormatter">
+        <property name="showBody" value="false"/>
+        <property name="showHeaders" value="false"/>
+    </bean>
+
     <!-- Definition of beans that handle processing of items in the pipeline -->
 	<bean id="marcSplitter" class="edu.harvard.libcomm.pipeline.MarcSplitter"/>		
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
@@ -41,7 +47,7 @@
     </bean>
 
 
-    <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring">
+    <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
 
         <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
