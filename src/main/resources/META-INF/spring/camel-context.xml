@@ -62,7 +62,8 @@
  		xml messages sent to queue
  		 -->
         <route id="aleph-ingest-split">
-            <from uri="file:{{librarycloud.files.basepath}}?include=.*.xml" />
+            <!-- <from uri="file:{{librarycloud.files.basepath}}?include=.*.xml" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-aleph?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <split streaming="true" parallelProcessing="true">
                 <method bean="marcSplitter" method="splitMarcFile"/>
                 <!-- <to uri="file:{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}"/> -->
