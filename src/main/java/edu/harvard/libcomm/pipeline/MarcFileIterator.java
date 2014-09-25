@@ -1,10 +1,17 @@
 package edu.harvard.libcomm.pipeline;
 
 import java.io.ByteArrayOutputStream;
+<<<<<<< HEAD
 import java.lang.UnsupportedOperationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import javax.xml.bind.JAXBException;
+=======
+import java.io.UnsupportedEncodingException;
+import java.lang.UnsupportedOperationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+>>>>>>> Adding Publishing Processor (finished);
 
 import org.marc4j.MarcReader;
 import org.marc4j.MarcStreamReader;
@@ -18,6 +25,10 @@ import edu.harvard.libcomm.message.LibCommMessage.Payload;
 public class MarcFileIterator implements Iterator<String> {
 
     private MarcReader marcReader;
+<<<<<<< HEAD
+=======
+    //private int chunkSize = 25;
+>>>>>>> Adding Publishing Processor (finished);
 
     public MarcFileIterator(MarcReader marcReader) {
         this.marcReader = marcReader;
@@ -34,8 +45,7 @@ public class MarcFileIterator implements Iterator<String> {
         MarcXmlWriter writer = new MarcXmlWriter(output, true);
         int count = 0;
         boolean newChunk = false;
-        int totalSize = 0;        
-
+        int totalSize = 0;
         while (marcReader.hasNext() && newChunk == false) {
 
             try {
@@ -48,7 +58,6 @@ public class MarcFileIterator implements Iterator<String> {
                 totalSize = 0;
             } catch (org.marc4j.MarcException ex) {
                 ex.printStackTrace();
-                throw ex;
             }
         }   
         if (count > 0) {
@@ -60,7 +69,12 @@ public class MarcFileIterator implements Iterator<String> {
              Payload payload = new Payload();
              payload.setSource("aleph");
              payload.setFormat("mods");
-             payload.setData(output.toString());
+             try {
+                payload.setData(output.toString("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
              message.setPayload(payload);
              String result = null;
              try {
@@ -72,7 +86,6 @@ public class MarcFileIterator implements Iterator<String> {
         } else {
             throw new NoSuchElementException();
         }        
-
     }
 
     @Override
