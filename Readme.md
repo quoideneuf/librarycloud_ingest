@@ -15,6 +15,16 @@ This application is currently under development. To date, the app handles ingest
 * add the .mrc file to the directory specified in camel-context (default is /temp/aleph)
 * add the corresponding .xml file to the same directory (sample message file is at src/test/resources/marcingest.xml)
 
+## To ingest Aleph data 
+
+        util/ingest_aleph [DATA_FILE] [USERNAME@SERVER] [ssh key path]
+
+Where
+
+* ```[DATA_FILE]``` is the location of a MARC file on your local system
+* ```[USERNAME@SERVER]``` are username/password for an ingest server
+* ```[ssh key path]``` is the path to the SSH key that allows access to that server
+
 ## On the way:
 
 * Sample marcingest.mrc file to use for testing with marcingest.xml message
