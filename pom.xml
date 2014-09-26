@@ -72,7 +72,36 @@
  	  <artifactId>camel-stream</artifactId>
  	  <version>2.13.2</version>
 	</dependency>
-    
+ 
+ <!-- 
+ 	<dependency>
+	    <groupId>org.apache.camel</groupId>
+	    <artifactId>camel-solr</artifactId>
+	    <version>2.13.2</version>
+	</dependency>
+--> 
+  
+	<dependency>
+		<groupId>org.apache.httpcomponents</groupId>
+		<artifactId>httpclient</artifactId>
+		<version>4.2.6</version>
+	</dependency> 
+	
+    <dependency>
+      <artifactId>solr-solrj</artifactId>
+      <groupId>org.apache.solr</groupId>
+      <version>4.7.0</version>
+      <type>jar</type>
+      <scope>compile</scope>
+   </dependency>
+ 
+ <!-- 
+   <dependency>
+	 <groupId>net.sf.saxon</groupId>
+	 <artifactId>Saxon-HE</artifactId>
+	 <version>9.5.0.1</version>
+   </dependency>
+ -->   
     <!-- 
     <dependency>
 	  <groupId>org.apache.camel</groupId>

@@ -1,6 +1,7 @@
 package edu.harvard.libcomm.pipeline;
 
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.UnsupportedOperationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -58,7 +59,12 @@ public class MarcFileIterator implements Iterator<String> {
              Payload payload = new Payload();
              payload.setSource("aleph");
              payload.setFormat("mods");
-             payload.setData(output.toString());
+             try {
+				payload.setData(output.toString("UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
              message.setPayload(payload);
              return MessageUtils.marshalMessage(message);
         } else {

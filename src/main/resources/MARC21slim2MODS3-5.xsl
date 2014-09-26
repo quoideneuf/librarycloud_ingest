@@ -2669,7 +2669,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 							<xsl:value-of select="../marc:controlfield[@tag=003]"/>
 						</xsl:attribute>
 					</xsl:if>
-					<xsl:value-of select="."/>
+					<xsl:value-of select="substring-before(.,'-')"/>
 				</recordIdentifier>
 			</xsl:for-each>
 
