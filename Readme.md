@@ -4,10 +4,10 @@ It is built using the Apache Camel Spring framework, and is meant to be used in 
 This application is currently under development. To date, the app handles ingesting marc bibliographic records (in marc21 communications format), converts to marcxml and then to mods. More steps for this particular workflow are being developed; additional workflows will be added to handle visual materials and EAD (encoded archival description) archival finding aid component-level data.
 
 ## Install:
-* check out from github
-* modify src/main/resources/META-INF/spring/camel-context.xml as needed to suit your application (see comments)
-* for use with aws sqs, add the appropriate values in src/main/resources/aws.properties
-* run mvn clean install (maven required)
+* Check out from github
+* For use with AWS, copy ```src/main/resources/aws.properties.example``` to
+```src/main/resources/aws.properties``` and add your credentials
+* Run ```mvn clean install``` (maven required)
 
 ## To run application (standalone, using maven):
 
