@@ -4,6 +4,6 @@ import edu.harvard.libcomm.message.LibCommMessage;
 
 interface IProcessor {
 
-	public void processMessage(LibCommMessage message);
+	public void processMessage(LibCommMessage message) throws Exception;
 
 }

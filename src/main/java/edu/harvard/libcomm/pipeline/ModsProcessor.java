@@ -25,13 +25,14 @@ import gov.loc.mods.v3.ModsCollection;
 
 public class ModsProcessor implements IProcessor {
 
-	public void processMessage(LibCommMessage libCommMessage) {	
+	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 		String modsCollection = null;
 		libCommMessage.setCommand("ENHANCE");
 		try {
 			modsCollection = transformMarcToMods(libCommMessage);	
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}	
         Payload payload = new Payload();
         payload.setSource("aleph");
