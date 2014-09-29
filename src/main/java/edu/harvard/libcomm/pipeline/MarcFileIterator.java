@@ -52,21 +52,18 @@ public class MarcFileIterator implements Iterator<String> {
         }   
         if (count > 0) {
         	writer.close();
-        	//System.out.println(totalSize);
-        	//return output.toString();
-             LibCommMessage message = new LibCommMessage();
-             message.setCommand("NORMALIZE");
-             Payload payload = new Payload();
-             payload.setSource("aleph");
-             payload.setFormat("mods");
-             try {
+            LibCommMessage message = new LibCommMessage();
+            message.setCommand("NORMALIZE");
+            Payload payload = new Payload();
+            payload.setSource("aleph");
+            payload.setFormat("mods");
+            try {
 				payload.setData(output.toString("UTF-8"));
 			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			    e.printStackTrace();
 			}
-             message.setPayload(payload);
-             return MessageUtils.marshalMessage(message);
+            message.setPayload(payload);
+            return MessageUtils.marshalMessage(message);
         } else {
             throw new NoSuchElementException();
         }
