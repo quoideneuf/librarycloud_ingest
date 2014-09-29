@@ -1,17 +1,11 @@
 package edu.harvard.libcomm.pipeline;
 
 import java.io.ByteArrayOutputStream;
-<<<<<<< HEAD
 import java.lang.UnsupportedOperationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import javax.xml.bind.JAXBException;
-=======
 import java.io.UnsupportedEncodingException;
-import java.lang.UnsupportedOperationException;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
->>>>>>> Adding Publishing Processor (finished);
 
 import org.marc4j.MarcReader;
 import org.marc4j.MarcStreamReader;
@@ -25,10 +19,6 @@ import edu.harvard.libcomm.message.LibCommMessage.Payload;
 public class MarcFileIterator implements Iterator<String> {
 
     private MarcReader marcReader;
-<<<<<<< HEAD
-=======
-    //private int chunkSize = 25;
->>>>>>> Adding Publishing Processor (finished);
 
     public MarcFileIterator(MarcReader marcReader) {
         this.marcReader = marcReader;
@@ -62,27 +52,18 @@ public class MarcFileIterator implements Iterator<String> {
         }   
         if (count > 0) {
         	writer.close();
-        	//System.out.println(totalSize);
-        	//return output.toString();
-             LibCommMessage message = new LibCommMessage();
-             message.setCommand("NORMALIZE");
-             Payload payload = new Payload();
-             payload.setSource("aleph");
-             payload.setFormat("mods");
-             try {
-                payload.setData(output.toString("UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-             message.setPayload(payload);
-             String result = null;
-             try {
-                result = MessageUtils.marshalMessage(message); 
-             } catch (JAXBException ex) {
-                ex.printStackTrace();
-             }
-             return result;
+            LibCommMessage message = new LibCommMessage();
+            message.setCommand("NORMALIZE");
+            Payload payload = new Payload();
+            payload.setSource("aleph");
+            payload.setFormat("mods");
+            try {
+				payload.setData(output.toString("UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+			    e.printStackTrace();
+			}
+            message.setPayload(payload);
+            return MessageUtils.marshalMessage(message);
         } else {
             throw new NoSuchElementException();
         }        
