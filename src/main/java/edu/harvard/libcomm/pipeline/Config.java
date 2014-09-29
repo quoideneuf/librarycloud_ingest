@@ -42,7 +42,7 @@ public class Config {
     
 	private static Config conf;
 	
-	public static String propFile = "application.properties";
+	public static String propFile = "librarycloud.env.properties";
 	
 	private Config() {
 		
