@@ -29,6 +29,7 @@
             <xsl:apply-templates select="mods:identifier"/>
             <xsl:apply-templates select="mods:location"/>
             <xsl:apply-templates select="mods:recordInfo"/>
+            <xsl:apply-templates select="mods:relatedItem[@type='series']"/>
             <!--
             <xsl:apply-templates select="//mods:relatedItem[@displayLabel='collection']"/>
             <xsl:apply-templates select="mods:relatedItem[@type='constituent']"/>
@@ -146,12 +147,12 @@
         <xsl:apply-templates select="mods:issuance"/>
     </xsl:template>
 
-    <xsl:template match="mods:place">
+    <xsl:template match="mods:place[mods:placeTerm/@type='text']">
         <xsl:element name="field">
             <xsl:attribute name="name">
                 <xsl:text>originPlace</xsl:text>
             </xsl:attribute>
-            <xsl:apply-templates/>
+            <xsl:apply-templates select="mods:placeTerm"/>
         </xsl:element>
     </xsl:template>
 
@@ -259,18 +260,24 @@
         <xsl:apply-templates select="mods:topic|mods:geographic|mods:temporal|mods:genre" mode="narrowersubjects"/>
         <xsl:apply-templates select="mods:titleInfo" mode="subjecttitle"/>
         <xsl:apply-templates select="mods:name" mode="subjectname"/>
-        <!--<xsl:apply-templates select="mods:hierarchicalGeographic" mode="subjecthierarchicalgeog"/>-->
+        <xsl:apply-templates select="mods:hierarchicalGeographic"/>
     </xsl:template>
 
     <xsl:template match="*" mode="subject">
-        <xsl:element name="field">
-            <xsl:attribute name="name">
-                <xsl:text>subject</xsl:text>
-            </xsl:attribute>
-            <xsl:value-of select="."/>
-        </xsl:element>
+        <xsl:choose>
+            <xsl:when test="local-name()='geographicCode' or local-name()='hierarchicalGeographic'">
+            </xsl:when> 
+            <xsl:otherwise>
+                <xsl:element name="field">
+                    <xsl:attribute name="name">
+                        <xsl:text>subject</xsl:text>
+                    </xsl:attribute>
+                    <xsl:apply-templates/>
+                </xsl:element>
+            </xsl:otherwise> 
+        </xsl:choose>        
     </xsl:template>
-    
+
     <xsl:template match="*" mode="narrowersubjects">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -298,25 +305,37 @@
         </xsl:element>
     </xsl:template>
     
-    <!--
-    <xsl:template match="mods:geographic">
-        <xsl:element name="field">
+    <xsl:template match="mods:hierarchicalGeographic">
+        <!--<xsl:element name="field">
             <xsl:attribute name="name">
-                <xsl:text>subject.geographic</xsl:text>
+                <xsl:text>subject.hierarchicalGeographic</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
-        </xsl:element>
-    </xsl:template>
+        </xsl:element>-->
+        <xsl:apply-templates mode="hierarchicalGeographic"/>
+    </xsl:template>   
 
-    <xsl:template match="mods:temporal">
+    <xsl:template match="*" mode="hierarchicalGeographic">
         <xsl:element name="field">
             <xsl:attribute name="name">
-                <xsl:text>subject.temporal</xsl:text>
+                <xsl:text>subject</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
-    </xsl:template>
--->
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>subject.hierarchicalGeographic</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>subject.hierarchicalGeographic.</xsl:text><xsl:value-of select="local-name(.)"/>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>   
+
     <xsl:template match="mods:classification">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -380,6 +399,12 @@
         </xsl:element>
     </xsl:template>
 
+    <xsl:template match="mods:relatedItem[@type='series']">
+        <xsl:apply-templates select="./mods:titleInfo" />
+        <xsl:apply-templates select="./mods:name" />
+    </xsl:template>
+
+    <!-- not using related item templates below for aleph, leave for possible use with ead -->
     <xsl:template match="mods:relatedItem[@displayLabel='collection']">
         <xsl:apply-templates select="./mods:titleInfo" mode="relatedItemHost"/>
         <xsl:apply-templates select="./mods:name" mode="relatedItemHost"/>
@@ -472,8 +497,8 @@
 	<field name="source" type="string" indexed="true" stored="true"/>
 	<field name="recordIdentifier" type="string" indexed="true" stored="true"/>
 	<field name="originalMods" type="string" indexed="false" stored="true"/>
-	?<field name="isCollection" type="string" indexed="true" stored="true"/>
-	?<field name="isManuscript" type="string" indexed="true" stored="true"/>
+	<field name="isCollection" type="string" indexed="true" stored="true"/>
+	<field name="isManuscript" type="string" indexed="true" stored="true"/>
 
     <field name="genre" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="title" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -494,25 +519,25 @@
 	<field name="issuance" type="string" indexed="true" stored="true" multiValued="true"/>
 	?<field name="relatedItem" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.topic" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.geographic" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.temporal" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.titleInfo" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.name" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.titleInfo" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.name" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.genre" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.country" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.continent" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.province" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.region" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.state" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.territory" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.county" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.city" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.citySection" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.island" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.area" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.extraterrestrialArea" type="string" indexed="true" stored="true" multiValued="true"/>#
+	<field name="subject.hierarchicalGeographic.country" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.continent" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.province" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.region" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.state" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.territory" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.county" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.city" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.citySection" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.island" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.area" type="string" indexed="true" stored="true" multiValued="true"/>
+	<field name="subject.hierarchicalGeographic.extraterrestrialArea" type="string" indexed="true" stored="true" multiValued="true"/>#
 -->
 
 </xsl:stylesheet>
