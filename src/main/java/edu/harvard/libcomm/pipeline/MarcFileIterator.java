@@ -5,6 +5,7 @@ import java.lang.UnsupportedOperationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import javax.xml.bind.JAXBException;
+import java.io.UnsupportedEncodingException;
 
 import org.marc4j.MarcReader;
 import org.marc4j.MarcStreamReader;
@@ -34,8 +35,7 @@ public class MarcFileIterator implements Iterator<String> {
         MarcXmlWriter writer = new MarcXmlWriter(output, true);
         int count = 0;
         boolean newChunk = false;
-        int totalSize = 0;        
-
+        int totalSize = 0;
         while (marcReader.hasNext() && newChunk == false) {
 
             try {
@@ -48,31 +48,32 @@ public class MarcFileIterator implements Iterator<String> {
                 totalSize = 0;
             } catch (org.marc4j.MarcException ex) {
                 ex.printStackTrace();
-                throw ex;
             }
         }   
         if (count > 0) {
         	writer.close();
-        	//System.out.println(totalSize);
-        	//return output.toString();
-             LibCommMessage message = new LibCommMessage();
-             message.setCommand("NORMALIZE");
-             Payload payload = new Payload();
-             payload.setSource("aleph");
-             payload.setFormat("mods");
-             payload.setData(output.toString());
-             message.setPayload(payload);
-             String result = null;
-             try {
-                result = MessageUtils.marshalMessage(message); 
-             } catch (JAXBException ex) {
-                ex.printStackTrace();
-             }
-             return result;
+            LibCommMessage message = new LibCommMessage();
+            message.setCommand("NORMALIZE");
+            Payload payload = new Payload();
+            payload.setSource("aleph");
+            payload.setFormat("mods");
+            try {
+				payload.setData(output.toString("UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+			    e.printStackTrace();
+			}
+            message.setPayload(payload);
+
+            String result = null;
+            try {
+               result = MessageUtils.marshalMessage(message); 
+            } catch (JAXBException ex) {
+               ex.printStackTrace();
+            }
+            return result;
         } else {
             throw new NoSuchElementException();
         }        
-
     }
 
     @Override

@@ -10,7 +10,7 @@ import gov.loc.mods.v3.ModsType;
 
 public class HoldingsProcessor implements IProcessor {
 	
-	public void processMessage(LibCommMessage libCommMessage) {	
+	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 		String data = libCommMessage.getPayload().getData();
 		System.out.println(data);
 		StringReader modsReader = new StringReader(data);
