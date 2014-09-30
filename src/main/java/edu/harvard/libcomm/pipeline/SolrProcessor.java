@@ -30,7 +30,7 @@ import edu.harvard.libcomm.message.LibCommMessage;
 public class SolrProcessor implements IProcessor {
 
 	@Override
-	public void processMessage(LibCommMessage libCommMessage) {
+	public void processMessage(LibCommMessage libCommMessage) throws Exception {
 		try {
 			String solrXml = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/mods2solr.xsl");
 			populateIndex(solrXml);

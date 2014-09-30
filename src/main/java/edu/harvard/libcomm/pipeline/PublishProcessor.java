@@ -39,7 +39,7 @@ import gov.loc.mods.v3.RecordInfoType;
 public class PublishProcessor implements IProcessor {
 
 	@Override
-	public void processMessage(LibCommMessage libCommMessage) {
+	public void processMessage(LibCommMessage libCommMessage) throws Exception {
 		String data = null;
 		libCommMessage.setCommand("PUBLISH");
 		try {
