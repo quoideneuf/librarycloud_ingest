@@ -256,8 +256,6 @@
     </xsl:template>
 
     <xsl:template match="mods:subject">
-<<<<<<< HEAD
-=======
         <xsl:apply-templates mode="subject"/>
         <xsl:apply-templates select="mods:topic|mods:geographic|mods:temporal|mods:genre" mode="narrowersubjects"/>
         <xsl:apply-templates select="mods:titleInfo" mode="subjecttitle"/>
@@ -317,17 +315,10 @@
         <xsl:apply-templates mode="hierarchicalGeographic"/>
     </xsl:template>   
 
-    <xsl:template match="*" mode="hierarchicalGeographic">
->>>>>>> minor fixes to mods to solr transform;
-        <xsl:element name="field">
-            <xsl:attribute name="name">
-                <xsl:text>subject</xsl:text>
-            </xsl:attribute>
-<<<<<<< HEAD
+<!--     <xsl:template match="*" mode="hierarchicalGeographic">
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
-=======
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
         <xsl:element name="field">
@@ -343,8 +334,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>   
->>>>>>> minor fixes to mods to solr transform;
-
+ -->
     <xsl:template match="mods:classification">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -528,27 +518,6 @@
 	<field name="issuance" type="string" indexed="true" stored="true" multiValued="true"/>
 	?<field name="relatedItem" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject" type="string" indexed="true" stored="true" multiValued="true"/>
-<<<<<<< HEAD
-	?<field name="subject.hierarchicalGeographic" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.topic" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.geographic" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.temporal" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.titleInfo" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.name" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.genre" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.country" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.continent" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.province" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.region" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.state" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.territory" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.county" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.city" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.citySection" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.island" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.area" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="subject.hierarchicalGeographic.extraterrestrialArea" type="string" indexed="true" stored="true" multiValued="true"/>#
-=======
 	<field name="subject.hierarchicalGeographic" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.topic" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.geographic" type="string" indexed="true" stored="true" multiValued="true"/>
@@ -568,7 +537,6 @@
 	<field name="subject.hierarchicalGeographic.island" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.hierarchicalGeographic.area" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="subject.hierarchicalGeographic.extraterrestrialArea" type="string" indexed="true" stored="true" multiValued="true"/>#
->>>>>>> minor fixes to mods to solr transform;
 -->
 
 </xsl:stylesheet>
