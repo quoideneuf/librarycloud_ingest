@@ -63,7 +63,14 @@ public class MarcFileIterator implements Iterator<String> {
 			    e.printStackTrace();
 			}
             message.setPayload(payload);
-            return MessageUtils.marshalMessage(message);
+
+            String result = null;
+            try {
+               result = MessageUtils.marshalMessage(message); 
+            } catch (JAXBException ex) {
+               ex.printStackTrace();
+            }
+            return result;
         } else {
             throw new NoSuchElementException();
         }        

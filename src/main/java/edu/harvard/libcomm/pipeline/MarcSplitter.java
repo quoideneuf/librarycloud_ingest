@@ -3,6 +3,7 @@ package edu.harvard.libcomm.pipeline;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import javax.xml.bind.JAXBException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.List;
@@ -16,7 +17,7 @@ import edu.harvard.libcomm.message.LibCommMessage;
 
 public class MarcSplitter  {
 
-	public MarcFileIterator splitMarcFile(String body) throws FileNotFoundException {
+	public MarcFileIterator splitMarcFile(String body) throws FileNotFoundException, JAXBException  {
 
 		LibCommMessage libCommMessage = MessageUtils.unmarshalLibCommMessage(new StringReader(body));
 
