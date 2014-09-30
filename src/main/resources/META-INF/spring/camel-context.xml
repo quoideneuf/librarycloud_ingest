@@ -28,12 +28,12 @@
     </bean>  
 
     <!-- Configure display of trace log messages -->
- 
+ <!-- 
     <bean id="traceFormatter" class="org.apache.camel.processor.interceptor.DefaultTraceFormatter">
         <property name="showBody" value="false"/>
         <property name="showHeaders" value="false"/>
     </bean>
-    
+-->
     <!-- Definition of beans that handle processing of items in the pipeline -->
 	<bean id="marcSplitter" class="edu.harvard.libcomm.pipeline.MarcSplitter"/>		
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
@@ -88,22 +88,21 @@
             <from uri="file:{{librarycloud.files.basepath}}/normalize-marcxml" />
             <!-- <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
             <process ref="modsProcessor"/>
-            <!-- send to publish temporarily, will eventually go to enhance first -->
-            <to uri="file:{{librarycloud.files.basepath}}/publish"/>
+            <to uri="file:{{librarycloud.files.basepath}}/enrich"/>
             <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
         </route>
 
 
 <!-- 	skiping over the enrich (add holdings) step temporarily -->
-<!--        
+       
 		<route id="addholdingstomods">
             <from uri="file:{{librarycloud.files.basepath}}/enrich" />
             <process ref="holdingsProcessor"/>
             <to uri="file:{{librarycloud.files.basepath}}/publish"/>
-            <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
  			<log message="holdings added ${file:name}"/>
         </route>
- -->   
+   
  
 		<route id="publishtomods">
             <from uri="file:{{librarycloud.files.basepath}}/publish" />
