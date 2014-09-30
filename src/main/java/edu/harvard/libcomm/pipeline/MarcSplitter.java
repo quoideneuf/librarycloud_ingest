@@ -20,12 +20,22 @@ public class MarcSplitter  {
 
 		LibCommMessage libCommMessage = MessageUtils.unmarshalLibCommMessage(new StringReader(body));
 
-		String filepath = libCommMessage.getPayload().getFilepath();
-		InputStream input = null;
-		input = new FileInputStream(filepath);			
+		if ((libCommMessage != null) && (libCommMessage.getPayload() != null)) {
+			String filepath = libCommMessage.getPayload().getFilepath();
+			InputStream input = null;
 
-	    MarcReader reader = new MarcStreamReader(input);
-	    return new MarcFileIterator(reader);
+			try {
+				input = new FileInputStream(filepath);			
+			} catch (FileNotFoundException ex) {
+				ex.printStackTrace();
+				throw ex;
+			}		
+		    MarcReader reader = new MarcStreamReader(input);
+		    return new MarcFileIterator(reader);
+		} else {
+			System.out.println("LOGGING TO DO - Something bad happenned in parsing incoming message");
+			throw new RuntimeException("Error parsing payload");
+		}
 	}
 
 }

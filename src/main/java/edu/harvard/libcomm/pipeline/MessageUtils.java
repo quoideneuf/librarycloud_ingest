@@ -1,5 +1,5 @@
-package edu.harvard.libcomm.pipeline;
 
+package edu.harvard.libcomm.pipeline;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,31 +27,33 @@ public class MessageUtils {
 	private static LibCommMessage libCommMessage = null;
 	private static String messageString = null;
 
-    static final JAXBContext context = initContext();
+    static JAXBContext context = initContext();
 
-    private static JAXBContext initContext()  {
+    private static JAXBContext initContext() {
     	JAXBContext context = null;
     	try {
     		context = JAXBContext.newInstance(LibCommMessage.class,ModsCollection.class,CollectionType.class);
-    	} catch (JAXBException je) {
-    		System.out.println(je);
+    	} catch (JAXBException e) {
+    		e.printStackTrace();
+    		throw new Error(e);
     	}
     	return context;
     }	
 
 
-    protected static JAXBSource getJAXBSource(Object o) {
+    protected static JAXBSource getJAXBSource(Object o) throws JAXBException{
     	JAXBSource source = null;
     	try {
     		source = new JAXBSource(context, o);
     	}
-    	catch (JAXBException je) {
-    		je.printStackTrace();
+    	catch (JAXBException e) {
+    		e.printStackTrace();
+    		throw e;
     	}
     	return source;
     }
     
-	protected static LibCommMessage unmarshalLibCommMessage(Reader r) {
+	protected static LibCommMessage unmarshalLibCommMessage(Reader r) throws JAXBException {
 		
 	 	try {			 
 			//unmarshal: xml2java
@@ -59,13 +61,13 @@ public class MessageUtils {
 			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(r);
 		  } catch (JAXBException e) {
 			e.printStackTrace();
+			throw e;
 		  }
 		return libCommMessage;
 		
 	}
-	
 
-	protected static LibCommMessage unmarshalLibCommMessage(InputStream is) {
+	protected static LibCommMessage unmarshalLibCommMessage(InputStream is) throws JAXBException {
 		
 	 	try {
 			//unmarshal: xml2java
@@ -73,11 +75,12 @@ public class MessageUtils {
 			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(is);
 		  } catch (JAXBException e) {
 			e.printStackTrace();
+    		throw e;
 		  }
 		return libCommMessage;		
 	}
 	
-	protected static ModsCollection unmarshalMods(Reader r) {
+	protected static ModsCollection unmarshalMods(Reader r) throws JAXBException {
 		ModsCollection modsCollection = null;
 	 	try {
 			 
@@ -87,12 +90,13 @@ public class MessageUtils {
  
 		  } catch (JAXBException e) {
 			e.printStackTrace();
+    		throw e;
 		  }
 		return modsCollection;
 		
 	}
 
-	protected static CollectionType unmarshalMarc(Reader r) {
+	protected static CollectionType unmarshalMarc(Reader r) throws JAXBException {
 		CollectionType collectionType = null;
 	 	try {
 			 
@@ -102,12 +106,13 @@ public class MessageUtils {
  
 		  } catch (JAXBException e) {
 			e.printStackTrace();
+    		throw e;
 		  }
 		return collectionType;
 		
 	}
 	
-	protected static String marshalMessage(LibCommMessage libCommMessage) {
+	protected static String marshalMessage(LibCommMessage libCommMessage) throws JAXBException {
 		StringWriter sw = null;
 	 	try {
 			 
@@ -121,6 +126,7 @@ public class MessageUtils {
 		
 		  } catch (JAXBException e) {
 			e.printStackTrace();
+			throw e;
 		  }
 		return sw.toString();
 	}
