@@ -115,20 +115,19 @@
         </route>
  -->   
  
-		<route id="publishtomods">
-            <from uri="file:{{librarycloud.files.basepath}}/publish" />
+		<route id="publishtomods" errorHandlerRef="eh">
+            <!-- <from uri="file:{{librarycloud.files.basepath}}/publish" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <process ref="publishProcessor"/>
-            <to uri="file:{{librarycloud.files.basepath}}/tosolr"/>
-            <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+            <!-- <to uri="file:{{librarycloud.files.basepath}}/tosolr"/> -->
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
  			<log message="holdings added ${file:name}"/>
         </route>
 
-		<route id="modstosolr">
-            <from uri="file:{{librarycloud.files.basepath}}/tosolr" />
+		<route id="modstosolr" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <process ref="solrLoadProcessor"/>
-            <to uri="file:{{librarycloud.files.basepath}}/loaded"/>
-            <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
- 			<log message="loaded to solr ${file:name}"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
         </route>
              
     </camelContext>
