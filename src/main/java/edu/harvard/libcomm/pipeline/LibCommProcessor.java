@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import javax.xml.bind.JAXBException;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -68,11 +70,11 @@ public class LibCommProcessor implements Processor {
 		return messageIS;
 	}
 	
-	protected LibCommMessage unmarshalLibCommMessage (InputStream messageIS) {
+	protected LibCommMessage unmarshalLibCommMessage (InputStream messageIS) throws JAXBException {
 		return MessageUtils.unmarshalLibCommMessage(messageIS);
 	}
 	
-	protected ModsCollection unmarshalMods (StringReader reader) {
+	protected ModsCollection unmarshalMods (StringReader reader) throws JAXBException {
 		return modsCollection = MessageUtils.unmarshalMods(reader);
 	}
 
@@ -80,7 +82,7 @@ public class LibCommProcessor implements Processor {
 		return collectionType = MessageUtils.unmarshalMarc(reader);
 	}
 	
-	protected String marshalMessage (LibCommMessage libCommMessage) {
+	protected String marshalMessage (LibCommMessage libCommMessage) throws JAXBException {
 		return MessageUtils.marshalMessage(libCommMessage);
 	}
 

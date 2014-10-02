@@ -5,6 +5,35 @@
     <payload>
         <source>aleph</source>
         <format>marc21</format>
+<<<<<<< HEAD
+=======
+        <filepath>/temp/aleph/sample.mrc</filepath>
+    </payload>
+    <watchers>
+        <watcher>
+            <name>loggingservice</name>
+            <id>sample</id>
+            <notification>trace</notification>
+        </watcher>
+    </watchers>
+    <initiator></initiator>
+    <history>
+        <event>
+            <messagetype>INGEST</messagetype>
+            <messageid>sample</messageid>
+            <sendingservice>marc_capture</sendingservice>
+            <time>20140723:14:42</time>
+        </event>
+    </history>
+</lib_comm_message>
+<?xml version="1.0" encoding="UTF-8"?>
+<lib_comm_message>
+ xsi:noNamespaceSchemaLocation="lcloudmessage.xsd">
+    <command>INGEST</command>
+    <payload>
+        <source>aleph</source>
+        <format>marc21</format>
+>>>>>>> branch 'master' of https://github.com/harvard-library/librarycloud_ingest
         <filepath>/temp/aleph/ab.bib.00.20140808.full.mrc</filepath>
     </payload>
     <watchers>

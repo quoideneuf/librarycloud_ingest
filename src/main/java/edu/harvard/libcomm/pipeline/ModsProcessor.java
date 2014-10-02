@@ -25,14 +25,16 @@ import gov.loc.mods.v3.ModsCollection;
 
 public class ModsProcessor implements IProcessor {
 
-	public void processMessage(LibCommMessage libCommMessage) {	
+	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 		String modsCollection = null;
-		libCommMessage.setCommand("ENHANCE");
+		libCommMessage.setCommand("ENRICH");
 		try {
-			modsCollection = transformMarcToMods(libCommMessage);	
+			modsCollection = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/MARC21slim2MODS3-5.xsl", null);	
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}	
+		System.out.println("MODS: " + modsCollection);
         Payload payload = new Payload();
         payload.setSource("aleph");
         payload.setFormat("mods");
@@ -40,27 +42,5 @@ public class ModsProcessor implements IProcessor {
         libCommMessage.setPayload(payload);
 	}
 
-	private String transformMarcToMods (LibCommMessage libCommMessage) throws Exception {
-		String data = libCommMessage.getPayload().getData();
-		//System.out.println("DATA: " + data);
-		StringReader marcReader = new StringReader(data);
-		
-		StringWriter writer = new StringWriter();
-		final InputStream xsl = new FileInputStream("src/main/resources/MARC21slim2MODS3-5.xsl");
-
-        final TransformerFactory tFactory = TransformerFactory.newInstance();
-
-        StreamSource styleSource = new StreamSource(xsl);
-        Transformer transformer = tFactory.newTransformer(styleSource);
-        
-        StreamSource xmlSource = new StreamSource(marcReader);
-        StreamResult result = new StreamResult(writer);
-
-        transformer.transform(xmlSource, result);
-        StringReader reader = new StringReader(writer.toString());
-        return writer.toString();
-	}
-
-	
 	
 }

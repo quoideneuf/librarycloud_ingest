@@ -67,45 +67,51 @@
     </dependency>
     
     <!-- camel streaming -->
-	<dependency>
-	  <groupId>org.apache.camel</groupId>
- 	  <artifactId>camel-stream</artifactId>
- 	  <version>2.13.2</version>
-	</dependency>
-    
-    <!-- 
+  	<dependency>
+  	  <groupId>org.apache.camel</groupId>
+   	  <artifactId>camel-stream</artifactId>
+   	  <version>2.13.2</version>
+  	</dependency>
+   
+  	<dependency>
+  		<groupId>org.apache.httpcomponents</groupId>
+  		<artifactId>httpclient</artifactId>
+  		<version>4.2.6</version>
+  	</dependency> 
+  	
     <dependency>
-	  <groupId>org.apache.camel</groupId>
-	  <artifactId>camel-saxon</artifactId>
-	  <version>2.13.2</version>
-	</dependency>
-    -->
-    <!-- 
-    <dependency>
-	  <groupId>net.sf.saxon</groupId>
-	  <artifactId>Saxon-HE</artifactId>
-	  <version>9.4</version>
-	</dependency>
-	
-	<dependency>
-	  <groupId>org.apache.camel</groupId>
-	  <artifactId>camel-saxon</artifactId>
-	  <version>2.13.2</version>
-	  <exclusions>
-	    <exclusion>
-	    <groupId>net.sf.saxon</groupId>
-	    <artifactId>saxon9he</artifactId>
-	  </exclusion>
-	</exclusions>
-	</dependency>
-    -->
-    
+      <artifactId>solr-solrj</artifactId>
+      <groupId>org.apache.solr</groupId>
+      <version>4.7.0</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+   
     <!--  marc4j fork at freelib -->
     <dependency>
       <groupId>info.freelibrary</groupId>
       <artifactId>freelib-marc4j</artifactId>
       <version>2.6.3</version>
-	</dependency>
+  	</dependency>
+
+<dependency>
+	<groupId>org.json</groupId>
+	<artifactId>json</artifactId>
+	<version>20140107</version>
+</dependency>
+
+   <dependency>
+         <groupId>net.sf.saxon</groupId>
+         <artifactId>Saxon-HE</artifactId>
+         <version>9.5.0.1</version>
+   </dependency>
+
+<dependency>
+	<groupId>xerces</groupId>
+	<artifactId>xerces</artifactId>
+	<version>2.4.0</version>
+</dependency>
+
 
   </dependencies>
 
