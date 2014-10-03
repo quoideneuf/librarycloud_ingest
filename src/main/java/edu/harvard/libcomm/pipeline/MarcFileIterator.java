@@ -61,7 +61,9 @@ public class MarcFileIterator implements Iterator<String> {
             payload.setFormat("mods");
             try {
 				payload.setData(output.toString("UTF-8").replace("<collection>", "<collection " + "xmlns=\"http://www.loc.gov/MARC21/slim\"" + ">"));
-			} catch (UnsupportedEncodingException e) {
+				//payload.setData(output.toString("UTF-8"));
+
+            } catch (UnsupportedEncodingException e) {
 			    e.printStackTrace();
 			}
             message.setPayload(payload);
