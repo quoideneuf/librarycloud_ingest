@@ -27,13 +27,14 @@ public class ModsProcessor implements IProcessor {
 
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 		String modsCollection = null;
-		libCommMessage.setCommand("ENHANCE");
+		libCommMessage.setCommand("ENRICH");
 		try {
-			modsCollection = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/MARC21slim2MODS3-5.xsl");	
+			modsCollection = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/MARC21slim2MODS3-5.xsl", null);	
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}	
+		System.out.println("MODS: " + modsCollection);
         Payload payload = new Payload();
         payload.setSource("aleph");
         payload.setFormat("mods");

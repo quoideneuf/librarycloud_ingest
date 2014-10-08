@@ -38,27 +38,25 @@ public class MessageUtils {
     	JAXBContext context = null;
     	try {
     		context = JAXBContext.newInstance(LibCommMessage.class,ModsCollection.class,CollectionType.class);
-    	} catch (JAXBException e) {
-    		e.printStackTrace();
-    		throw new Error(e);
+    	} catch (JAXBException je) {
+    		System.out.println(je);
     	}
     	return context;
     }	
 
 
-    protected static JAXBSource getJAXBSource(Object o) throws JAXBException{
+    protected static JAXBSource getJAXBSource(Object o) {
     	JAXBSource source = null;
     	try {
     		source = new JAXBSource(context, o);
     	}
-    	catch (JAXBException e) {
-    		e.printStackTrace();
-    		throw e;
+    	catch (JAXBException je) {
+    		je.printStackTrace();
     	}
     	return source;
     }
     
-	protected static LibCommMessage unmarshalLibCommMessage(Reader r) throws JAXBException {
+	protected static LibCommMessage unmarshalLibCommMessage(Reader r) {
 		
 	 	try {			 
 			//unmarshal: xml2java
@@ -66,11 +64,11 @@ public class MessageUtils {
 			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(r);
 		  } catch (JAXBException e) {
 			e.printStackTrace();
-			throw e;
 		  }
 		return libCommMessage;
 		
 	}
+	
 
 	protected static LibCommMessage unmarshalLibCommMessage(InputStream is) throws JAXBException {
 		
@@ -101,7 +99,7 @@ public class MessageUtils {
 		
 	}
 
-	protected static CollectionType unmarshalMarc(Reader r) throws JAXBException {
+	protected static CollectionType unmarshalMarc(Reader r) {
 		CollectionType collectionType = null;
 	 	try {
 			 
@@ -111,7 +109,6 @@ public class MessageUtils {
  
 		  } catch (JAXBException e) {
 			e.printStackTrace();
-    		throw e;
 		  }
 		return collectionType;
 		
@@ -136,7 +133,7 @@ public class MessageUtils {
 		return sw.toString();
 	}
 
-	static protected String transformPayloadData (LibCommMessage libCommMessage, String xslFilePath) throws Exception {
+	static protected String transformPayloadData (LibCommMessage libCommMessage, String xslFilePath, String xslParam) throws Exception {
 		String data = libCommMessage.getPayload().getData();
 		//System.out.println("DATA: " + data);
 		StringReader dataReader = new StringReader(data);
@@ -144,11 +141,16 @@ public class MessageUtils {
 		StringWriter writer = new StringWriter();
 		final InputStream xsl = new FileInputStream(xslFilePath);
 
-        final TransformerFactory tFactory = TransformerFactory.newInstance();
-
+        //final TransformerFactory tFactory = TransformerFactory.newInstance();
+		final TransformerFactory tFactory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl",null);
+				
         StreamSource styleSource = new StreamSource(xsl);
         Transformer transformer = tFactory.newTransformer(styleSource);
-        
+        if (xslParam == null)
+        	System.out.println();
+        else
+        	transformer.setParameter("param1", new StreamSource(new StringReader(xslParam)));
+
         StreamSource xmlSource = new StreamSource(dataReader);
         StreamResult result = new StreamResult(writer);
 
@@ -156,6 +158,5 @@ public class MessageUtils {
         //System.out.println(writer.toString());
         return writer.toString();
 	}
-
 	
 }

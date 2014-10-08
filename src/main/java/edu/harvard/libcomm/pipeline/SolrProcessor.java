@@ -32,7 +32,7 @@ public class SolrProcessor implements IProcessor {
 	@Override
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {
 		try {
-			String solrXml = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/mods2solr.xsl");
+			String solrXml = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/mods2solr.xsl",null);
 			populateIndex(solrXml);			
 		} catch (Exception e) {
 			e.printStackTrace();

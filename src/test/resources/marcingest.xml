@@ -5,6 +5,8 @@
     <payload>
         <source>aleph</source>
         <format>marc21</format>
+<<<<<<< HEAD
+=======
         <filepath>/temp/aleph/sample.mrc</filepath>
     </payload>
     <watchers>
@@ -31,6 +33,7 @@
     <payload>
         <source>aleph</source>
         <format>marc21</format>
+>>>>>>> branch 'master' of https://github.com/harvard-library/librarycloud_ingest
         <filepath>/temp/aleph/ab.bib.00.20140808.full.mrc</filepath>
     </payload>
     <watchers>

@@ -28,7 +28,6 @@
     </bean>  
 
     <!-- Configure display of trace log messages -->
- 
     <bean id="traceFormatter" class="org.apache.camel.processor.interceptor.DefaultTraceFormatter">
         <property name="showBody" value="false"/>
         <property name="showHeaders" value="false"/>
@@ -104,27 +103,24 @@
         <route id="marctomods"  errorHandlerRef="eh">
             <from uri="seda:normalize-marcxml?concurrentConsumers=16" />
             <process ref="modsProcessor"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
         </route>
-
-<!-- 	skiping over the enrich (add holdings) step temporarily -->
-<!--        
+        
 		<route id="addholdingstomods">
-            <from uri="file:{{librarycloud.files.basepath}}/enrich" />
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <process ref="holdingsProcessor"/>
-            <to uri="file:{{librarycloud.files.basepath}}/publish"/>
-            <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
  			<log message="holdings added ${file:name}"/>
         </route>
- -->   
- 
+
         <route>
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <to uri="seda:enrich"/>
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <to uri="seda:enrich-end"/>
         </route>
 
 		<route id="publishtomods" errorHandlerRef="eh">
-            <from uri="seda:enrich?concurrentConsumers=16" />
+            <from uri="seda:enrich-end?concurrentConsumers=16" />
             <process ref="publishProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
         </route>
@@ -139,7 +135,8 @@
             <process ref="solrLoadProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
         </route>
-             
+
+              
     </camelContext>
     
     

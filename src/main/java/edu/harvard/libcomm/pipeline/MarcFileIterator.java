@@ -1,11 +1,12 @@
 package edu.harvard.libcomm.pipeline;
 
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.UnsupportedOperationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
 import javax.xml.bind.JAXBException;
-import java.io.UnsupportedEncodingException;
 
 import org.marc4j.MarcReader;
 import org.marc4j.MarcStreamReader;
@@ -19,6 +20,7 @@ import edu.harvard.libcomm.message.LibCommMessage.Payload;
 public class MarcFileIterator implements Iterator<String> {
 
     private MarcReader marcReader;
+    //private int chunkSize = 25;
 
     public MarcFileIterator(MarcReader marcReader) {
         this.marcReader = marcReader;
@@ -58,22 +60,23 @@ public class MarcFileIterator implements Iterator<String> {
             payload.setSource("aleph");
             payload.setFormat("mods");
             try {
-				payload.setData(output.toString("UTF-8"));
-			} catch (UnsupportedEncodingException e) {
+				payload.setData(output.toString("UTF-8").replace("<collection>", "<collection " + "xmlns=\"http://www.loc.gov/MARC21/slim\"" + ">"));
+				//payload.setData(output.toString("UTF-8"));
+
+            } catch (UnsupportedEncodingException e) {
 			    e.printStackTrace();
 			}
             message.setPayload(payload);
-
-            String result = null;
             try {
-               result = MessageUtils.marshalMessage(message); 
-            } catch (JAXBException ex) {
-               ex.printStackTrace();
-            }
-            return result;
+				return MessageUtils.marshalMessage(message);
+			} catch (JAXBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
         } else {
             throw new NoSuchElementException();
-        }        
+        }
     }
 
     @Override

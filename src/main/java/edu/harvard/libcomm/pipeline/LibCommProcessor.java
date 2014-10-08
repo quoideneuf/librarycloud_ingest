@@ -33,21 +33,22 @@ public class LibCommProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {	
 		
 		if (null == processor) {
-			throw new Error("No processor defined for message");
+			throw new Exception("No processor defined for message");
 		}
 
 		Message message = exchange.getIn();
 		InputStream messageIS = readMessageBody(message);	
 		
-		libCommMessage = MessageUtils.unmarshalLibCommMessage(messageIS);
+		libCommMessage = unmarshalLibCommMessage(messageIS);
+
 		processor.processMessage(libCommMessage);
 		
-		String messageString = MessageUtils.marshalMessage(libCommMessage);
+		String messageString = marshalMessage(libCommMessage);
 	    message.setBody(messageString);
 	    exchange.setOut(message);
 	}
 
-	protected InputStream readMessageBody (Message message) throws FileNotFoundException, UnsupportedEncodingException {
+	protected InputStream readMessageBody (Message message) {
 		Object body = message.getBody(); 
 		InputStream messageIS = null; 
 		
@@ -56,20 +57,35 @@ public class LibCommProcessor implements Processor {
 			try {
 				messageIS = new FileInputStream(file.getFile());
 			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
-				throw e;
 			}
 		} else if (body instanceof String) {
 			try {
 				messageIS = new ByteArrayInputStream(((String)body).getBytes("UTF-8"));	
-			} catch (UnsupportedEncodingException e) {
+			} catch (java.io.UnsupportedEncodingException e) {
 				e.printStackTrace();
-				throw e;
 			}			
 		}
 		return messageIS;
 	}
 	
+	protected LibCommMessage unmarshalLibCommMessage (InputStream messageIS) throws JAXBException {
+		return MessageUtils.unmarshalLibCommMessage(messageIS);
+	}
+	
+	protected ModsCollection unmarshalMods (StringReader reader) throws JAXBException {
+		return modsCollection = MessageUtils.unmarshalMods(reader);
+	}
+
+	protected CollectionType unmarshalMarc (StringReader reader) {
+		return collectionType = MessageUtils.unmarshalMarc(reader);
+	}
+	
+	protected String marshalMessage (LibCommMessage libCommMessage) throws JAXBException {
+		return MessageUtils.marshalMessage(libCommMessage);
+	}
+
 	public void setProcessor(IProcessor p) {
 		this.processor = p;
 	}		

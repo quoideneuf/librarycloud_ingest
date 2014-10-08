@@ -39,6 +39,7 @@ import java.util.Properties;
 public class Config {
 	
 	public String SOLR_URL;
+	public String HOLDINGS_URL;
     
 	private static Config conf;
 	
@@ -56,6 +57,7 @@ public class Config {
 		} 
 		
 		SOLR_URL = props.getProperty("solr_url");
+		HOLDINGS_URL = props.getProperty("holdings_url");
 	
 	}
 	

@@ -43,7 +43,7 @@ public class PublishProcessor implements IProcessor {
 		String data = null;
 		libCommMessage.setCommand("PUBLISH");
 		try {
-			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/remove-mods-restricted.xsl");
+			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/remove-mods-restricted.xsl",null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
