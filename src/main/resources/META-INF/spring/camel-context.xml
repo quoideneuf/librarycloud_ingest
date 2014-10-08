@@ -57,6 +57,7 @@
             <bean class="edu.harvard.libcomm.pipeline.SolrProcessor"/>
         </property>
     </bean>
+
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
         <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
@@ -71,50 +72,68 @@
  		converts marc communication format to marcxml, chunks into files of 25 and writes to specified directory
  		xml messages sent to queue
  		 -->
-        <route id="aleph-ingest">
-            <from uri="file:{{librarycloud.files.basepath}}?include=.*.xml" />
-            <split streaming="true">
-                <method bean="marcSplitter" method="splitMarcFile"/>
-                <to uri="file:{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}"/>
-                <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
-            </split>
+        <route id="aleph-ingest-split" errorHandlerRef="eh">
+            <from uri="file:{{librarycloud.files.basepath}}/ingest-aleph?include=.*.xml" />
+
+            <!-- Try block required for errors thrown out of the splitter -->
+            <doTry>
+                <split streaming="true" parallelProcessing="true">
+                    <method bean="marcSplitter" method="splitMarcFile"/>
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                </split>
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-dead-letter?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                </doCatch>
+            </doTry>
+
          </route>
 
   		<!-- 
  		marctomods route reads marcxml from specified dir, validates, converts marcxml to mods
  		mods wrapped in libcomm message and sent to queue (can be file, aws, etc)
  		 -->         
-   
-         <route id="marctomods">
-            <from uri="file:{{librarycloud.files.basepath}}/normalize-marcxml" />
-            <!-- <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
+
+        <!-- Pulling items from SQS to the Seda queue allows us to process multiple requests in parallel on multi-core servers -->
+        <route>
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <to uri="seda:normalize-marcxml"/>
+        </route>
+
+        <route id="marctomods"  errorHandlerRef="eh">
+            <from uri="seda:normalize-marcxml?concurrentConsumers=16" />
             <process ref="modsProcessor"/>
-            <to uri="file:{{librarycloud.files.basepath}}/enrich"/>
-            <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
         </route>
         
 		<route id="addholdingstomods">
-            <from uri="file:{{librarycloud.files.basepath}}/enrich" />
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <process ref="holdingsProcessor"/>
-            <to uri="file:{{librarycloud.files.basepath}}/publish"/>
-            <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
- 			<log message="holdings added ${file:name}"/>
-        </route>
-    
-		<route id="publish">
-            <from uri="file:{{librarycloud.files.basepath}}/publish" />
-            <process ref="publishProcessor"/>
-            <to uri="file:{{librarycloud.files.basepath}}/tosolr"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
  			<log message="holdings added ${file:name}"/>
         </route>
 
-		<route id="modstosolr">
-            <from uri="file:{{librarycloud.files.basepath}}/tosolr" />
+        <route>
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <to uri="seda:enrich-end"/>
+        </route>
+
+		<route id="publishtomods" errorHandlerRef="eh">
+            <from uri="seda:enrich-end?concurrentConsumers=16" />
+            <process ref="publishProcessor"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+        </route>
+
+        <route>
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <to uri="seda:publish-public"/>
+        </route>
+
+		<route id="modstosolr" errorHandlerRef="eh">
+            <from uri="seda:publish-public?concurrentConsumers=16" />
             <process ref="solrLoadProcessor"/>
-            <to uri="file:{{librarycloud.files.basepath}}/loaded"/>
-            <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
- 			<log message="loaded to solr ${file:name}"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
         </route>
 
               

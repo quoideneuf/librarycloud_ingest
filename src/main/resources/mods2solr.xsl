@@ -315,11 +315,10 @@
         <xsl:apply-templates mode="hierarchicalGeographic"/>
     </xsl:template>   
 
-    <xsl:template match="*" mode="hierarchicalGeographic">
-        <xsl:element name="field">
-            <xsl:attribute name="name">
-                <xsl:text>subject</xsl:text>
-            </xsl:attribute>
+<!--     <xsl:template match="*" mode="hierarchicalGeographic">
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:template>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
         <xsl:element name="field">
@@ -335,7 +334,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>   
-
+ -->
     <xsl:template match="mods:classification">
         <xsl:element name="field">
             <xsl:attribute name="name">
