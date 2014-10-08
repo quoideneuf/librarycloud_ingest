@@ -34,7 +34,6 @@ public class ModsProcessor implements IProcessor {
 			e.printStackTrace();
 			throw e;
 		}	
-		System.out.println("MODS: " + modsCollection);
         Payload payload = new Payload();
         payload.setSource("aleph");
         payload.setFormat("mods");

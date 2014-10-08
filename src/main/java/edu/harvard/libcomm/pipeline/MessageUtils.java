@@ -45,18 +45,19 @@ public class MessageUtils {
     }	
 
 
-    protected static JAXBSource getJAXBSource(Object o) {
+    protected static JAXBSource getJAXBSource(Object o) throws JAXBException {
     	JAXBSource source = null;
     	try {
     		source = new JAXBSource(context, o);
     	}
     	catch (JAXBException je) {
     		je.printStackTrace();
+    		throw je;
     	}
     	return source;
     }
     
-	protected static LibCommMessage unmarshalLibCommMessage(Reader r) {
+	protected static LibCommMessage unmarshalLibCommMessage(Reader r) throws JAXBException {
 		
 	 	try {			 
 			//unmarshal: xml2java
@@ -64,6 +65,7 @@ public class MessageUtils {
 			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(r);
 		  } catch (JAXBException e) {
 			e.printStackTrace();
+			throw e;
 		  }
 		return libCommMessage;
 		
@@ -99,7 +101,7 @@ public class MessageUtils {
 		
 	}
 
-	protected static CollectionType unmarshalMarc(Reader r) {
+	protected static CollectionType unmarshalMarc(Reader r) throws JAXBException {
 		CollectionType collectionType = null;
 	 	try {
 			 
@@ -109,6 +111,7 @@ public class MessageUtils {
  
 		  } catch (JAXBException e) {
 			e.printStackTrace();
+			throw e;
 		  }
 		return collectionType;
 		

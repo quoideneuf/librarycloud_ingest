@@ -37,18 +37,22 @@ public class LibCommProcessor implements Processor {
 		}
 
 		Message message = exchange.getIn();
-		InputStream messageIS = readMessageBody(message);	
-		
+		InputStream messageIS = readMessageBody(message);			
 		libCommMessage = unmarshalLibCommMessage(messageIS);
-
-		processor.processMessage(libCommMessage);
+		try {
+			processor.processMessage(libCommMessage);			
+		} catch (Exception e) {
+			System.out.println("Error processing message");
+			e.printStackTrace();
+			throw e;
+		}
 		
 		String messageString = marshalMessage(libCommMessage);
 	    message.setBody(messageString);
 	    exchange.setOut(message);
 	}
 
-	protected InputStream readMessageBody (Message message) {
+	protected InputStream readMessageBody (Message message) throws FileNotFoundException, UnsupportedEncodingException {
 		Object body = message.getBody(); 
 		InputStream messageIS = null; 
 		
@@ -57,14 +61,15 @@ public class LibCommProcessor implements Processor {
 			try {
 				messageIS = new FileInputStream(file.getFile());
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				throw e;
 			}
 		} else if (body instanceof String) {
 			try {
 				messageIS = new ByteArrayInputStream(((String)body).getBytes("UTF-8"));	
 			} catch (java.io.UnsupportedEncodingException e) {
 				e.printStackTrace();
+				throw e;
 			}			
 		}
 		return messageIS;
@@ -78,7 +83,7 @@ public class LibCommProcessor implements Processor {
 		return modsCollection = MessageUtils.unmarshalMods(reader);
 	}
 
-	protected CollectionType unmarshalMarc (StringReader reader) {
+	protected CollectionType unmarshalMarc (StringReader reader) throws JAXBException {
 		return collectionType = MessageUtils.unmarshalMarc(reader);
 	}
 	
