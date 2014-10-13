@@ -13,6 +13,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFile;
+import org.apache.log4j.Logger;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import gov.loc.marc.CollectionType;
@@ -20,6 +21,7 @@ import gov.loc.mods.v3.ModsCollection;
 
 public class LibCommProcessor implements Processor {
 
+	protected Logger log = Logger.getLogger(LibCommProcessor.class); 
 	protected LibCommMessage libCommMessage = null;
 	protected ModsCollection modsCollection = null;
 	protected CollectionType collectionType = null;
@@ -33,6 +35,7 @@ public class LibCommProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {	
 		
 		if (null == processor) {
+			log.fatal("No processor defined for message");
 			throw new Exception("No processor defined for message");
 		}
 
@@ -42,12 +45,12 @@ public class LibCommProcessor implements Processor {
 		try {
 			processor.processMessage(libCommMessage);			
 		} catch (Exception e) {
-			System.out.println("Error processing message");
-			e.printStackTrace();
+			log.error("Error processing message. Route:" + exchange.getFromRouteId() + "; Id:" + exchange.getExchangeId(), e);			
 			throw e;
 		}
 		
 		String messageString = marshalMessage(libCommMessage);
+		log.trace("MESSAGE BODY OUT: " + messageString);
 	    message.setBody(messageString);
 	    exchange.setOut(message);
 	}
