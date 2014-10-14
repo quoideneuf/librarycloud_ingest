@@ -36,6 +36,7 @@ public class ModsProcessor implements IProcessor {
 			log.error("Could not transform record from MARC to MODS");
 			throw e;
 		}	
+		log.trace("ModProcessor Result:" + modsCollection);
         Payload payload = new Payload();
         payload.setSource("aleph");
         payload.setFormat("mods");

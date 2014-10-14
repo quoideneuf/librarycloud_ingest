@@ -13,9 +13,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.json.XML;
+
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
@@ -23,6 +25,7 @@ import gov.loc.mods.v3.ModsCollection;
 import gov.loc.mods.v3.ModsType;
 
 public class HoldingsProcessor implements IProcessor {
+	protected Logger log = Logger.getLogger(HoldingsProcessor.class); 	
 	
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 	
@@ -47,6 +50,7 @@ public class HoldingsProcessor implements IProcessor {
 		JSONObject holdingsJson = new JSONObject(tokener);
 		String holdingsXml = XML.toString(holdingsJson);
 		holdingsXml = "<holdings>" + holdingsXml + "</holdings>";
+		log.trace("HoldingsProcessor Result:" + holdingsXml);
 		
 		try {
 			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/addholdings.xsl",holdingsXml);
