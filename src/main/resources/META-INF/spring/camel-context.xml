@@ -64,8 +64,14 @@
 
         <!-- Error handling behavior -->
         <errorHandler id="eh" redeliveryPolicyRef="myPolicy" type="DeadLetterChannel" 
-            deadLetterUri="aws-sqs://{{librarycloud.sqs.environment}}-dead-letter?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
-        <redeliveryPolicyProfile id="myPolicy" maximumRedeliveries="3"/>
+            deadLetterUri="direct:dead-letter"/>
+        <redeliveryPolicyProfile id="myPolicy" maximumRedeliveries="0"/>
+
+        <route id="dead-letter">
+            <from uri="direct:dead-letter"/>
+            <to uri="log:edu.harvard.libcomm.deadletterqueue?level=ERROR"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-dead-letter?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
+        </route>
 
  		<!-- 
  		aleph-ingest route reads xml messages from directory that contain corresponding marc (.mrc) files
@@ -80,10 +86,11 @@
                 <split streaming="true" parallelProcessing="true">
                     <method bean="marcSplitter" method="splitMarcFile"/>
                     <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                    <!-- <to uri="file://{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}" /> -->
                 </split>
                 <doCatch>
                     <exception>java.lang.Exception</exception>
-                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-dead-letter?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                    <to uri="direct:dead-letter" />
                 </doCatch>
             </doTry>
 
@@ -95,7 +102,8 @@
  		 -->         
 
         <!-- Pulling items from SQS to the Seda queue allows us to process multiple requests in parallel on multi-core servers -->
-        <route>
+        <route  errorHandlerRef="eh"> 
+            <!-- <from uri="file://{{librarycloud.files.basepath}}/normalize-marcxml" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <to uri="seda:normalize-marcxml"/>
         </route>
@@ -104,17 +112,18 @@
             <from uri="seda:normalize-marcxml?concurrentConsumers=16" />
             <process ref="modsProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <!-- <to uri="file://{{librarycloud.files.basepath}}//enrich-start" /> -->
+
         </route>
         
-		<route id="addholdingstomods">
+		<route id="addholdingstomods" errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <process ref="holdingsProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
- 			<log message="holdings added ${file:name}"/>
         </route>
 
-        <route>
+        <route  errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <to uri="seda:enrich-end"/>
         </route>
@@ -125,7 +134,7 @@
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
         </route>
 
-        <route>
+        <route  errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <to uri="seda:publish-public"/>
         </route>

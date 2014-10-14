@@ -17,6 +17,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFile;
+import org.apache.log4j.Logger;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
@@ -24,6 +25,7 @@ import gov.loc.marc.CollectionType;
 import gov.loc.mods.v3.ModsCollection;
 
 public class ModsProcessor implements IProcessor {
+	protected Logger log = Logger.getLogger(ModsProcessor.class); 
 
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 		String modsCollection = null;
@@ -31,10 +33,9 @@ public class ModsProcessor implements IProcessor {
 		try {
 			modsCollection = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/MARC21slim2MODS3-5.xsl", null);	
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Could not transform record from MARC to MODS");
 			throw e;
 		}	
-		System.out.println("MODS: " + modsCollection);
         Payload payload = new Payload();
         payload.setSource("aleph");
         payload.setFormat("mods");

@@ -34,7 +34,7 @@ public class MessageUtils {
 
     static JAXBContext context = initContext();
 
-    private static JAXBContext initContext() {
+    private synchronized static JAXBContext initContext() {
     	JAXBContext context = null;
     	try {
     		context = JAXBContext.newInstance(LibCommMessage.class,ModsCollection.class,CollectionType.class);
@@ -45,18 +45,19 @@ public class MessageUtils {
     }	
 
 
-    protected static JAXBSource getJAXBSource(Object o) {
+    protected synchronized static JAXBSource getJAXBSource(Object o) throws JAXBException {
     	JAXBSource source = null;
     	try {
     		source = new JAXBSource(context, o);
     	}
     	catch (JAXBException je) {
     		je.printStackTrace();
+    		throw je;
     	}
     	return source;
     }
     
-	protected static LibCommMessage unmarshalLibCommMessage(Reader r) {
+	protected synchronized static LibCommMessage unmarshalLibCommMessage(Reader r) throws JAXBException {
 		
 	 	try {			 
 			//unmarshal: xml2java
@@ -64,13 +65,14 @@ public class MessageUtils {
 			libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(r);
 		  } catch (JAXBException e) {
 			e.printStackTrace();
+			throw e;
 		  }
 		return libCommMessage;
 		
 	}
 	
 
-	protected static LibCommMessage unmarshalLibCommMessage(InputStream is) throws JAXBException {
+	protected synchronized static LibCommMessage unmarshalLibCommMessage(InputStream is) throws JAXBException {
 		
 	 	try {
 			//unmarshal: xml2java
@@ -83,7 +85,7 @@ public class MessageUtils {
 		return libCommMessage;		
 	}
 	
-	protected static ModsCollection unmarshalMods(Reader r) throws JAXBException {
+	protected synchronized static ModsCollection unmarshalMods(Reader r) throws JAXBException {
 		ModsCollection modsCollection = null;
 	 	try {
 			 
@@ -99,7 +101,7 @@ public class MessageUtils {
 		
 	}
 
-	protected static CollectionType unmarshalMarc(Reader r) {
+	protected synchronized static CollectionType unmarshalMarc(Reader r) throws JAXBException {
 		CollectionType collectionType = null;
 	 	try {
 			 
@@ -109,12 +111,13 @@ public class MessageUtils {
  
 		  } catch (JAXBException e) {
 			e.printStackTrace();
+			throw e;
 		  }
 		return collectionType;
 		
 	}
 	
-	protected static String marshalMessage(LibCommMessage libCommMessage) throws JAXBException {
+	protected synchronized static String marshalMessage(LibCommMessage libCommMessage) throws JAXBException {
 		StringWriter sw = null;
 	 	try {
 			 
@@ -133,7 +136,7 @@ public class MessageUtils {
 		return sw.toString();
 	}
 
-	static protected String transformPayloadData (LibCommMessage libCommMessage, String xslFilePath, String xslParam) throws Exception {
+	static synchronized protected String transformPayloadData (LibCommMessage libCommMessage, String xslFilePath, String xslParam) throws Exception {
 		String data = libCommMessage.getPayload().getData();
 		//System.out.println("DATA: " + data);
 		StringReader dataReader = new StringReader(data);

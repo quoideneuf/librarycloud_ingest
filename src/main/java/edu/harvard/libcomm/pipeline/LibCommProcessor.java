@@ -6,13 +6,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFile;
+import org.apache.log4j.Logger;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import gov.loc.marc.CollectionType;
@@ -20,35 +26,41 @@ import gov.loc.mods.v3.ModsCollection;
 
 public class LibCommProcessor implements Processor {
 
+	protected Logger log = Logger.getLogger(LibCommProcessor.class); 
 	protected LibCommMessage libCommMessage = null;
-	protected ModsCollection modsCollection = null;
-	protected CollectionType collectionType = null;
-	private IProcessor processor;
+	private   IProcessor processor;
 
 	/**
 	 * Invoked by Camel to process the message 
 	 * @param  exchange
 	 * @throws Exception
 	 */
-	public void process(Exchange exchange) throws Exception {	
+	public synchronized void process(Exchange exchange) throws Exception {	
 		
+		JAXBContext context = initContext();
+
 		if (null == processor) {
+			log.fatal("No processor defined for message");
 			throw new Exception("No processor defined for message");
 		}
 
 		Message message = exchange.getIn();
-		InputStream messageIS = readMessageBody(message);	
+		InputStream messageIS = readMessageBody(message);			
+		libCommMessage = unmarshalMessage(context, messageIS);
+		try {
+			processor.processMessage(libCommMessage);			
+		} catch (Exception e) {
+			log.error("Error processing message. Route:" + exchange.getFromRouteId() + "; Id:" + exchange.getExchangeId(), e);			
+			throw e;
+		}
 		
-		libCommMessage = unmarshalLibCommMessage(messageIS);
-
-		processor.processMessage(libCommMessage);
-		
-		String messageString = marshalMessage(libCommMessage);
+		String messageString = marshalMessage(context, libCommMessage);
+		log.trace("MESSAGE BODY OUT: " + messageString);
 	    message.setBody(messageString);
 	    exchange.setOut(message);
 	}
 
-	protected InputStream readMessageBody (Message message) {
+	protected InputStream readMessageBody (Message message) throws FileNotFoundException, UnsupportedEncodingException {
 		Object body = message.getBody(); 
 		InputStream messageIS = null; 
 		
@@ -57,33 +69,55 @@ public class LibCommProcessor implements Processor {
 			try {
 				messageIS = new FileInputStream(file.getFile());
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				throw e;
 			}
 		} else if (body instanceof String) {
 			try {
 				messageIS = new ByteArrayInputStream(((String)body).getBytes("UTF-8"));	
 			} catch (java.io.UnsupportedEncodingException e) {
 				e.printStackTrace();
+				throw e;
 			}			
 		}
 		return messageIS;
 	}
+
+	/**
+	 * Get the JAXBContext to be used for marshalling and unmarshalling
+	 * @return populated context
+	 */
+    private JAXBContext initContext() throws JAXBException {
+		return JAXBContext.newInstance(LibCommMessage.class,ModsCollection.class,CollectionType.class);
+    }	
 	
-	protected LibCommMessage unmarshalLibCommMessage (InputStream messageIS) throws JAXBException {
-		return MessageUtils.unmarshalLibCommMessage(messageIS);
-	}
-	
-	protected ModsCollection unmarshalMods (StringReader reader) throws JAXBException {
-		return modsCollection = MessageUtils.unmarshalMods(reader);
+	/**
+	 * Unmarshall message from XML to object
+	 * @param  context       JAXBContext required for marshalling/unmarshalling
+	 * @param  is            input stream with XML to unmarshall
+	 * @return               populated LibCommMessage
+	 * @throws JAXBException 
+	 */
+	private LibCommMessage unmarshalMessage (JAXBContext context, InputStream is) throws JAXBException {
+ 		Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
+		libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(is);
+		return libCommMessage;		
 	}
 
-	protected CollectionType unmarshalMarc (StringReader reader) {
-		return collectionType = MessageUtils.unmarshalMarc(reader);
-	}
-	
-	protected String marshalMessage (LibCommMessage libCommMessage) throws JAXBException {
-		return MessageUtils.marshalMessage(libCommMessage);
+	/**
+	 * Marshall message from an object to XML
+	 * @param  context       JAXBContext required for marshalling/unmarshalling
+	 * @param  libCommMessage LibCommMessage to marshall
+	 * @return                XML representation of the object
+	 * @throws JAXBException  
+	 */
+	private String marshalMessage (JAXBContext context, LibCommMessage libCommMessage) throws JAXBException {
+		StringWriter sw = new StringWriter();
+		Marshaller jaxbMarshaller = context.createMarshaller();
+		// Uncomment this to get pretty-printed output.
+		// jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		jaxbMarshaller.marshal(libCommMessage, sw);
+		return sw.toString();
 	}
 
 	public void setProcessor(IProcessor p) {

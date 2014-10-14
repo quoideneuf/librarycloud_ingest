@@ -2,6 +2,7 @@ package edu.harvard.libcomm.pipeline;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,9 +33,17 @@ public class HoldingsProcessor implements IProcessor {
 			recids = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/recids.xsl",null);
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}
 		URI uri = new URI(Config.getInstance().HOLDINGS_URL + "?filter=MarcLKRB:(" + recids + ")&fields=MarcLKRB,Marc852B,Marc856U,DisplayCallNumber&limit=250");
-		JSONTokener tokener = new JSONTokener(uri.toURL().openStream());
+		JSONTokener tokener;
+		try {
+			tokener = new JSONTokener(uri.toURL().openStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
 		JSONObject holdingsJson = new JSONObject(tokener);
 		String holdingsXml = XML.toString(holdingsJson);
 		holdingsXml = "<holdings>" + holdingsXml + "</holdings>";
@@ -43,6 +52,7 @@ public class HoldingsProcessor implements IProcessor {
 			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/addholdings.xsl",holdingsXml);
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		}
 		
 		Payload payload = new Payload();
