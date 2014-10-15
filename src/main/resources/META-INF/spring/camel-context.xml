@@ -34,7 +34,7 @@
     </bean>
     
     <!-- Add an event notifier to log throughput -->
-    <bean id="eventTimer" class="edu.harvard.libcomm.pipeline.EventTimer"/>
+    <!-- <bean id="eventTimer" class="edu.harvard.libcomm.pipeline.EventTimer"/> -->
 
     <!-- Definition of beans that handle processing of items in the pipeline -->
 	<bean id="marcSplitter" class="edu.harvard.libcomm.pipeline.MarcSplitter"/>		
@@ -114,37 +114,38 @@
         <route id="marctomods"  errorHandlerRef="eh">
             <from uri="seda:normalize-marcxml?concurrentConsumers=16" />
             <process ref="modsProcessor"/>
-            <!-- <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=modsProcessor&amp;groupSize=100"/> -->
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-            <!-- <to uri="file://{{librarycloud.files.basepath}}//enrich-start" /> -->
+            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start" /> -->
         </route>
         
         <route id="addholdingstomods-seda" errorHandlerRef="eh">
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-            <to uri="seda:publishtomods" />
-            <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+            <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-start" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <to uri="seda:addholdingstomods" />
         </route>
 
 		<route id="addholdingstomods" errorHandlerRef="eh">
-            <from uri="seda:publishtomods"/>
+            <from uri="seda:addholdingstomods?concurrentConsumers=16"/>
             <process ref="holdingsProcessor"/>
-            <!-- <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=holdingsProcessor&amp;groupSize=101"/> -->
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
         </route>
 
-        <route id="publishtomods-seda" errorHandlerRef="eh">
+        <route id="publish-seda" errorHandlerRef="eh">
+            <!-- <from uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <to uri="seda:enrich-end"/>
         </route>
 
-		<route id="publishtomods" errorHandlerRef="eh">
+		<route id="publish" errorHandlerRef="eh">
             <from uri="seda:enrich-end?concurrentConsumers=16" />
             <process ref="publishProcessor"/>
-            <!-- <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=publishProcessor&amp;groupSize=102"/> -->
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
         </route>
 
         <route id="modstosolr-seda" errorHandlerRef="eh">
+            <!-- <from uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <to uri="seda:publish-public"/>
         </route>
@@ -152,8 +153,10 @@
 		<route id="modstosolr" errorHandlerRef="eh">
             <from uri="seda:publish-public?concurrentConsumers=16" />
             <process ref="solrLoadProcessor"/>
-            <!-- <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=solrLoadProcessor&amp;groupSize=103"/> -->
+            <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=solrLoadProcessor&amp;groupSize=10"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
+            <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
+
         </route>
 
               
