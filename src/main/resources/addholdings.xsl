@@ -4,7 +4,7 @@
     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" version="1.0"
     >
     
-    <xsl:output indent="yes"/>
+    <xsl:output indent="no"/>
     <xsl:strip-space elements="*"/>
  
     <xsl:param name="param1"><holdings/></xsl:param> 
