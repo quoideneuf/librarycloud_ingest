@@ -38,6 +38,7 @@ import java.util.Properties;
 
 public class Config {
 	
+	public static String OASIS_URL = null;
 	public String SOLR_URL;
 	public String HOLDINGS_URL;
     
@@ -58,6 +59,7 @@ public class Config {
 		
 		SOLR_URL = props.getProperty("solr_url");
 		HOLDINGS_URL = props.getProperty("holdings_url");
+		OASIS_URL = props.getProperty("oasis_url");
 	
 	}
 	
