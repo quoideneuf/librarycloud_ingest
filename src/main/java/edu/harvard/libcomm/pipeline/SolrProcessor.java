@@ -52,7 +52,8 @@ public class SolrProcessor implements IProcessor {
 		UpdateRequest update = new UpdateRequest();
 	    update.add(getSolrInputDocumentList(solrXml));
 	    update.process(server);
-	    server.commit();
+	    // Rely on autocommit from the server
+	    // server.commit();
 		Date end = new Date();
 		log.debug("Solr insert query time: " + (end.getTime() - start.getTime()));
 	}
