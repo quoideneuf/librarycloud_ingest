@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,6 +16,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.request.UpdateRequest;
@@ -28,6 +30,7 @@ import org.xml.sax.InputSource;
 import edu.harvard.libcomm.message.LibCommMessage;
 
 public class SolrProcessor implements IProcessor {
+	protected Logger log = Logger.getLogger(SolrProcessor.class); 	
 
 	@Override
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {
@@ -44,12 +47,15 @@ public class SolrProcessor implements IProcessor {
 	private void populateIndex(String solrXml) throws Exception {
 
 	    HttpSolrServer server = null;
+		Date start = new Date();
 	    server = SolrServer.getSolrConnection();
 		UpdateRequest update = new UpdateRequest();
 	    update.add(getSolrInputDocumentList(solrXml));
 	    // Rely on autocommit
 	    // update.process(server);
 	    server.commit();
+		Date end = new Date();
+		log.debug("Solr insert query time: " + (end.getTime() - start.getTime()));
 	}
 
 	private List<SolrInputDocument> getSolrInputDocumentList(String solrXml) throws Exception {
