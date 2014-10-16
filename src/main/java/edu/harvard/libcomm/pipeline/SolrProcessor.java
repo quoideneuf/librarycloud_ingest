@@ -32,6 +32,8 @@ import edu.harvard.libcomm.message.LibCommMessage;
 public class SolrProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(SolrProcessor.class); 	
 
+	private Integer commitWithinTime = -1;
+
 	@Override
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {
 		try {
@@ -40,8 +42,7 @@ public class SolrProcessor implements IProcessor {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
-		}
-		
+		}		
 	}
 	
 	private void populateIndex(String solrXml) throws Exception {
@@ -50,10 +51,14 @@ public class SolrProcessor implements IProcessor {
 		Date start = new Date();
 	    server = SolrServer.getSolrConnection();
 		UpdateRequest update = new UpdateRequest();
-	    update.add(getSolrInputDocumentList(solrXml));
-	    // Rely on autocommit
-	    // update.process(server);
-	    server.commit();
+		if (commitWithinTime > 0) {
+			update.add(getSolrInputDocumentList(solrXml), commitWithinTime);
+		    update.process(server);
+		} else {
+			update.add(getSolrInputDocumentList(solrXml));
+		    update.process(server);
+    	    server.commit();
+		}
 		Date end = new Date();
 		log.debug("Solr insert query time: " + (end.getTime() - start.getTime()));
 	}
@@ -103,6 +108,14 @@ public class SolrProcessor implements IProcessor {
 
 	    return solrDocList;
 
+	}
+
+	public void setCommitWithinTime(Integer commitWithinTime) {
+		this.commitWithinTime = commitWithinTime;
+	}
+
+	public Integer getCommitWithinTime() {
+		return this.commitWithinTime;
 	}
 
 }
