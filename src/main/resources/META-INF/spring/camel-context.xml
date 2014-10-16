@@ -108,7 +108,7 @@
         <route id="marctomods-seda" errorHandlerRef="eh"> 
             <!-- <from uri="file://{{librarycloud.files.basepath}}/normalize-marcxml" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <to uri="seda:normalize-marcxml?size=1000&amp;blockWhenFull=true"/>
+            <to uri="seda:normalize-marcxml?size=20&amp;blockWhenFull=true"/>
         </route>
 
         <route id="marctomods"  errorHandlerRef="eh">
@@ -121,7 +121,7 @@
         <route id="addholdingstomods-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-start" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <to uri="seda:addholdingstomods?size=1000&amp;blockWhenFull=true" />
+            <to uri="seda:addholdingstomods?size=20&amp;blockWhenFull=true" />
         </route>
 
 		<route id="addholdingstomods" errorHandlerRef="eh">
@@ -134,7 +134,7 @@
         <route id="publish-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <to uri="seda:enrich-end?size=1000&amp;blockWhenFull=true"/>
+            <to uri="seda:enrich-end?size=20&amp;blockWhenFull=true"/>
         </route>
 
 		<route id="publish" errorHandlerRef="eh">
@@ -147,7 +147,7 @@
         <route id="modstosolr-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <to uri="seda:publish-public?size=1000&amp;blockWhenFull=true"/>
+            <to uri="seda:publish-public?size=20&amp;blockWhenFull=true"/>
         </route>
 
 		<route id="modstosolr" errorHandlerRef="eh">
