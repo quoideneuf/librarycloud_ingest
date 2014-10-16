@@ -51,11 +51,11 @@ public class SolrProcessor implements IProcessor {
 		Date start = new Date();
 	    server = SolrServer.getSolrConnection();
 		UpdateRequest update = new UpdateRequest();
+		update.add(getSolrInputDocumentList(solrXml));
 		if (commitWithinTime > 0) {
-			update.add(getSolrInputDocumentList(solrXml), commitWithinTime);
+			update.setCommitWithin(commitWithinTime);
 		    update.process(server);
 		} else {
-			update.add(getSolrInputDocumentList(solrXml));
 		    update.process(server);
     	    server.commit();
 		}

@@ -58,7 +58,7 @@
     <bean id="solrLoadProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.SolrProcessor">
-                <property name="commitWithinTime">30000</property>
+                <property name="commitWithinTime" value="30000"/>
             </bean>
         </property>
     </bean>
