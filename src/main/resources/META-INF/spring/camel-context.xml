@@ -88,8 +88,8 @@
             <doTry>
                 <split streaming="true" parallelProcessing="true">
                     <method bean="marcSplitter" method="splitMarcFile"/>
-                    <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
-                    <to uri="file://{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}" />
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                    <!-- <to uri="file://{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}" /> -->
                 </split>
                 <doCatch>
                     <exception>java.lang.Exception</exception>
@@ -104,11 +104,6 @@
  		mods wrapped in libcomm message and sent to queue (can be file, aws, etc)
  		 -->         
 
-        <route id="splitfilestoqueue" errorHandlerRef="eh"> 
-            <from uri="file://{{librarycloud.files.basepath}}/normalize-marcxml" />
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-        </route>
-
         <!-- Pulling items from SQS to the Seda queue allows us to process multiple requests in parallel on multi-core servers -->
         <route id="marctomods-seda" errorHandlerRef="eh"> 
             <!-- <from uri="file://{{librarycloud.files.basepath}}/normalize-marcxml" /> -->
@@ -117,7 +112,7 @@
         </route>
 
         <route id="marctomods"  errorHandlerRef="eh">
-            <from uri="seda:normalize-marcxml?concurrentConsumers=1" />
+            <from uri="seda:normalize-marcxml?concurrentConsumers=4" />
             <process ref="modsProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start" /> -->
