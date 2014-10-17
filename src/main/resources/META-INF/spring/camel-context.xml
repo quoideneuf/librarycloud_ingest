@@ -62,7 +62,7 @@
             </bean>
         </property>
     </bean>
-
+    
 	<bean id="eadSplitter" class="edu.harvard.libcomm.pipeline.EADSplitter"/>
 
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
@@ -160,6 +160,7 @@
             <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=solrLoadProcessor&amp;groupSize=10"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
             <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
+
         </route>
 
 		<!--  begin oasis routes -->
@@ -171,7 +172,7 @@
                 <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
             </split>
          </route>
-              
+                                
     </camelContext>
     
     

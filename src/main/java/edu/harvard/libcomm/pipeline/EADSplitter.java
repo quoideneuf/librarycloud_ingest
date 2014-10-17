@@ -82,11 +82,9 @@ public class EADSplitter  {
 	   			        String nodeName = nodes.item(i).getNodeName();
 	   			        String nodeValue = nodes.item(i).getNodeValue();
 	   			        if (nodeName.equals("id")) {
-	   			        	System.out.println(nodeName + ":" + nodeValue);
 	   			        	String eadComponentMods = null;
 	 						try {
 	 							eadComponentMods = transformOASIS(domSource, "src/main/resources/eadcomponent2mods.xsl", nodeValue);
-	 							System.out.println("COMP: " + eadComponentMods);
 	 						} catch (Exception e) {
 	 							e.printStackTrace();
 	 						}
