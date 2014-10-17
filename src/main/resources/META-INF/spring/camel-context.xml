@@ -168,7 +168,7 @@
             <from uri="file:{{librarycloud.files.basepath}}/oasis?include=.*.xml" />
             <split streaming="true">
                 <method bean="eadSplitter" method="splitEADFiles"/>
-                <to uri="file:{{librarycloud.files.basepath}}/publish?fileName=${header.CamelSplitIndex}"/>
+                <to uri="file:{{librarycloud.files.basepath}}/tosolr?fileName=${header.CamelSplitIndex}"/>
                 <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
             </split>
          </route>
