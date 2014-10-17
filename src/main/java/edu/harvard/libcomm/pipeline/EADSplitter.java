@@ -2,8 +2,6 @@ package edu.harvard.libcomm.pipeline;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -28,8 +26,6 @@ import org.xml.sax.SAXException;
 
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -39,7 +35,7 @@ import edu.harvard.libcomm.message.LibCommMessage.Payload;
 
 public class EADSplitter  {
 
-	public List<String> splitEADFiles(String body) throws JAXBException  {
+	public List<String> splitEADFiles(String body) throws JAXBException,ParserConfigurationException, SAXException, IOException, XPathExpressionException  {
 
 		LibCommMessage libCommMessage = MessageUtils.unmarshalLibCommMessage(new StringReader(body));
 		
@@ -56,36 +52,29 @@ public class EADSplitter  {
 	 				builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 	 				doc = builder.parse(child);
 	 	
-	 			} catch (ParserConfigurationException e1) {
-	 				// TODO Auto-generated catch block
-	 				e1.printStackTrace();
+	 			} catch (ParserConfigurationException e) {
+	 				e.printStackTrace();
+	 				throw e;
 	 			} catch (SAXException e) {
-	 				// TODO Auto-generated catch block
 	 				e.printStackTrace();
+	 				throw e;
 	 			} catch (IOException e) {
-	 				// TODO Auto-generated catch block
 	 				e.printStackTrace();
+	 				throw e;
 	 			}
 	     		
-	       		//XPath xpath = getXPath(child);
 	 			XPathFactory factory = XPathFactory.newInstance();
 	 			XPath xpath = factory.newXPath();
-
-	   			//XPathExpression images = xpath.compile("//Assets/Asset[@size='DRS_full']/@uri");
-	   			XPathExpression componentId = null;
+	   			Object result = null;
+	 			XPathExpression componentId = null;
 	 			try {
 	 				componentId = xpath.compile("//c/@id");
-	 			} catch (XPathExpressionException e) {
-	 				// TODO Auto-generated catch block
-	 				e.printStackTrace();
-	 			}
-	   			Object result = null;
-	 			try {
 	 				result = componentId.evaluate(doc, XPathConstants.NODESET);
 	 			} catch (XPathExpressionException e) {
-	 				// TODO Auto-generated catch block
 	 				e.printStackTrace();
+	 				throw e;
 	 			}
+
 	 			DOMSource domSource = new DOMSource(doc);
 	   			NodeList nodes = (NodeList) result;
 	   			if (nodes.getLength() > 0) {
@@ -99,7 +88,6 @@ public class EADSplitter  {
 	 							eadComponentMods = transformOASIS(domSource, "src/main/resources/eadcomponent2mods.xsl", nodeValue);
 	 							System.out.println("COMP: " + eadComponentMods);
 	 						} catch (Exception e) {
-	 							// TODO Auto-generated catch block
 	 							e.printStackTrace();
 	 						}
 	 						LibCommMessage lcmessage = new LibCommMessage();
@@ -112,9 +100,8 @@ public class EADSplitter  {
 	   			        	componentList.add(MessageUtils.marshalMessage(lcmessage));
 	   			        }
 	   				}
-
 	   			}
-	           }
+	        }
 	        
 		    return componentList;
 		} else {
@@ -128,21 +115,12 @@ public class EADSplitter  {
 		
 		StringWriter writer = new StringWriter();
 		final InputStream xsl = new FileInputStream(xslFilePath);
-
-        //final TransformerFactory tFactory = TransformerFactory.newInstance();
 		final TransformerFactory tFactory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl",null);
-				
         StreamSource styleSource = new StreamSource(xsl);
         Transformer transformer = tFactory.newTransformer(styleSource);
-        
-        if (xslParam == null)
-        	System.out.println();
-        else
-        	transformer.setParameter("componentid", xslParam);
-
+       	transformer.setParameter("componentid", xslParam);
         StreamResult result = new StreamResult(writer);
         transformer.transform(domSource, result);
-        //System.out.println(writer.toString());
         return writer.toString();
 	}
 	
