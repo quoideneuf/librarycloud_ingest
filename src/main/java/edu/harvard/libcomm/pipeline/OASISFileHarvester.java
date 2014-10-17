@@ -50,16 +50,7 @@ public class OASISFileHarvester {
         File[] directoryListing = dir.listFiles();
         if (directoryListing != null) {
           for (File child : directoryListing) {
-        	/*  
-        	BufferedReader br = null;  
-      		//InputStream is = null;
-    		try {
-    			//is = new FileInputStream(child);     
-    			br = new BufferedReader(new InputStreamReader(new FileInputStream(child),"UTF-8"));
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		}
-            */  
+  
 			DocumentBuilder builder;
 			try {
 				builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();

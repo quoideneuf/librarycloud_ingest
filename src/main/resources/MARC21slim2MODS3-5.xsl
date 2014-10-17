@@ -1,5 +1,6 @@
 <xsl:stylesheet xmlns="http://www.loc.gov/mods/v3" xmlns:marc="http://www.loc.gov/MARC21/slim"
 	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:stackscore="http://lib.harvard.edu/stackscore"
 	exclude-result-prefixes="xlink marc" version="1.0">
 	<xsl:include href="src/main/resources/MARC21slimUtils.xsl"/>
 	<xsl:output encoding="UTF-8" indent="no" method="xml" omit-xml-declaration="yes"/>
@@ -2686,6 +2687,9 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 				</languageOfCataloging>
 			</xsl:for-each>
 		</recordInfo>
+		<extension>
+			<stackscore:rank>100</stackscore:rank>
+		</extension>
 	</xsl:template>
 
 	<xsl:template name="displayForm">
