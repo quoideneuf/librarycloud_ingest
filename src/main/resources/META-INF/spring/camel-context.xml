@@ -63,6 +63,8 @@
         </property>
     </bean>
 
+	<bean id="eadSplitter" class="edu.harvard.libcomm.pipeline.EADSplitter"/>
+
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
         <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
@@ -158,9 +160,17 @@
             <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=solrLoadProcessor&amp;groupSize=10"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
             <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
-
         </route>
 
+		<!--  begin oasis routes -->
+        <route id="oasis-ingest">
+            <from uri="file:{{librarycloud.files.basepath}}/oasis?include=.*.xml" />
+            <split streaming="true">
+                <method bean="eadSplitter" method="splitEADFiles"/>
+                <to uri="file:{{librarycloud.files.basepath}}/publish?fileName=${header.CamelSplitIndex}"/>
+                <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+            </split>
+         </route>
               
     </camelContext>
     
