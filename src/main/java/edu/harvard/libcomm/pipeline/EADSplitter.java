@@ -43,6 +43,7 @@ public class EADSplitter  {
 
 			String directorypath = libCommMessage.getPayload().getFilepath();
 	        File dir = new File(directorypath);
+	        //TO DO - too memory intensive, use Files.walkFileTree instead
 	        File[] directoryListing = dir.listFiles();
 	        List<String> componentList = new ArrayList<String>();
 	        for (File child : directoryListing) {
