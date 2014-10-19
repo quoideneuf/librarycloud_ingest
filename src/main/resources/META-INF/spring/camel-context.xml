@@ -37,7 +37,11 @@
     <!-- <bean id="eventTimer" class="edu.harvard.libcomm.pipeline.EventTimer"/> -->
 
     <!-- Definition of beans that handle processing of items in the pipeline -->
-	<bean id="marcSplitter" class="edu.harvard.libcomm.pipeline.MarcSplitter"/>		
+	<bean id="marcSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.MarcSplitter"/>
+        </property>
+    </bean>		
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
@@ -89,7 +93,7 @@
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
                 <split streaming="true" parallelProcessing="true">
-                    <method bean="marcSplitter" method="splitMarcFile"/>
+                    <method bean="marcSplitter" method="split"/>
                     <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
                     <!-- <to uri="file://{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}" /> -->
                 </split>
