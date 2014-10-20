@@ -51,4 +51,4 @@ fi
 
 # Copy ingest command to target queue
 aws sqs create-queue --queue-name=$SQS_ENVIRONMENT-aleph-command
-aws sqs send-message --queue=http://sqs.us-east-1.amazonaws.com/$SQS_ENVIRONMENT-aleph-command --message-body="`cat $SOURCE_FILE_NAME.command.xml`"
+aws sqs send-message --queue=http://sqs.us-east-1.amazonaws.com/$SQS_ENVIRONMENT-ingest-aleph --message-body="`cat $SOURCE_FILE_NAME.command.xml`"
