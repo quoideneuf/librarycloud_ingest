@@ -88,8 +88,8 @@
  		xml messages sent to queue
  		 -->
         <route id="aleph-ingest-split" errorHandlerRef="eh">
-            <from uri="file:{{librarycloud.files.basepath}}/ingest-aleph?include=.*.xml" />
-
+            <!-- <from uri="file:{{librarycloud.files.basepath}}/ingest-aleph?include=.*.xml" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-aleph?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
                 <split streaming="true" parallelProcessing="true">
