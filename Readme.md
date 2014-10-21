@@ -20,13 +20,9 @@ This application is currently under development. To date, the app handles ingest
 
 ## To ingest Aleph data 
 
-        util/ingest_aleph [DATA_FILE] [USERNAME@SERVER] [ssh key path]
+Follow (these instructions)[https://github.com/harvard-library/librarycloud_deploy#deploy-a-control-server]
 
-Where
-
-* ```[DATA_FILE]``` is the location of a MARC file on your local system
-* ```[USERNAME@SERVER]``` are username/password for an ingest server
-* ```[ssh key path]``` is the path to the SSH key that allows access to that server
+    
 
 ## On the way:
 
