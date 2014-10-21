@@ -50,5 +50,5 @@ if [ ! -f "$SOURCE_FILE_NAME.command.xml" ]; then
 fi
 
 # Copy ingest command to target queue
-aws sqs create-queue --queue-name=$SQS_ENVIRONMENT-aleph-command
+aws sqs create-queue --queue-name=$SQS_ENVIRONMENT-ingest-aleph
 aws sqs send-message --queue=http://sqs.us-east-1.amazonaws.com/$SQS_ENVIRONMENT-ingest-aleph --message-body="`cat $SOURCE_FILE_NAME.command.xml`"
