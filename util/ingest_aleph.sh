@@ -26,7 +26,7 @@ aws s3 mb s3://$TARGET_BUCKET
 aws s3 cp $SOURCE_FILE_PATH s3://$TARGET_BUCKET
 
 # Create download URL
-SOURCE_FILE_URL=`sign_s3_url.bash --bucket $TARGET_BUCKET --file-path $SOURCE_FILE_NAME`
+SOURCE_FILE_URL=`sign_s3_url.bash --bucket $TARGET_BUCKET --file-path $SOURCE_FILE_NAME --minute-expire 1440`
 
 # Need to escape ampersands in the replacement string, or sed will do odd stuff
 SED_FILE_URL=`echo $SOURCE_FILE_URL | sed 's|&|\\\&amp;|g'`
