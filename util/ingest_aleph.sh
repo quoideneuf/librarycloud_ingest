@@ -11,15 +11,13 @@ SOURCE_FILE_PATH=$1
 SOURCE_FILE_NAME=$(basename $SOURCE_FILE_PATH)
 SQS_ENVIRONMENT=$2
 TARGET_BUCKET=harvard.librarycloud.upload.$SQS_ENVIRONMENT.aleph
-COMMAND_BUCKET=harvard.librarycloud.command.$SQS_ENVIRONMENT.aleph
 
 if [ $# -ne 2 ]; then
     echo "Usage: ingest-aleph.sh [DATA_FILE] [SQS_ENVIRONMENT]"
     exit 1
 fi
 
-# Create buckets (it's not a problem if the bucket already exists)
-aws s3 mb s3://$COMMAND_BUCKET
+# Create bucket (it's not a problem if the bucket already exists)
 aws s3 mb s3://$TARGET_BUCKET
 
 # Copy data file to target
