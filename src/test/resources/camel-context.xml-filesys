@@ -53,9 +53,9 @@
         </property>
     </bean>
 
-    <bean id="shelfrankProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+    <bean id="stackscoreProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
-            <bean class="edu.harvard.libcomm.pipeline.ShelfRankProcessor"/>
+            <bean class="edu.harvard.libcomm.pipeline.StackScoreProcessor"/>
         </property>
     </bean>
 
@@ -110,12 +110,12 @@
 
 		<route id="publish" >
             <from uri="file://{{librarycloud.files.basepath}}/publish" />
-            <process ref="shelfrankProcessor"/>
-            <to uri="file://{{librarycloud.files.basepath}}/shelfrank" />
+            <process ref="stackscoreProcessor"/>
+            <to uri="file://{{librarycloud.files.basepath}}/stackscore" />
         </route>
  
  		<route id="tosolr" >
-            <from uri="file://{{librarycloud.files.basepath}}/shelfrank" />
+            <from uri="file://{{librarycloud.files.basepath}}/stackscore" />
             <process ref="solrLoadProcessor"/>
             <to uri="file://{{librarycloud.files.basepath}}/tosolr" />
         </route>
