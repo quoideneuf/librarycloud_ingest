@@ -89,11 +89,8 @@
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-dead-letter?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
         </route>
 
- 		<!-- 
- 		aleph-ingest route reads xml messages from directory that contain corresponding marc (.mrc) files
- 		converts marc communication format to marcxml, chunks into files of 25 and writes to specified directory
- 		xml messages sent to queue
- 		 -->
+        <!----------- Aleph ingest and normalization ------------------>
+
         <route id="aleph-ingest-split" errorHandlerRef="eh">
             <!-- <from uri="file:{{librarycloud.files.basepath}}/ingest-aleph?include=.*.xml" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-aleph?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
@@ -111,11 +108,6 @@
             </doTry>
 
          </route>
-
-  		<!-- 
- 		marctomods route reads marcxml from specified dir, validates, converts marcxml to mods
- 		mods wrapped in libcomm message and sent to queue (can be file, aws, etc)
- 		 -->         
 
         <!-- Pulling items from SQS to the Seda queue allows us to process multiple requests in parallel on multi-core servers -->
         <route id="marctomods-seda" errorHandlerRef="eh"> 
@@ -144,6 +136,8 @@
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
         </route>
 
+        <!----------- Publishing records to consumers ------------------>
+
         <route id="publish-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
@@ -163,6 +157,20 @@
             <to uri="seda:publish-public?size=20&amp;blockWhenFull=true"/>
         </route>
 
+        <!----------- OASIS ingest and normalization ------------------>
+
+        <route id="oasis-ingest">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
+            <split streaming="true">
+                <method bean="eadSplitter" method="split"/>
+                <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+            </split>
+        </route>
+              
+
+        <!----------- SOLR consumer for loading into item API ------------------>
+
 		<route id="modstosolr" errorHandlerRef="eh">
             <from uri="seda:publish-public?concurrentConsumers=1" />
             <process ref="solrLoadProcessor"/>
@@ -173,15 +181,6 @@
         </route>
 
 
-		<route id="oasis-ingest">
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
-            <split streaming="true">
-                <method bean="eadSplitter" method="split"/>
-                <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-                <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
-            </split>
-		</route>
-              
     </camelContext>
     
     
