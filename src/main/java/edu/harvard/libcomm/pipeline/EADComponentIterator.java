@@ -38,7 +38,7 @@ public class EADComponentIterator {
         
     }
 
-    public Iterator<String> getComponents(InputStream is) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, JAXBException {
+    public Iterator<String> getComponents(InputStream is) throws Exception {
     	Document doc = getDocument(is);
     	DOMSource domSource = new DOMSource(doc);
     	NodeList nodes = getNodeList(doc);
@@ -54,6 +54,7 @@ public class EADComponentIterator {
 						eadComponentMods = transformOASIS(domSource, "src/main/resources/eadcomponent2mods.xsl", nodeValue);
 					} catch (Exception e) {
 						e.printStackTrace();
+						throw e;
 					}
 					LibCommMessage lcmessage = new LibCommMessage();
 					Payload payload = new Payload();
@@ -92,7 +93,6 @@ public class EADComponentIterator {
 	
 	private NodeList getNodeList (Document doc) throws XPathExpressionException {
 
-		
 			XPathFactory factory = XPathFactory.newInstance();
 			XPath xpath = factory.newXPath();
 			Object result = null;

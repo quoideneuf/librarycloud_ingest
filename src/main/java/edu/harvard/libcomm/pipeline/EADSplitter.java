@@ -26,8 +26,7 @@ import edu.harvard.libcomm.message.LibCommMessage;
 public class EADSplitter implements ISplitter {
 	protected Logger log = Logger.getLogger(EADSplitter.class); 	
 
-	public Iterator getIterator(InputStream is) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, JAXBException {
-		EADComponentIterator helper = new EADComponentIterator();
+	public Iterator getIterator(InputStream is) throws Exception {
 		EADComponentIterator eadComponentIterator = new EADComponentIterator();
 	    return eadComponentIterator.getComponents(is);
 	}
