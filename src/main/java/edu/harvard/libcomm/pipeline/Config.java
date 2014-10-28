@@ -40,7 +40,8 @@ public class Config {
 	
 	public String SOLR_URL;
 	public String HOLDINGS_URL;
-    
+	public String ITEMS_URL;
+	
 	private static Config conf;
 	
 	public static String propFile = "librarycloud.env.properties";
@@ -58,6 +59,7 @@ public class Config {
 		
 		SOLR_URL = props.getProperty("solr_url");
 		HOLDINGS_URL = props.getProperty("holdings_url");
+		ITEMS_URL = props.getProperty("items_url");
 	
 	}
 	

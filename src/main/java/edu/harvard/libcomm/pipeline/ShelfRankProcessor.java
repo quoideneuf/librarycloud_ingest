@@ -27,14 +27,15 @@ public class ShelfRankProcessor implements IProcessor {
 			e.printStackTrace();
 			throw e;
 		}
-		URI uri = new URI(Config.getInstance().HOLDINGS_URL + "?filter=hollis_catalog&filter=id_inst:(" + recids + ")&fields=shelfrank,id_inst&limit=250");
+		//System.out.println("RECIDS: " + recids);
+		URI uri = new URI(Config.getInstance().ITEMS_URL + "?filter=hollis_catalog&filter=id_inst:(" + recids + ")&fields=shelfrank,id_inst&limit=250");
 		JSONTokener tokener;
 		try {
 			Date start = new Date();
 			tokener = new JSONTokener(uri.toURL().openStream());
 			Date end = new Date();
-			log.debug("HoldingProcesser query time: " + (end.getTime() - start.getTime()));
-			log.trace("HoldingProcesser query : " +  uri.toURL());
+			log.debug("ShelfRankProcesser query time: " + (end.getTime() - start.getTime()));
+			log.trace("ShelfRankProcesser query : " +  uri.toURL());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;
@@ -42,6 +43,7 @@ public class ShelfRankProcessor implements IProcessor {
 		
 		JSONObject shelfrankJson = new JSONObject(tokener);
 		String shelfrankXml = XML.toString(shelfrankJson);
+		System.out.println(shelfrankXml);
 		shelfrankXml = "<shelfrank>" + shelfrankXml + "</shelfrank>";
 		log.trace("ShelfRankProcessor result:" + shelfrankXml);
 		
