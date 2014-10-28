@@ -42,6 +42,13 @@
             <bean class="edu.harvard.libcomm.pipeline.MarcSplitter"/>
         </property>
     </bean>		
+
+	<bean id="eadSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.EADSplitter"/>
+        </property>
+    </bean>	
+
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
@@ -165,6 +172,15 @@
 
         </route>
 
+
+		<route id="oasis-ingest">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
+            <split streaming="true">
+                <method bean="eadSplitter" method="split"/>
+                <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+            </split>
+		</route>
               
     </camelContext>
     
