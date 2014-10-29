@@ -59,7 +59,7 @@ public class Config {
 		
 		SOLR_URL = props.getProperty("solr_url");
 		HOLDINGS_URL = props.getProperty("holdings_url");
-		ITEM_URL = props.getProperty("items_url");
+		ITEM_URL = props.getProperty("item_url");
 	
 	}
 	

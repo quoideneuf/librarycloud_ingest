@@ -53,6 +53,12 @@
         </property>
     </bean>
 
+    <bean id="stackscoreProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.StackScoreProcessor"/>
+        </property>
+    </bean>
+
     <bean id="publishProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.PublishProcessor"/>
@@ -71,101 +77,55 @@
         <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
 
-        <!-- Error handling behavior -->
-        <errorHandler id="eh" redeliveryPolicyRef="myPolicy" type="DeadLetterChannel" 
-            deadLetterUri="direct:dead-letter"/>
-        <redeliveryPolicyProfile id="myPolicy" maximumRedeliveries="0"/>
 
-        <route id="dead-letter">
-            <from uri="direct:dead-letter"/>
-            <to uri="log:edu.harvard.libcomm.deadletterqueue?level=ERROR"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-dead-letter?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
-        </route>
-
- 		<!-- 
- 		aleph-ingest route reads xml messages from directory that contain corresponding marc (.mrc) files
- 		converts marc communication format to marcxml, chunks into files of 25 and writes to specified directory
- 		xml messages sent to queue
- 		 -->
-        <route id="aleph-ingest-split" errorHandlerRef="eh">
-            <!-- <from uri="file:{{librarycloud.files.basepath}}/ingest-aleph?include=.*.xml" /> -->
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-aleph?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
-            <!-- Try block required for errors thrown out of the splitter -->
-            <doTry>
-                <split streaming="true" parallelProcessing="true">
-                    <method bean="marcSplitter" method="split"/>
-                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-                    <!-- <to uri="file://{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}" /> -->
-                </split>
-                <doCatch>
-                    <exception>java.lang.Exception</exception>
-                    <to uri="direct:dead-letter" />
-                </doCatch>
-            </doTry>
-
+        <route id="aleph-ingest">
+            <from uri="file:{{librarycloud.files.basepath}}?include=.*.xml" />
+            <split streaming="true">
+                <method bean="marcSplitter" method="split"/>
+                <to uri="file:{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}"/>
+                <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+            </split>
          </route>
-
+ 
   		<!-- 
  		marctomods route reads marcxml from specified dir, validates, converts marcxml to mods
  		mods wrapped in libcomm message and sent to queue (can be file, aws, etc)
  		 -->         
-
-        <!-- Pulling items from SQS to the Seda queue allows us to process multiple requests in parallel on multi-core servers -->
-        <route id="marctomods-seda" errorHandlerRef="eh"> 
-            <!-- <from uri="file://{{librarycloud.files.basepath}}/normalize-marcxml" /> -->
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <to uri="seda:normalize-marcxml?size=20&amp;blockWhenFull=true"/>
-        </route>
-
-        <route id="marctomods"  errorHandlerRef="eh">
-            <from uri="seda:normalize-marcxml?concurrentConsumers=4" />
+   
+         <route id="marctomods">
+            <from uri="file:{{librarycloud.files.basepath}}/normalize-marcxml" />
+            <!-- <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
             <process ref="modsProcessor"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start" /> -->
-        </route>
-        
-        <route id="addholdingstomods-seda" errorHandlerRef="eh">
-            <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-start" /> -->
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <to uri="seda:addholdingstomods?size=20&amp;blockWhenFull=true" />
+            <to uri="file:{{librarycloud.files.basepath}}/enrich"/>
+            <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
         </route>
 
-		<route id="addholdingstomods" errorHandlerRef="eh">
-            <from uri="seda:addholdingstomods?concurrentConsumers=1"/>
-            <process ref="holdingsProcessor"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
-        </route>
-
-        <route id="publish-seda" errorHandlerRef="eh">
-            <!-- <from uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <to uri="seda:enrich-end?size=20&amp;blockWhenFull=true"/>
-        </route>
-
-		<route id="publish" errorHandlerRef="eh">
-            <from uri="seda:enrich-end?concurrentConsumers=1" />
+		<route id="publishtomods">
+            <from uri="file:{{librarycloud.files.basepath}}/enrich" />
             <process ref="publishProcessor"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-            <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
+            <to uri="file:{{librarycloud.files.basepath}}/publish"/>
+            <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+ 			<log message="holdings added ${file:name}"/>
         </route>
 
-        <route id="modstosolr-seda" errorHandlerRef="eh">
-            <!-- <from uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <to uri="seda:publish-public?size=20&amp;blockWhenFull=true"/>
+		<route id="publish" >
+            <from uri="file://{{librarycloud.files.basepath}}/publish" />
+            <process ref="holdingsProcessor"/>
+            <to uri="file://{{librarycloud.files.basepath}}/holdings" />
         </route>
 
-		<route id="modstosolr" errorHandlerRef="eh">
-            <from uri="seda:publish-public?concurrentConsumers=1" />
+		<route id="holdings" >
+            <from uri="file://{{librarycloud.files.basepath}}/holdings" />
+            <process ref="stackscoreProcessor"/>
+            <to uri="file://{{librarycloud.files.basepath}}/stackscore" />
+        </route>
+ 
+ 		<route id="tosolr" >
+            <from uri="file://{{librarycloud.files.basepath}}/stackscore" />
             <process ref="solrLoadProcessor"/>
-            <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=solrLoadProcessor&amp;groupSize=10"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
-            <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
-
+            <to uri="file://{{librarycloud.files.basepath}}/tosolr" />
         </route>
-
-              
+             
     </camelContext>
     
     

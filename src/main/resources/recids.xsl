@@ -6,10 +6,12 @@
     <xsl:output indent="yes" method="text"/>
     
     <xsl:template match="mods:modsCollection">
-        <xsl:element name="add">
-            <xsl:apply-templates select="mods:mods/mods:recordInfo/mods:recordIdentifier"/>
-        </xsl:element>
+	    <xsl:apply-templates select="mods:mods"/>
     </xsl:template>
+
+    <xsl:template match="mods:mods">
+	    <xsl:apply-templates select="mods:recordInfo/mods:recordIdentifier"/>
+    </xsl:template>    
     
     <xsl:template match="mods:recordIdentifier">
         <xsl:value-of select="."/><xsl:if test="not(position()=last())"><xsl:text>+OR+</xsl:text></xsl:if>

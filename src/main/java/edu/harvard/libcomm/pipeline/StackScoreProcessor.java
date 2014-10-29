@@ -28,7 +28,7 @@ public class StackScoreProcessor implements IProcessor {
 			throw e;
 		}
 		//System.out.println("RECIDS: " + recids);
-		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=hollis_catalog&filter=id_inst:(" + recids + ")&fields=shelfrank,id_inst&limit=250");
+		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=hollis_catalog&filter=id_inst:(" + recids + ")&fields=stackscore,id_inst&limit=250");
 		JSONTokener tokener;
 		try {
 			Date start = new Date();
@@ -48,7 +48,7 @@ public class StackScoreProcessor implements IProcessor {
 		log.trace("StackScoreProcessor result:" + stackscoreXml);
 		
 		try {
-			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/addshelfrank.xsl",stackscoreXml);
+			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/addstackscore.xsl",stackscoreXml);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
