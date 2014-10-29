@@ -2,7 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs mods"
     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" 
-    xmlns:usage="http://lib.harvard.edu/stackscore" version="1.0"
+    xmlns:usage="http://lib.harvard.edu/usagedata" version="1.0"
     >
     
     <xsl:output indent="no"/>
@@ -29,8 +29,12 @@
             
             <xsl:for-each select="$stackscore//docs[id_inst=$hollisid]">
                 <xsl:element name="extension" namespace="http://www.loc.gov/mods/v3">
-                        <xsl:if test="$stackscore//docs[id_inst=$hollisid]/stackscore">
-                            <xsl:element name="stackscore" namespace="http://lib.harvard.edu/usage"><xsl:value-of select="$stackscore//docs[id_inst=$hollisid]/stackscore"/></xsl:element>
+                        <xsl:if test="$stackscore//docs[id_inst=$hollisid]/shelfrank">
+                            <xsl:element name="usageData" namespace="http://lib.harvard.edu/usagedata">
+                                <xsl:element name="stackScore" namespace="http://lib.harvard.edu/usagedata">
+                                    <xsl:value-of select="$stackscore//docs[id_inst=$hollisid]/shelfrank"/>
+                                </xsl:element>
+                            </xsl:element>
                         </xsl:if>
                 </xsl:element>
             </xsl:for-each>

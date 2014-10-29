@@ -31,7 +31,7 @@ public class HoldingsProcessor implements IProcessor {
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 	
 		String data = null;
-		String recids = null;
+		String recids = "0";
 		libCommMessage.setCommand("PUBLISH");
 		try {
 			recids = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/recids.xsl",null);

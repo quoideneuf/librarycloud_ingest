@@ -19,8 +19,9 @@ public class StackScoreProcessor implements IProcessor {
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 	
 		String data = null;
-		String recids = null;
+		String recids = "0";
 		libCommMessage.setCommand("PUBLISH");
+
 		try {
 			recids = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/recids.xsl",null);
 		} catch (Exception e) {
@@ -28,7 +29,7 @@ public class StackScoreProcessor implements IProcessor {
 			throw e;
 		}
 		//System.out.println("RECIDS: " + recids);
-		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=hollis_catalog&filter=id_inst:(" + recids + ")&fields=stackscore,id_inst&limit=250");
+		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=hollis_catalog&filter=id_inst:(" + recids + ")&fields=shelfrank,id_inst&limit=250");
 		JSONTokener tokener;
 		try {
 			Date start = new Date();

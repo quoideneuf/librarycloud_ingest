@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs"
-    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" version="1.0">
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" 
+    xmlns:usage="http://lib.harvard.edu/usagedata" version="1.0">
 
     <xsl:output indent="no"/>
 
@@ -30,6 +31,7 @@
             <xsl:apply-templates select="mods:location"/>
             <xsl:apply-templates select="mods:recordInfo"/>
             <xsl:apply-templates select="mods:relatedItem[@type='series']"/>
+            <xsl:apply-templates select="mods:extension/usage:usageData/usage:stackScore"/>
             <!--
             <xsl:apply-templates select="//mods:relatedItem[@displayLabel='collection']"/>
             <xsl:apply-templates select="mods:relatedItem[@type='constituent']"/>
@@ -479,6 +481,15 @@
             </xsl:attribute>
             <xsl:apply-templates/>
         </xsl:element>
+    </xsl:template>
+ 
+    <xsl:template match="usage:stackScore">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>stackscore</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>        
     </xsl:template>
  
     <!-- will add space for sibs except for the last -->
