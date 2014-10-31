@@ -1,13 +1,13 @@
 package edu.harvard.libcomm.pipeline;
 
-import java.io.IOException;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.Iterator;
 import java.net.URL;
+import java.util.Iterator;
+
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.validator.routines.UrlValidator;

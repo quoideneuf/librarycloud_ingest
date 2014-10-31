@@ -42,6 +42,13 @@
             <bean class="edu.harvard.libcomm.pipeline.MarcSplitter"/>
         </property>
     </bean>		
+
+	<bean id="marcDeleteSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.MarcDeleteFileSplitter"/>
+        </property>
+    </bean>	
+
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
@@ -86,6 +93,17 @@
                 <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
             </split>
          </route>
+ 
+ 
+         <route id="aleph-delete-ingest">
+            <from uri="file:{{librarycloud.files.basepath}}/deletefiles?include=.*.xml" />
+            <split streaming="true">
+                <method bean="marcDeleteSplitter" method="split"/>
+                <to uri="file:{{librarycloud.files.basepath}}/marc-deletes?fileName=${header.CamelSplitIndex}"/>
+                <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+            </split>
+         </route>
+ 
  
   		<!-- 
  		marctomods route reads marcxml from specified dir, validates, converts marcxml to mods

@@ -5,13 +5,12 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-
-public class EADSplitter implements ISplitter {
+public class DeleteFileSplitter implements ISplitter {
 	protected Logger log = Logger.getLogger(EADSplitter.class); 	
 
 	public Iterator getIterator(InputStream is) throws Exception {
-		EADComponentIterator eadComponentIterator = new EADComponentIterator();
-	    return eadComponentIterator.getComponents(is);
+		DeleteFileIterator marcDeleteFileIterator = new DeleteFileIterator();
+	    return marcDeleteFileIterator.getDeleteIds(is);
 	}
 
 
