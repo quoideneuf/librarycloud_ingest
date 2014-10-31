@@ -57,7 +57,7 @@
                 </xsl:if>
                 <xsl:element name="recordIdentifier">
                     <xsl:attribute name="id"><xsl:text>s</xsl:text><xsl:value-of select="$sibcount"/></xsl:attribute>
-                    <xsl:attribute name="source">OASIS</xsl:attribute>
+                    <xsl:attribute name="source">MH:OASIS</xsl:attribute>
                     <xsl:value-of select="//c[@id=$cid_legacy_or_new]/@id"/>
                 </xsl:element>
             </xsl:element>

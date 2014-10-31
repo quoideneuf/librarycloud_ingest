@@ -15,5 +15,6 @@
         <xsl:value-of select="."/><xsl:if test="not(position()=last())"><xsl:text>+OR+</xsl:text></xsl:if>
     </xsl:template>
     
+    <xsl:template match="*"/>
     
 </xsl:stylesheet>
