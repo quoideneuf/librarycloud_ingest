@@ -44,6 +44,12 @@
         </property>
     </bean> 
 
+    <bean id="viaSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.VIASplitter"/>
+        </property>
+    </bean> 
+
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
@@ -162,6 +168,16 @@
                 <method bean="eadSplitter" method="split"/>
                 <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
                 <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
+            </split>
+        </route>
+        
+		<!-- VIA ingest and normalization - needs to be changed from filesys to aws -->
+
+        <route id="via-ingest">
+            <from uri="file:{{librarycloud.files.basepath}}/viacommand?include=.*.xml" />
+            <split streaming="true">
+                <method bean="viaSplitter" method="split"/>
+                <to uri="file:{{librarycloud.files.basepath}}/normalized-via?fileName=${header.CamelSplitIndex}"/>            
             </split>
         </route>
 
