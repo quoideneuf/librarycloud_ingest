@@ -1,29 +1,16 @@
 package edu.harvard.libcomm.pipeline;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.json.XML;
 
-
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
-import gov.loc.mods.v3.ModsCollection;
-import gov.loc.mods.v3.ModsType;
 
 public class HoldingsProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(HoldingsProcessor.class); 	
@@ -32,20 +19,21 @@ public class HoldingsProcessor implements IProcessor {
 	
 		String data = null;
 		String recids = "0";
-		libCommMessage.setCommand("PUBLISH");
+
 		try {
 			recids = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/recids.xsl",null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
+
 		URI uri = new URI(Config.getInstance().HOLDINGS_URL + "?filter=MarcLKRB:(" + recids + ")&fields=MarcLKRB,Marc852B,Marc856U,DisplayCallNumber&limit=250");
 		JSONTokener tokener;
 		try {
 			Date start = new Date();
 			tokener = new JSONTokener(uri.toURL().openStream());
 			Date end = new Date();
-			log.debug("HoldingProcesser query time: " + (end.getTime() - start.getTime()));
+			log.trace("HoldingProcesser query time: " + (end.getTime() - start.getTime()));
 			log.trace("HoldingProcesser query : " +  uri.toURL());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -69,8 +57,4 @@ public class HoldingsProcessor implements IProcessor {
         libCommMessage.setPayload(payload);
         
 	}
-
-
-
-
 }
