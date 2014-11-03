@@ -41,6 +41,8 @@ public class Config {
 	public String SOLR_URL;
 	public String HOLDINGS_URL;
 	public String ITEM_URL;
+	public String EAD_COMPONENT_XSL;
+	public String VIA_COMPONENT_XSL;
 	
 	private static Config conf;
 	
@@ -60,6 +62,8 @@ public class Config {
 		SOLR_URL = props.getProperty("solr_url");
 		HOLDINGS_URL = props.getProperty("holdings_url");
 		ITEM_URL = props.getProperty("item_url");
+		EAD_COMPONENT_XSL = props.getProperty("ead_ompnonent_xsl");
+		VIA_COMPONENT_XSL = props.getProperty("via_ompnonent_xsl");
 	
 	}
 	

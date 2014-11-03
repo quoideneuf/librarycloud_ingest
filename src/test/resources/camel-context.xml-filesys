@@ -42,6 +42,19 @@
             <bean class="edu.harvard.libcomm.pipeline.MarcSplitter"/>
         </property>
     </bean>		
+
+    <bean id="viaSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.VIASplitter"/>
+        </property>
+    </bean> 
+
+	<bean id="marcDeleteSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.DeleteFileSplitter"/>
+        </property>
+    </bean>	
+
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
@@ -77,34 +90,33 @@
         <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
 
-
+<!-- 
         <route id="aleph-ingest">
             <from uri="file:{{librarycloud.files.basepath}}?include=.*.xml" />
             <split streaming="true">
                 <method bean="marcSplitter" method="split"/>
                 <to uri="file:{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}"/>
-                <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
             </split>
          </route>
- 
-  		<!-- 
- 		marctomods route reads marcxml from specified dir, validates, converts marcxml to mods
- 		mods wrapped in libcomm message and sent to queue (can be file, aws, etc)
- 		 -->         
+  
+         <route id="aleph-delete-ingest">
+            <from uri="file:{{librarycloud.files.basepath}}/deletefiles?include=.*.xml" />
+            <split streaming="true">
+                <method bean="marcDeleteSplitter" method="split"/>
+                <to uri="file:{{librarycloud.files.basepath}}/marc-deletes?fileName=${header.CamelSplitIndex}"/>
+            </split>
+         </route>
    
          <route id="marctomods">
             <from uri="file:{{librarycloud.files.basepath}}/normalize-marcxml" />
-            <!-- <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
             <process ref="modsProcessor"/>
             <to uri="file:{{librarycloud.files.basepath}}/enrich"/>
-            <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
         </route>
 
 		<route id="publishtomods">
             <from uri="file:{{librarycloud.files.basepath}}/enrich" />
             <process ref="publishProcessor"/>
             <to uri="file:{{librarycloud.files.basepath}}/publish"/>
-            <!-- <to uri="aws-sqs://viaIngest?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />-->
  			<log message="holdings added ${file:name}"/>
         </route>
 
@@ -113,12 +125,21 @@
             <process ref="stackscoreProcessor"/>
             <to uri="file://{{librarycloud.files.basepath}}/stackscore" />
         </route>
- 
+ --> 
+        <route id="via-ingest">
+            <from uri="file:{{librarycloud.files.basepath}}/viacommand?include=.*.xml" />
+            <split streaming="true">
+                <method bean="viaSplitter" method="split"/>
+                <to uri="file:{{librarycloud.files.basepath}}/normalized-via?fileName=${header.CamelSplitIndex}"/>            
+            </split>
+        </route>
+        
  		<route id="tosolr" >
-            <from uri="file://{{librarycloud.files.basepath}}/stackscore" />
+            <from uri="file://{{librarycloud.files.basepath}}/normalized-via" />
             <process ref="solrLoadProcessor"/>
             <to uri="file://{{librarycloud.files.basepath}}/tosolr" />
         </route>
+
              
     </camelContext>
     
