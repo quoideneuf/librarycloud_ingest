@@ -8,6 +8,7 @@ import java.lang.UnsupportedOperationException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
@@ -32,84 +33,61 @@ import org.xml.sax.SAXException;
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
 
-public class EADComponentIterator {
+public class EADComponentIterator implements Iterator<String> {
 
-    public EADComponentIterator() {
-        
+	private EADReader eadReader;
+	private NodeList nodes;
+	private DOMSource domSource;
+	private int position = 0;
+
+    public EADComponentIterator(EADReader reader) throws Exception {
+        this.eadReader = reader;
+        nodes = reader.getNodes();
+        domSource = reader.getDOMSource();        	
     }
 
-    public Iterator<String> getComponents(InputStream is) throws Exception {
-    	Document doc = getDocument(is);
-    	DOMSource domSource = new DOMSource(doc);
-    	NodeList nodes = getNodeList(doc);
-    	List<String> componentList = new ArrayList<String>();
-    	int count = 0;
-		if (nodes.getLength() > 0) {
-			for (int i = 0; i < nodes.getLength(); i++) {
-		        String nodeName = nodes.item(i).getNodeName();
-		        String nodeValue = nodes.item(i).getNodeValue();
-		        if (nodeName.equals("id")) {
-		        	String eadComponentMods = null;
-					try {
-						eadComponentMods = transformOASIS(domSource, "src/main/resources/eadcomponent2mods.xsl", nodeValue);
-					} catch (Exception e) {
-						e.printStackTrace();
-						throw e;
-					}
-					LibCommMessage lcmessage = new LibCommMessage();
-					Payload payload = new Payload();
-					payload.setFormat("MODS");
-					payload.setSource("OASIS");
-					payload.setData(eadComponentMods);
-					lcmessage.setCommand("PUBLISH");
-		        	lcmessage.setPayload(payload);
-		        	componentList.add(MessageUtils.marshalMessage(lcmessage));
-		        }
-			}
-		}
-		return componentList.iterator();
-    
+    @Override
+    public boolean hasNext() {
+    	return ((nodes != null) && (position < nodes.getLength()));
     }
 
-	private Document getDocument (InputStream is) throws ParserConfigurationException, SAXException, IOException {
-	   	Document doc = null;
-		DocumentBuilder builder;
-		try {
-			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			doc = builder.parse(is);
-
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-			throw e;
-		} catch (SAXException e) {
-			e.printStackTrace();
-			throw e;
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
-		}
-		return doc;
-	}
-	
-	private NodeList getNodeList (Document doc) throws XPathExpressionException {
-
-			XPathFactory factory = XPathFactory.newInstance();
-			XPath xpath = factory.newXPath();
-			Object result = null;
-			XPathExpression componentId = null;
-			try {
-				componentId = xpath.compile("//c/@id");
-				result = componentId.evaluate(doc, XPathConstants.NODESET);
-			} catch (XPathExpressionException e) {
-				e.printStackTrace();
-				throw e;
-			}
-
-			NodeList nodes = (NodeList) result;
-			return nodes;
+    @Override
+    public String next() {
+    	while ((nodes != null) && (position < nodes.getLength())) {
+	        String nodeName = nodes.item(position).getNodeName();
+	        String nodeValue = nodes.item(position).getNodeValue();
+	        position++;
+	        if (nodeName.equals("id")) {
+	        	String eadComponentMods = null;
+				try {
+					eadComponentMods = transformOASIS(domSource, "src/main/resources/eadcomponent2mods.xsl", nodeValue);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new NoSuchElementException();
+				}
+				LibCommMessage lcmessage = new LibCommMessage();
+				Payload payload = new Payload();
+				payload.setFormat("MODS");
+				payload.setSource("OASIS");
+				payload.setData(eadComponentMods);
+				lcmessage.setCommand("ENRICH");
+	        	lcmessage.setPayload(payload);
+	        	try {
+	        		return MessageUtils.marshalMessage(lcmessage);
+				} catch (JAXBException e) {
+					e.printStackTrace();
+					return null;
+				}		        		
+	        }
+    	}
+    	throw new NoSuchElementException();
 	}
 
-    
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
+
 	private String transformOASIS (DOMSource domSource, String xslFilePath, String xslParam) throws Exception {
 		
 		StringWriter writer = new StringWriter();
