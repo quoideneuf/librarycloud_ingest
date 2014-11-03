@@ -27,8 +27,8 @@ public class EADSplitter implements ISplitter {
 	protected Logger log = Logger.getLogger(EADSplitter.class); 	
 
 	public Iterator getIterator(InputStream is) throws Exception {
-		EADComponentIterator eadComponentIterator = new EADComponentIterator();
-	    return eadComponentIterator.getComponents(is);
+		EADReader reader = new EADReader(is);
+	    return new EADComponentIterator(reader);
 	}
 
 
