@@ -13,6 +13,7 @@ DATA_SOURCE_NAME=$1
 SQS_ENVIRONMENT=$2
 SOURCE_FILE_PATH=$3
 SOURCE_FILE_NAME=$(basename $SOURCE_FILE_PATH)
+TARGET_FILE_NAME=`echo $SOURCE_FILE_NAME | sed 's/#//g'`
 TARGET_BUCKET=harvard.librarycloud.upload.$SQS_ENVIRONMENT.$DATA_SOURCE_NAME
 COMMAND_BUCKET=harvard.librarycloud.command.$SQS_ENVIRONMENT.$DATA_SOURCE_NAME
 
@@ -25,11 +26,12 @@ fi
 aws s3 mb s3://$COMMAND_BUCKET
 aws s3 mb s3://$TARGET_BUCKET
 
+
 # Copy data file to target
-aws s3 cp $SOURCE_FILE_PATH s3://$TARGET_BUCKET
+aws s3 cp $SOURCE_FILE_PATH s3://$TARGET_BUCKET/$TARGET_FILE_NAME
 
 # Create download URL
-SOURCE_FILE_URL=`sign_s3_url.bash --bucket $TARGET_BUCKET --file-path $SOURCE_FILE_NAME --minute-expire 1440`
+SOURCE_FILE_URL=`sign_s3_url.bash --bucket $TARGET_BUCKET --file-path $TARGET_FILE_NAME --minute-expire 1440`
 
 # Need to escape ampersands in the replacement string, or sed will do odd stuff
 SED_FILE_URL=`echo $SOURCE_FILE_URL | sed 's|&|\\\&amp;|g'`
