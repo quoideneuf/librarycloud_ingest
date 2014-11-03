@@ -5,7 +5,7 @@
 # Usage:    ingest.sh [SOURCE] [SQS_ENVIRONMENT] [DATA_FILE] 
 # Example:  ingest.sh aleph test ab.bib.00.20140808.full.mrc 
 # 
-# Example (multiple files): ls {DIRECTORY} | xargs -L 1 ingest.sh oasis test
+# Example (multiple files): find {DIRECTORY} | xargs -P 10 -L 1 ingest.sh oasis test
 # 
 # TODO: Make more robust
 
