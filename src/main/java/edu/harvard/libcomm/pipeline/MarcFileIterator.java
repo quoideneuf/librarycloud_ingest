@@ -2,15 +2,12 @@ package edu.harvard.libcomm.pipeline;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.UnsupportedOperationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import javax.xml.bind.JAXBException;
 
 import org.marc4j.MarcReader;
-import org.marc4j.MarcStreamReader;
-import org.marc4j.MarcWriter;
 import org.marc4j.MarcXmlWriter;
 import org.marc4j.marc.Record;
 
@@ -60,7 +57,11 @@ public class MarcFileIterator implements Iterator<String> {
             payload.setSource("aleph");
             payload.setFormat("mods");
             try {
-				payload.setData(output.toString("UTF-8").replace("<collection>", "<collection " + "xmlns=\"http://www.loc.gov/MARC21/slim\"" + ">"));
+            	String data = output.toString("UTF-8");
+            	data = data.replace("<collection>", "<collection " + "xmlns=\"http://www.loc.gov/MARC21/slim\"" + ">");
+            	data = data.replace("&#x2;","");
+            	data = filterContent(data);
+				payload.setData(data);
 				//payload.setData(output.toString("UTF-8"));
 
             } catch (UnsupportedEncodingException e) {
@@ -82,5 +83,9 @@ public class MarcFileIterator implements Iterator<String> {
     @Override
     public void remove() {
         throw new UnsupportedOperationException();
+    }
+    
+    private String filterContent(String content) {
+        return content.replaceAll("[^\\u0009\\u000a\\u000d\\u0020-\\uD7FF\\uE000-\\uFFFD]", "");
     }
 }
