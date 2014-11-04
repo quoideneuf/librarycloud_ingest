@@ -57,8 +57,7 @@ public class MarcFileIterator implements Iterator<String> {
             payload.setSource("aleph");
             payload.setFormat("mods");
             try {
-            	String data = output.toString("UTF-8");
-            	data = filterContent(data);
+            	String data = filterContent(output.toString("UTF-8"));
 				payload.setData(data);
 				//payload.setData(output.toString("UTF-8"));
 
