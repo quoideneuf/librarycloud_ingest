@@ -112,7 +112,7 @@
             <process ref="modsProcessor"/>
             <to uri="file:{{librarycloud.files.basepath}}/enrich"/>
         </route>
-
+<!--
 		<route id="publishtomods">
             <from uri="file:{{librarycloud.files.basepath}}/enrich" />
             <process ref="publishProcessor"/>
