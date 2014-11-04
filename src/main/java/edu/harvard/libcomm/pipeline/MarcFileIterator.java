@@ -58,8 +58,6 @@ public class MarcFileIterator implements Iterator<String> {
             payload.setFormat("mods");
             try {
             	String data = output.toString("UTF-8");
-            	data = data.replace("<collection>", "<collection " + "xmlns=\"http://www.loc.gov/MARC21/slim\"" + ">");
-            	data = data.replace("&#x2;","");
             	data = filterContent(data);
 				payload.setData(data);
 				//payload.setData(output.toString("UTF-8"));
@@ -86,6 +84,8 @@ public class MarcFileIterator implements Iterator<String> {
     }
     
     private String filterContent(String content) {
+    	content = content.replace("<collection>", "<collection " + "xmlns=\"http://www.loc.gov/MARC21/slim\"" + ">");
+    	content = content.replace("&#x2;","");
         return content.replaceAll("[^\\u0009\\u000a\\u000d\\u0020-\\uD7FF\\uE000-\\uFFFD]", "");
     }
 }
