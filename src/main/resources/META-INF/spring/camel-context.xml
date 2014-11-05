@@ -167,14 +167,24 @@
             <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
         </route>
         <!-- OASIS ingest and normalization -->
+<<<<<<< HEAD
         <route id="oasis-ingest" errorHandlerRef="eh">
+=======
+
+        <route id="oasis-ingest-seda" errorHandlerRef="eh">
+>>>>>>> branch 'master' of https://github.com/harvard-library/librarycloud_ingest
             <!-- <from uri="file://{{librarycloud.files.basepath}}/ingest-oasis" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
+            <to uri="seda:oasis-ingest-seda?size=10&amp;blockWhenFull=true"/>
+        </route>
+        <route id="oasis-ingest" errorHandlerRef="eh">
+            <from uri="seda:oasis-ingest-seda?concurrentConsumers=4" />
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
                 <split streaming="true" parallelProcessing="true">
                     <method bean="eadSplitter" method="split"/>
                     <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                    <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public?fileName=${header.CamelSplitIndex}" /> -->
                 </split>
                 <doCatch>
                     <exception>java.lang.Exception</exception>

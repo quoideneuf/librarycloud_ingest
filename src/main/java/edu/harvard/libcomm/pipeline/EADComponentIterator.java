@@ -25,6 +25,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.log4j.Logger;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -34,16 +36,19 @@ import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
 
 public class EADComponentIterator implements Iterator<String> {
+	protected Logger log = Logger.getLogger(EADComponentIterator.class);
 
 	private EADReader eadReader;
 	private NodeList nodes;
 	private DOMSource domSource;
+	private Transformer transformer;
 	private int position = 0;
 
     public EADComponentIterator(EADReader reader) throws Exception {
         this.eadReader = reader;
         nodes = reader.getNodes();
-        domSource = reader.getDOMSource();        	
+        domSource = reader.getDOMSource();
+        transformer = buildTransformer("src/main/resources/eadcomponent2mods.xsl");        	
     }
 
     @Override
@@ -53,6 +58,7 @@ public class EADComponentIterator implements Iterator<String> {
 
     @Override
     public String next() {
+    	log.trace("Processing node " + position + " of " + nodes.getLength());
     	while ((nodes != null) && (position < nodes.getLength())) {
 	        String nodeName = nodes.item(position).getNodeName();
 	        String nodeValue = nodes.item(position).getNodeValue();
@@ -60,7 +66,7 @@ public class EADComponentIterator implements Iterator<String> {
 	        if (nodeName.equals("id")) {
 	        	String eadComponentMods = null;
 				try {
-					eadComponentMods = transformOASIS(domSource, "src/main/resources/eadcomponent2mods.xsl", nodeValue);
+					eadComponentMods = transformOASIS(nodeValue);
 				} catch (Exception e) {
 					e.printStackTrace();
 					throw new NoSuchElementException();
@@ -88,16 +94,18 @@ public class EADComponentIterator implements Iterator<String> {
         throw new UnsupportedOperationException();
     }
 
-	private String transformOASIS (DOMSource domSource, String xslFilePath, String xslParam) throws Exception {
-		
-		StringWriter writer = new StringWriter();
+    private Transformer buildTransformer(String xslFilePath) throws Exception {
 		final InputStream xsl = new FileInputStream(xslFilePath);
 		final TransformerFactory tFactory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl",null);
         StreamSource styleSource = new StreamSource(xsl);
-        Transformer transformer = tFactory.newTransformer(styleSource);
-       	transformer.setParameter("componentid", xslParam);
+        return tFactory.newTransformer(styleSource);    	
+    }
+
+	private String transformOASIS (String xslParam) throws Exception {		
+       	this.transformer.setParameter("componentid", xslParam);
+		StringWriter writer = new StringWriter();
         StreamResult result = new StreamResult(writer);
-        transformer.transform(domSource, result);
+        transformer.transform(this.domSource, result);
         return writer.toString();
 	}
     
