@@ -179,12 +179,12 @@
 
         <!-- OASIS ingest and normalization -->
 
-        <route id="oasis-ingest">
+        <route id="oasis-ingest" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/ingest-oasis" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
-                <split streaming="true">
+                <split streaming="true" parallelProcessing="true">
                     <method bean="eadSplitter" method="split"/>
                     <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
                 </split>
