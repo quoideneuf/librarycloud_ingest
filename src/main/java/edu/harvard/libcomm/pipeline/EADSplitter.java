@@ -10,7 +10,7 @@ public class EADSplitter implements ISplitter {
 	protected Logger log = Logger.getLogger(EADSplitter.class); 	
 
 	public Iterator getIterator(InputStream is) throws Exception {
-		String xslFilePath = Config.getInstance().EAD_COMPONENT_XSL;
+		String xslFilePath = "src/main/resources/eadcomponent2mods.xsl";
 		String componentXpath = "//c/@id";
 		XMLReader reader = new XMLReader(is , xslFilePath , componentXpath);
 	    return new EADComponentIterator(reader);

@@ -30,7 +30,7 @@ public class XMLReader {
     public XMLReader(InputStream is, String xslFilePath, String componentXpath) {
 		this.is = is;
 		this.xslFilePath = xslFilePath;
-		this.componentXpath = componentXpath;
+		this.componentXpath = "//image/@xlink:href";
     }
 
     public NodeList getNodes() throws ParserConfigurationException, XPathExpressionException, ParserConfigurationException, SAXException, IOException {

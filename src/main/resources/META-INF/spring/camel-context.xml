@@ -49,6 +49,12 @@
         </property>
     </bean> 
 
+    <bean id="oasisSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.EADSplitter"/>
+        </property>
+    </bean> 
+
 	<!-- <bean id="marcDeleteSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
         <property name="splitter">
             <bean class="edu.harvard.libcomm.pipeline.DeleteFileSplitter"/>
@@ -126,6 +132,7 @@
             <to uri="file://{{librarycloud.files.basepath}}/stackscore" />
         </route>
  --> 
+
         <route id="via-ingest">
             <from uri="file:{{librarycloud.files.basepath}}/viacommand?include=.*.xml" />
             <split streaming="true">
@@ -133,13 +140,20 @@
                 <to uri="file:{{librarycloud.files.basepath}}/normalized-via?fileName=${header.CamelSplitIndex}"/>            
             </split>
         </route>
+
+        <route id="oasis-ingest">
+            <from uri="file:{{librarycloud.files.basepath}}/oasiscommand?include=.*.xml" />
+            <split streaming="true">
+                <method bean="oasisSplitter" method="split"/>
+                <to uri="file:{{librarycloud.files.basepath}}/normalized-oasis?fileName=${header.CamelSplitIndex}"/>            
+            </split>
+        </route>
         
  		<route id="tosolr" >
-            <from uri="file://{{librarycloud.files.basepath}}/normalized-via" />
+            <from uri="file://{{librarycloud.files.basepath}}/normalized-oasis" />
             <process ref="solrLoadProcessor"/>
             <to uri="file://{{librarycloud.files.basepath}}/tosolr" />
         </route>
-
              
     </camelContext>
     
