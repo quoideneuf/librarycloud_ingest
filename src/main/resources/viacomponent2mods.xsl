@@ -49,12 +49,12 @@
 
 <xsl:template match="subwork">
 	<xsl:if test="contains(image/@xlink:href,$urn)">
-	<!--xsl:if test="@urn=$ids/*"-->
+	<!--xsl:if test="$urn=$ids/*"-->
 		<relatedItem type="constituent">
 			<xsl:call-template name="recordElements"/>
 			<recordInfo>
 				<recordIdentifier>
-					<xsl:value-of select="@urn"/>
+					<xsl:value-of select="@componentID"/>
 				</recordIdentifier>
 			</recordInfo>
                         <xsl:apply-templates select="surrogate"/>
@@ -65,12 +65,12 @@
 
 <xsl:template match="surrogate">
 	<xsl:if test="contains(image/@xlink:href,$urn)">
-	<!--xsl:if test="@urn=$ids/*"-->
+	<!--xsl:if test="$urn=$ids/*"-->
 		<relatedItem type="constituent">
 			<xsl:call-template name="recordElements"/>
 			<recordInfo>
 				<recordIdentifier>
-					<xsl:value-of select="@urn"/>
+					<xsl:value-of select="@componentID"/>
 				</recordIdentifier>
 			</recordInfo>		
 		</relatedItem>
