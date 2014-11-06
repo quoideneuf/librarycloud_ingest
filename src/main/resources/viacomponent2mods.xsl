@@ -9,8 +9,8 @@
 
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
 
-<xsl:param name="urn"/>
-	<!-- <xsl:param name="urn">FMUS.PEAB.CIW:CI601215T</xsl:param>-->
+	<!-- <xsl:param name="urn"/>-->
+	<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:3612923</xsl:param>
 
 <xsl:template match="viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
@@ -27,7 +27,7 @@
 	        <xsl:attribute name="source">
 	                <xsl:value-of select="'MH:VIA'"/>
 	        </xsl:attribute>
-			<xsl:value-of select="recordId"/><xsl:text>_</xsl:text><xsl:value-of select="$urn"/>
+			<xsl:value-of select="recordId"/><xsl:text>_</xsl:text><xsl:value-of select="substring-after($urn,'edu/')"/>
 		</recordIdentifier>
 		<languageOfCataloging>
 			<languageTerm>eng</languageTerm>
