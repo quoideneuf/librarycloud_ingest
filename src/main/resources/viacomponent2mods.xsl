@@ -9,31 +9,8 @@
 
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
 
-	<xsl:param name="urn"/>
+<xsl:param name="urn"/>
 	<!-- <xsl:param name="urn">FMUS.PEAB.CIW:CI601215T</xsl:param>-->
-
-    <xsl:template match="xql:query"/>
-    <xsl:template match="ino:message">
-        <xsl:if test="contains(ino:messageline,'no object returned')">
-            <!--<xsl:copy-of select="."/>-->
-            <no_match/>
-        </xsl:if>
-    </xsl:template>
-
-
-    <xsl:template match="xql:result">
-	<xsl:choose>
-	  <xsl:when test="count(viaRecord) > 1">
-	    <modsCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-1.xsd">
-	
-              <xsl:apply-templates/>
-	    </modsCollection>
-	  </xsl:when>
-	  <xsl:otherwise>
-            <xsl:apply-templates/>
- 	  </xsl:otherwise>
-	</xsl:choose>
-    </xsl:template>
 
 <xsl:template match="viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
