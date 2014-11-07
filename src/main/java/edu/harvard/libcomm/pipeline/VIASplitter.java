@@ -10,6 +10,7 @@ public class VIASplitter implements ISplitter {
 	protected Logger log = Logger.getLogger(VIASplitter.class); 	
 
 	public Iterator getIterator(InputStream is) throws Exception {
+		
 		VIAReader reader = new VIAReader(is);
 	    return new VIAComponentIterator(reader);
 	}
