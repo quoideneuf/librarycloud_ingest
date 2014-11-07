@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -71,7 +72,11 @@ public class VIAReader {
 			
 			xpath.setNamespaceContext(new NamespaceContext() {
 			    public String getNamespaceURI(String prefix) {
-			        return prefix.equals("xlink") ? "http://www.w3.org/TR/xlink"  : null;
+			        if (prefix == null) throw new NullPointerException("Null prefix");
+			        else if ("xlink".equals(prefix)) return "http://www.w3.org/TR/xlink";
+			        return XMLConstants.NULL_NS_URI;
+			    	
+			    	//return prefix.equals("xlink") ? "http://www.w3.org/TR/xlink"  : null;
 			    }
 
 			    public Iterator<?> getPrefixes(String val) {
@@ -86,7 +91,7 @@ public class VIAReader {
 			Object result = null;
 			XPathExpression componentId = null;
 			try {
-				componentId = xpath.compile("//image/@xlink:href");
+				componentId = xpath.compile("//image/@href");
 				result = componentId.evaluate(doc, XPathConstants.NODESET);
 			} catch (XPathExpressionException e) {
 				e.printStackTrace();

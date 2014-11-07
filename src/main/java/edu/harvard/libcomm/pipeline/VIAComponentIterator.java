@@ -47,28 +47,26 @@ public class VIAComponentIterator implements Iterator<String> {
 	        String nodeName = nodes.item(position).getNodeName();
 	        String nodeValue = nodes.item(position).getNodeValue();
 	        position++;
-	        if (nodeName.equals("id")) {
-	        	String viaComponentMods = null;
-				try {
-					viaComponentMods = transformVIA(nodeValue);
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw new NoSuchElementException();
-				}
-				LibCommMessage lcmessage = new LibCommMessage();
-				Payload payload = new Payload();
-				payload.setFormat("MODS");
-				payload.setSource("OASIS");
-				payload.setData(viaComponentMods);
-				lcmessage.setCommand("ENRICH");
-	        	lcmessage.setPayload(payload);
-	        	try {
-	        		return MessageUtils.marshalMessage(lcmessage);
-				} catch (JAXBException e) {
-					e.printStackTrace();
-					return null;
-				}		        		
-	        }
+        	String viaComponentMods = null;
+			try {
+				viaComponentMods = transformVIA(nodeValue);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new NoSuchElementException();
+			}
+			LibCommMessage lcmessage = new LibCommMessage();
+			Payload payload = new Payload();
+			payload.setFormat("MODS");
+			payload.setSource("VIA");
+			payload.setData(viaComponentMods);
+			lcmessage.setCommand("ENRICH");
+        	lcmessage.setPayload(payload);
+        	try {
+        		return MessageUtils.marshalMessage(lcmessage);
+			} catch (JAXBException e) {
+				e.printStackTrace();
+				return null;
+			}		        		
     	}
     	throw new NoSuchElementException();
 	}
