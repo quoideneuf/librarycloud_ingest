@@ -62,6 +62,11 @@
             <bean class="edu.harvard.libcomm.pipeline.StackScoreProcessor"/>
         </property>
     </bean>
+    <bean id="collectionsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.CollectionsProcessor"/>
+        </property>
+    </bean>
     <bean id="publishProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.PublishProcessor"/>
@@ -156,6 +161,17 @@
         <route id="addstackscoretomods" errorHandlerRef="eh">
             <from uri="seda:addstackscoretomods?concurrentConsumers=1"/>
             <process ref="stackscoreProcessor"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-03?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-03" /> -->
+        </route>
+        <route id="addcollectionstomods-seda" errorHandlerRef="eh">
+            <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-03" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-03?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <to uri="seda:addcollectionstomods?size=20&amp;blockWhenFull=true" />
+        </route>
+        <route id="addcollectionstomods" errorHandlerRef="eh">
+            <from uri="seda:addcollectionstomods?concurrentConsumers=1"/>
+            <process ref="collectionsProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
         </route>
@@ -192,10 +208,14 @@
                 </doCatch>
             </doTry>
         </route>
-        
-        <route id="via-ingest" errorHandlerRef="eh">
+        <!-- VIA ingest and normalization -->
+        <route id="via-ingest-seda" errorHandlerRef="eh">
             <from uri="file://{{librarycloud.files.basepath}}/ingest-via" />
-            <!-- <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" /> -->
+            <!-- <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-via?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" /> -->
+            <to uri="seda:via-ingest-seda?size=10&amp;blockWhenFull=true"/>
+        </route>
+        <route id="via-ingest" errorHandlerRef="eh">
+            <from uri="seda:via-ingest-seda?concurrentConsumers=4" />
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
                 <split streaming="true" parallelProcessing="true">
@@ -208,10 +228,7 @@
                     <to uri="direct:dead-letter" />
                 </doCatch>
             </doTry>
-            
         </route>
-        
-        
         <!-- SOLR consumer for loading into item API -->
         <route id="modstosolr-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
