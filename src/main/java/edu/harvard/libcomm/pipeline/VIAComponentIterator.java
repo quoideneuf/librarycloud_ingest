@@ -58,7 +58,7 @@ public class VIAComponentIterator implements Iterator<String> {
 				LibCommMessage lcmessage = new LibCommMessage();
 				Payload payload = new Payload();
 				payload.setFormat("MODS");
-				payload.setSource("OASIS");
+				payload.setSource("VIA");
 				payload.setData(viaComponentMods);
 				lcmessage.setCommand("ENRICH");
 	        	lcmessage.setPayload(payload);
