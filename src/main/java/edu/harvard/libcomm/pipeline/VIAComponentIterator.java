@@ -19,20 +19,20 @@ import org.w3c.dom.NodeList;
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
 
-public class EADComponentIterator implements Iterator<String> {
-	protected Logger log = Logger.getLogger(EADComponentIterator.class);
+public class VIAComponentIterator implements Iterator<String> {
+	protected Logger log = Logger.getLogger(VIAComponentIterator.class);
 
-	private EADReader eadReader;
+	private VIAReader viaReader;
 	private NodeList nodes;
 	private DOMSource domSource;
 	private Transformer transformer;
 	private int position = 0;
 
-    public EADComponentIterator(EADReader reader) throws Exception {
-        this.eadReader = reader;
+    public VIAComponentIterator(VIAReader reader) throws Exception {
+        this.viaReader = reader;
         nodes = reader.getNodes();
         domSource = reader.getDOMSource();
-        transformer = buildTransformer("src/main/resources/eadcomponent2mods.xsl");        	
+        transformer = buildTransformer("src/main/resources/viacomponent2mods.xsl");        	
     }
 
     @Override
@@ -48,9 +48,9 @@ public class EADComponentIterator implements Iterator<String> {
 	        String nodeValue = nodes.item(position).getNodeValue();
 	        position++;
 	        if (nodeName.equals("id")) {
-	        	String eadComponentMods = null;
+	        	String viaComponentMods = null;
 				try {
-					eadComponentMods = transformOASIS(nodeValue);
+					viaComponentMods = transformVIA(nodeValue);
 				} catch (Exception e) {
 					e.printStackTrace();
 					throw new NoSuchElementException();
@@ -58,8 +58,8 @@ public class EADComponentIterator implements Iterator<String> {
 				LibCommMessage lcmessage = new LibCommMessage();
 				Payload payload = new Payload();
 				payload.setFormat("MODS");
-				payload.setSource("OASIS");
-				payload.setData(eadComponentMods);
+				payload.setSource("VIA");
+				payload.setData(viaComponentMods);
 				lcmessage.setCommand("ENRICH");
 	        	lcmessage.setPayload(payload);
 	        	try {
@@ -85,8 +85,8 @@ public class EADComponentIterator implements Iterator<String> {
         return tFactory.newTransformer(styleSource);    	
     }
 
-	private String transformOASIS (String xslParam) throws Exception {		
-       	this.transformer.setParameter("componentid", xslParam);
+	private String transformVIA (String xslParam) throws Exception {		
+       	this.transformer.setParameter("urn", xslParam);
 		StringWriter writer = new StringWriter();
         StreamResult result = new StreamResult(writer);
         transformer.transform(this.domSource, result);
