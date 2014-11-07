@@ -42,7 +42,6 @@ public class StackScoreProcessor implements IProcessor {
 		
 		JSONObject stackscoreJson = new JSONObject(tokener);
 		String stackscoreXml = XML.toString(stackscoreJson);
-		System.out.println(stackscoreXml);
 		stackscoreXml = "<stackscore>" + stackscoreXml + "</stackscore>";
 		log.trace("StackScoreProcessor result:" + stackscoreXml);
 		
