@@ -6,7 +6,6 @@
 >
 
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
-
 	<xsl:param name="urn"/>
 	<!-- <xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:3989047</xsl:param>-->
 <xsl:template match="/viaRecord">
