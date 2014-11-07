@@ -4,7 +4,7 @@
     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" 
     xmlns:usage="http://lib.harvard.edu/usagedata" version="1.0"
     xmlns:collection="http://api.lib.harvard.edu/v2/collections"
-    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dc="http://purl.org/dc/elements/1.1"
     >
 
     <xsl:output indent="no"/>
@@ -496,7 +496,7 @@
         </xsl:element>        
     </xsl:template>
  
-    <xsl:template match="mods:extension/collection:collection/dc:title">
+    <xsl:template match="dc:title">
         <xsl:element name="field">
             <xsl:attribute name="name">
                 <xsl:text>collectionTitle</xsl:text>
