@@ -3,14 +3,12 @@
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
     xmlns:xlink="http://www.w3.org/TR/xlink"  
     xmlns="http://www.loc.gov/mods/v3" 
-    xmlns:ino="http://namespaces.softwareag.com/tamino/response2"
-    xmlns:xql="http://metalab.unc.edu/xql/"
 >
 
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
 
 	<xsl:param name="urn"/>
-	<!--<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:12183</xsl:param>-->
+	<!-- <xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:3989047</xsl:param>-->
 <xsl:template match="viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
 	<xsl:if test="@numberOfSubworks='0'">
