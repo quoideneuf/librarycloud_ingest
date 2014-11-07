@@ -10,8 +10,7 @@
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
 
 	<xsl:param name="urn"/>
-	<!--<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:3612923</xsl:param>-->
-
+	<!--<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:12183</xsl:param>-->
 <xsl:template match="viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
 	<xsl:if test="@numberOfSubworks='0'">
@@ -27,7 +26,33 @@
 	        <xsl:attribute name="source">
 	                <xsl:value-of select="'MH:VIA'"/>
 	        </xsl:attribute>
-			<xsl:value-of select="recordId"/><xsl:text>_</xsl:text><xsl:value-of select="substring-after($urn,'edu/')"/>
+			<xsl:choose>
+				<xsl:when test="starts-with(recordId,'olvwork')">
+					<xsl:text>W</xsl:text>
+					<xsl:value-of select="substring-after(recordId,'olvwork')"/>
+				</xsl:when>
+				<xsl:when test="starts-with(recordId,'olvgroup')">
+					<xsl:text>G</xsl:text>
+					<xsl:value-of select="substring-after(recordId,'olvgroup')"/>
+				</xsl:when>
+				<xsl:when test="starts-with(recordId,'olvsite')">
+					<xsl:text>S</xsl:text>
+					<xsl:value-of select="substring-after(recordId,'olvsite')"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="recordId"/>
+				</xsl:otherwise>
+			</xsl:choose>
+
+			<xsl:text>_</xsl:text>
+			<xsl:choose>
+				<xsl:when test="work/surrogate/image[contains(@xlink:href,$urn)]">
+					<xsl:value-of select="work/surrogate/image[contains(@xlink:href,$urn)]/../@componentID"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="substring-after($urn,'edu/')"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</recordIdentifier>
 		<languageOfCataloging>
 			<languageTerm>eng</languageTerm>
