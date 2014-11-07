@@ -194,6 +194,7 @@
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
         </route>
+
         <!-- OASIS ingest and normalization -->
         <route id="oasis-ingest-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/ingest-oasis" /> -->
@@ -216,9 +217,14 @@
             </doTry>
         </route>
         
-        <route id="via-ingest" errorHandlerRef="eh">
+        <!-- VIA ingest and normalization -->
+        <route id="via-ingest-seda" errorHandlerRef="eh">
             <from uri="file://{{librarycloud.files.basepath}}/ingest-via" />
-            <!-- <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" /> -->
+            <!-- <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-via?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" /> -->
+            <to uri="seda:via-ingest-seda?size=10&amp;blockWhenFull=true"/>
+        </route>
+        <route id="via-ingest" errorHandlerRef="eh">
+            <from uri="seda:via-ingest-seda?concurrentConsumers=4" />
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
                 <split streaming="true" parallelProcessing="true">
