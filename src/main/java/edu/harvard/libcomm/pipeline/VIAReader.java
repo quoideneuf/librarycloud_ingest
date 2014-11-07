@@ -86,7 +86,7 @@ public class VIAReader {
 			Object result = null;
 			XPathExpression componentId = null;
 			try {
-				componentId = xpath.compile("//image/href");
+				componentId = xpath.compile("//image/@href");
 				result = componentId.evaluate(doc, XPathConstants.NODESET);
 			} catch (XPathExpressionException e) {
 				e.printStackTrace();
