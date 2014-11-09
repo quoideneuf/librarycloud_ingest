@@ -91,13 +91,16 @@
             <to uri="log:edu.harvard.libcomm.deadletterqueue?level=ERROR"/>
             <!-- Post to the AWS dead letter queue, and handle errors (e.g. file size exceeded) -->
             <doTry>
+                <transform>
+                    <simple>${exception}${exception.stacktrace}${in.body}</simple>
+                </transform>
                 <to uri="aws-sqs://{{librarycloud.sqs.environment}}-dead-letter?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
                 <doCatch>
                     <!-- If can't post the full message to the dead letter queue, post only the headers to the queue -->
                     <exception>java.lang.Exception</exception>
                     <to uri="log:edu.harvard.libcomm.deadletterqueue?level=ERROR&amp;showAll=true"/>
                     <transform>
-                        <simple>Error placing failed message on dead letter queue. Headers for affected message: ${headers}</simple>
+                        <simple>Error placing failed message on dead letter queue. Headers for affected message: ${headers}. Exception: ${exception}${exception.stacktrace}</simple>
                     </transform>
                     <doTry>
                         <to uri="aws-sqs://{{librarycloud.sqs.environment}}-dead-letter?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
@@ -105,7 +108,7 @@
                             <!-- If can't even post the headers to the dead letter queue, log error and be done -->
                             <exception>java.lang.Exception</exception>
                             <transform>
-                                <simple>Error placing failed message headers on dead letter queue. Headers for affected message: ${headers}</simple>
+                                <simple>Error placing failed message headers on dead letter queue. Headers for affected message: ${headers} Exception: ${exception}${exception.stacktrace}</simple>
                             </transform>
                             <to uri="log:edu.harvard.libcomm.deadletterqueue?level=ERROR&amp;showAll=true"/>
                         </doCatch>
