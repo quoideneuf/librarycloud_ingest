@@ -19,8 +19,12 @@ public class CollectionsProcessor implements IProcessor {
 	
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 	
-		String data = null;
-		String recids = "0";
+		String data;
+		String recids;
+
+		if ((Config.getInstance().COLLECTIONS_URL == null) ||  Config.getInstance().COLLECTIONS_URL.isEmpty()) {
+			return;
+		}
 
 		try {
 			recids = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/recids-comma-separated.xsl",null);
