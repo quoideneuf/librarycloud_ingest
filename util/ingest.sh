@@ -37,12 +37,12 @@ SOURCE_FILE_URL=`sign_s3_url.bash --bucket $TARGET_BUCKET --file-path $TARGET_FI
 SED_FILE_URL=`echo $SOURCE_FILE_URL | sed 's|&|\\\&amp;|g'`
 
 # Create ingest command
-sed -e "s|TARGET|$SED_FILE_URL|" > $SOURCE_FILE_NAME.command.xml <<EOF
+(sed -e "s|TARGET|$SED_FILE_URL|" | sed -e "s|SOURCE|$DATA_SOURCE_NAME|") > $SOURCE_FILE_NAME.command.xml <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <lib_comm_message>
     <command>INGEST</command>
     <payload>
-        <source>UNUSED_SOURCE</source>
+        <source>SOURCE</source>
         <format>UNUSED_FORMAT</format>
         <filepath>TARGET</filepath>
     </payload>
