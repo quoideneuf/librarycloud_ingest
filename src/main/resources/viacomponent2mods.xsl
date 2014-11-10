@@ -43,8 +43,8 @@
 
 			<xsl:text>_</xsl:text>
 			<xsl:choose>
-				<xsl:when test="work/surrogate/image[contains(@xlink:href,$urn)]">
-					<xsl:value-of select="work/surrogate/image[contains(@xlink:href,$urn)]/../@componentID"/>
+				<xsl:when test="work/surrogate/image[contains(@href,$urn)]">
+					<xsl:value-of select="work/surrogate/image[contains(@href,$urn)]/../@componentID"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:value-of select="substring-after($urn,'edu/')"/>
@@ -70,7 +70,7 @@
 </xsl:template>
 
 <xsl:template match="subwork">
-	<xsl:if test="contains(image/@xlink:href,$urn)">
+	<xsl:if test="contains(image/@href,$urn)">
 	<!--xsl:if test="$urn=$ids/*"-->
 		<relatedItem type="constituent">
 			<xsl:call-template name="recordElements"/>
@@ -86,7 +86,7 @@
 </xsl:template>
 
 <xsl:template match="surrogate">
-	<xsl:if test="contains(image/@xlink:href,$urn)">
+	<xsl:if test="contains(image/@href,$urn)">
 	<!--xsl:if test="$urn=$ids/*"-->
 		<relatedItem type="constituent">
 			<xsl:call-template name="recordElements"/>
@@ -398,10 +398,10 @@
 		</extension>
 		<xsl:apply-templates select="creator"/>
 		<xsl:call-template name="originInfo"/>
-		    <xsl:if test="contains(@xlink:href,$urn)">
+		    <xsl:if test="contains(@href,$urn)">
 			<location>
 			    <url>
-				<xsl:value-of select="@xlink:href"/>
+				<xsl:value-of select="@href"/>
 			    </url>
 			</location>
 		    </xsl:if>
@@ -417,7 +417,7 @@
 		</titleInfo>
 		<location>
 			<url>
-				<xsl:value-of select="@xlink:href"/>
+				<xsl:value-of select="@href"/>
 			</url>
 		</location>
 	</relatedItem>
@@ -433,7 +433,7 @@
 </xsl:template>
 
 <xsl:template match="image">
-	<xsl:if test="contains(@xlink:href,$urn)">
+	<xsl:if test="contains(@href,$urn)">
 	<location>
 		<url displayLabel="Full Image">
 			<xsl:attribute name="note">
@@ -444,10 +444,10 @@
 					<xsl:text>unrestricted</xsl:text>
 				</xsl:if>
 			</xsl:attribute>
-			<xsl:value-of select="./@xlink:href"/>
+			<xsl:value-of select="./@href"/>
 		</url>
 		<url displayLabel="Thumbnail">
-			<xsl:value-of select="thumbnail/@xlink:href"/>
+			<xsl:value-of select="thumbnail/@href"/>
 		</url>
 	</location>
 	</xsl:if>
@@ -495,7 +495,7 @@
 
 <xsl:template match="copyright">
 	<accessCondition displayLabel="copyright" type="useAndReproduction">
-		<xsl:value-of select="./@xlink:href"/>
+		<xsl:value-of select="./@href"/>
 		<xsl:value-of select="."/>
 	</accessCondition>
 </xsl:template>
