@@ -259,7 +259,11 @@
             <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
         </route>
 
-        <!-- SOLR consumer for loading into item API -->
+        <!-- Publishing partial updates to consumers -->
+        <!-- Partial updates are placed on the "-update-public" queue -->
+
+
+        <!-- SOLR consumer for loading items into the item API -->
         <route id="modstosolr-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
@@ -272,5 +276,17 @@
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
             <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
         </route>
+
+        <!-- SOLR consumer for dealing with updates -->
+        <route id="updatetosolr" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-update-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <process ref="solrLoadProcessor"/>
+            <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=solrLoadProcessor&amp;groupSize=10"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done-update?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
+            <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
+        </route>
+
+
+
     </camelContext>
 </beans>
