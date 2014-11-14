@@ -150,8 +150,8 @@
         <!-- OASIS ingest and normalization -->
         <route id="oasis-ingest-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/ingest-oasis" /> -->
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
-            <to uri="seda:oasis-ingest-seda?size=10&amp;blockWhenFull=true"/>
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800&amp;extendMessageVisibility=true" />
+            <to uri="seda:oasis-ingest-seda?size=4&amp;blockWhenFull=true"/>
         </route>
         <route id="oasis-ingest" errorHandlerRef="eh">
             <from uri="seda:oasis-ingest-seda?concurrentConsumers=4" />
