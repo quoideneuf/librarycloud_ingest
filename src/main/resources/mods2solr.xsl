@@ -20,6 +20,20 @@
             <xsl:apply-templates select="mods:titleInfo"/>
             <xsl:apply-templates select="mods:name"/>
             <xsl:apply-templates select="mods:typeOfResource"/>
+            <!-- put the isOnline field here to keep grouped woth isCollection and isManuscript -->
+            <xsl:element name="field">
+                <xsl:attribute name="name">
+                    <xsl:text>isOnline</xsl:text>
+                </xsl:attribute>
+                <xsl:choose>
+                    <xsl:when test="mods:location/mods:url">
+                        <xsl:text>true</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text>false</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:element>
             <xsl:apply-templates select="mods:genre"/>
             <xsl:apply-templates select="mods:originInfo"/>
             <xsl:apply-templates select="mods:language"/>
@@ -111,10 +125,10 @@
             </xsl:attribute>
             <xsl:choose>
                 <xsl:when test="@manuscript='yes'">
-                    <xsl:text>yes</xsl:text>
+                    <xsl:text>true</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:text>no</xsl:text>
+                    <xsl:text>false</xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:element>
@@ -124,10 +138,10 @@
             </xsl:attribute>
             <xsl:choose>
                 <xsl:when test="@collection='yes'">
-                    <xsl:text>yes</xsl:text>
+                    <xsl:text>true</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:text>no</xsl:text>
+                    <xsl:text>false</xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:element>
@@ -380,6 +394,19 @@
                 <xsl:text>url</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>urn</xsl:text>
+            </xsl:attribute>
+            <xsl:choose>
+                <xsl:when test="contains(.,'?')">
+                    <xsl:value-of select="substring-before(substring-after(.,'http://nrs.harvard.edu/'),'?')"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="substring-after(.,'http://nrs.harvard.edu/')"/>
+                </xsl:otherwise>
+            </xsl:choose>
         </xsl:element>
     </xsl:template>
 

@@ -27,7 +27,7 @@ public class StackScoreProcessor implements IProcessor {
 			throw e;
 		}
 
-		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=hollis_catalog&filter=id_inst:(" + recids + ")&fields=shelfrank,id_inst&limit=250");
+		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=collection:hollis_catalog&filter=id_inst:(" + recids + ")&fields=shelfrank,id_inst&limit=250");
 		JSONTokener tokener;
 		try {
 			Date start = new Date();

@@ -3,7 +3,7 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs"
     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" version="1.0">
     
-    <xsl:output indent="yes" method="text"/>
+    <xsl:output indent="no" method="text"/>
     
     <xsl:template match="mods:modsCollection">
         <xsl:element name="add">
