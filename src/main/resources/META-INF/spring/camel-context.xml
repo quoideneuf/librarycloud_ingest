@@ -276,7 +276,7 @@
             <to uri="seda:enrich-03?size=20&amp;blockWhenFull=true" />
         </route>
         <route id="addcollectionstomods" errorHandlerRef="eh">
-            <from uri="seda:enrich-03?concurrentConsumers=1"/>
+            <from uri="seda:enrich-03?concurrentConsumers=5"/>
             <process ref="collectionsProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
