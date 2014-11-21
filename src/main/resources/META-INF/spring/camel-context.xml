@@ -42,12 +42,16 @@
             <bean class="edu.harvard.libcomm.pipeline.EADSplitter"/>
         </property>
     </bean>
+    <bean id="eadRawSplitter" class="edu.harvard.libcomm.pipeline.RawSplitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.EADRawSplitter"/>
+        </property>
+    </bean>
     <bean id="viaSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
         <property name="splitter">
             <bean class="edu.harvard.libcomm.pipeline.VIASplitter"/>
         </property>
     </bean>
-
     <bean id="viaRawSplitter" class="edu.harvard.libcomm.pipeline.RawSplitter">
         <property name="splitter">
             <bean class="edu.harvard.libcomm.pipeline.VIARawSplitter"/>
@@ -160,6 +164,7 @@
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800&amp;extendMessageVisibility=true" />
             <to uri="seda:oasis-ingest-seda?size=4&amp;blockWhenFull=true"/>
         </route>
+
         <route id="oasis-ingest" errorHandlerRef="eh">
             <from uri="seda:oasis-ingest-seda?concurrentConsumers=4" />
             <!-- Try block required for errors thrown out of the splitter -->
@@ -183,8 +188,38 @@
                 </doCatch>
             </doTry>
         </route>
-        <!-- VIA ingest and normalization -->
 
+        <!-- Option for ingesting OASIS data from a raw XML file -->
+        <route id="oasis-ingest-raw-file" errorHandlerRef="eh">
+            <from uri="file://{{librarycloud.files.basepath}}/ingest-oasis-file" />
+            <!-- Try block required for errors thrown out of the splitter -->
+            <doTry>
+                <split>
+                    <tokenize token="ead" xml="true"/>                
+                    <split streaming="true" parallelProcessing="true">
+                        <method bean="eadRawSplitter" method="split"/>
+                        <aggregate strategyRef="modsRawAggregator" completionSize="100" completionInterval="10000">
+                            <correlationExpression>
+                                <simple>all</simple>
+                            </correlationExpression>
+                            <completionPredicate>
+                                <simple>${header.messageLength} > 150000</simple>
+                            </completionPredicate>  
+                            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.CamelSplitIndex}" /> -->
+                        </aggregate>
+                    </split>
+                </split>
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <to uri="direct:dead-letter" />
+                </doCatch>
+            </doTry>
+        </route>
+
+
+
+        <!-- VIA ingest and normalization -->
         <!--  Read from raw VIA export files dropped on disk.
               We want to change this to a model whereby the command is read from SQS with a reference
               to the raw VIA file in S3, which camel will download; rather than forcing us to drop the
