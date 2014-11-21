@@ -62,6 +62,11 @@
             <bean class="edu.harvard.libcomm.pipeline.StackScoreProcessor"/>
         </property>
     </bean>
+    <bean id="lccProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.LCCProcessor"/>
+        </property>
+    </bean>
     <bean id="collectionsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.CollectionsProcessor"/>
@@ -295,5 +300,15 @@ and then place on the SQS enrich queue -->
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
             <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
         </route>
+        
+        <!--  template for using lcc processor-->
+        <!-- 
+        <route id="addslcctomods" errorHandlerRef="eh">
+            <from uri="file://{{librarycloud.files.basepath}}/enrich-02"/>
+            <process ref="lccProcessor"/>
+            <to uri="file://{{librarycloud.files.basepath}}/enrich-end" />
+        </route> 
+        -->
+        
     </camelContext>
 </beans>
