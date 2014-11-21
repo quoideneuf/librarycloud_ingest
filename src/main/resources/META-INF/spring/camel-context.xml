@@ -59,7 +59,14 @@
     </bean>
 
     <bean id="modsAggregator" class="edu.harvard.libcomm.pipeline.MODSAggregatorStrategy"/>
-    <bean id="modsRawAggregator" class="edu.harvard.libcomm.pipeline.MODSRawAggregatorStrategy"/>
+    
+    <bean id="modsEADRawAggregator" class="edu.harvard.libcomm.pipeline.MODSRawAggregatorStrategy">
+        <property name="source" value="OASIS"/>
+    </bean>
+
+    <bean id="modsVIARawAggregator" class="edu.harvard.libcomm.pipeline.MODSRawAggregatorStrategy">
+        <property name="source" value="VIA"/>
+    </bean>
 
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
@@ -194,11 +201,11 @@
             <from uri="file://{{librarycloud.files.basepath}}/ingest-oasis-file" />
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
-                <split>
+                <split streaming="true">
                     <tokenize token="ead" xml="true"/>                
                     <split streaming="true" parallelProcessing="true">
                         <method bean="eadRawSplitter" method="split"/>
-                        <aggregate strategyRef="modsRawAggregator" completionSize="100" completionInterval="10000">
+                        <aggregate strategyRef="modsEADRawAggregator" completionSize="100" completionInterval="10000">
                             <correlationExpression>
                                 <simple>all</simple>
                             </correlationExpression>
@@ -227,11 +234,11 @@
         <route id="via-ingest-raw-file" errorHandlerRef="eh">
             <from uri="file://{{librarycloud.files.basepath}}/ingest-via-file" />
             <doTry>
-                <split>
+                <split streaming="true">
                     <tokenize token="viaRecord" xml="true"/>                
                     <split streaming="true" parallelProcessing="true">
                         <method bean="viaRawSplitter" method="split"/>
-                        <aggregate strategyRef="modsRawAggregator" completionSize="100" completionInterval="10000">
+                        <aggregate strategyRef="modsVIARawAggregator" completionSize="100" completionInterval="10000">
                             <correlationExpression>
                                 <simple>all</simple>
                             </correlationExpression>
