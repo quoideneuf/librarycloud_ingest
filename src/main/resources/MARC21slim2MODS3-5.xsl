@@ -2665,7 +2665,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 			</xsl:for-each>
 			<xsl:for-each select="marc:controlfield[@tag=001]">
 				<recordIdentifier>
-					<!-- use hardcoded HS:ALEPH instead -->
+					<!-- use hardcoded MH:ALEPH instead -->
 					<!-- 
 					<xsl:if test="../marc:controlfield[@tag=003]">
 						<xsl:attribute name="source">
