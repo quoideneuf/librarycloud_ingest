@@ -83,6 +83,11 @@
             <bean class="edu.harvard.libcomm.pipeline.StackScoreProcessor"/>
         </property>
     </bean>
+    <bean id="lccProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.LCCProcessor"/>
+        </property>
+    </bean>
     <bean id="collectionsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.CollectionsProcessor"/>
@@ -296,13 +301,22 @@
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-03?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-03" /> -->
         </route>
-        <route id="addcollectionstomods-seda" errorHandlerRef="eh">
-            <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-03" /> -->
+        <route id="addslcctomods-seda" errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-03?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <to uri="seda:enrich-03?size=20&amp;blockWhenFull=true" />
         </route>
+        <route id="addslcctomods" errorHandlerRef="eh">
+            <from uri="seda:enrich-03?concurrentConsumers=1"/>
+            <process ref="lccProcessor"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-04?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+        </route> 
+        <route id="addcollectionstomods-seda" errorHandlerRef="eh">
+            <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-04" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-04?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <to uri="seda:enrich-04?size=20&amp;blockWhenFull=true" />
+        </route>
         <route id="addcollectionstomods" errorHandlerRef="eh">
-            <from uri="seda:enrich-03?concurrentConsumers=5"/>
+            <from uri="seda:enrich-04?concurrentConsumers=5"/>
             <process ref="collectionsProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
@@ -332,5 +346,6 @@
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
             <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
         </route>
+        
     </camelContext>
 </beans>
