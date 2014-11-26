@@ -48,6 +48,8 @@
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/scopecontent//p[1]"/>
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/dao"/>
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/daogrp"/>
+            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did/dao"/>
+            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did/daogrp"/>
             <xsl:element name="recordInfo">
                 <xsl:if test="eadheader/revisiondesc/change[item='Loaded into OASIS']">
                     <xsl:element name="recordChangeDate">
