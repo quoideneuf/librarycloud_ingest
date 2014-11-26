@@ -7,7 +7,7 @@
     version="2.0">
     <xsl:output encoding="UTF-8" method="xml" indent="yes" omit-xml-declaration="yes"></xsl:output>
     <xsl:strip-space elements="*"/>
-    <xsl:param name="componentid">sch01290c00002</xsl:param>
+    <xsl:param name="componentid">mus00008c00003</xsl:param>
     <!--<xsl:param name="componentid"/>-->
 
     <xsl:variable name="cid_legacy_or_new">
@@ -48,6 +48,8 @@
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/scopecontent//p[1]"/>
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/dao"/>
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/daogrp"/>
+            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did/dao"/>
+            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did/daogrp"/>
             <xsl:element name="recordInfo">
                 <xsl:if test="eadheader/revisiondesc/change[item='Loaded into OASIS']">
                     <xsl:element name="recordChangeDate">
@@ -230,7 +232,12 @@
     <xsl:template match="dao">
         <xsl:element name="location">
             <xsl:element name="url">
-                <xsl:value-of select="@href"/>
+                <xsl:if test="@xlink:href">
+                    <xsl:value-of select="@xlink:href"/>                    
+                </xsl:if>
+                <xsl:if test="@href">
+                    <xsl:value-of select="@href"/>                    
+                </xsl:if>
             </xsl:element>
         </xsl:element>
     </xsl:template>
