@@ -1,15 +1,12 @@
 package edu.harvard.libcomm.pipeline;
 
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import java.net.URI;
-import java.util.Date;
-
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.json.XML;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
@@ -18,49 +15,61 @@ public class CollectionUpdateProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(CollectionsProcessor.class); 	
 	
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
-	
+		String itemId;
 		String data;
-		String recids;
+		String collectionData;
 
-		if ((Config.getInstance().COLLECTIONS_URL == null) ||  Config.getInstance().COLLECTIONS_URL.isEmpty()) {
+		collectionData = libCommMessage.getPayload().getData();
+
+		itemId = MessageUtils.transformPayloadData(libCommMessage, "src/main/resources/item_id.xsl", null);
+		if (itemId == null || itemId.length() == 0){
+			Payload payload = new Payload();
+			payload.setData("");
+			libCommMessage.setPayload(payload);
 			return;
 		}
 
-		try {
-			recids = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/recids-comma-separated.xsl",null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
+		data = getSolrModsRecord(itemId);
+		LibCommMessage temporaryMessage = new LibCommMessage();
+		Payload temporaryPayload = new Payload();
+		temporaryPayload.setData(data);
+		temporaryMessage.setPayload(temporaryPayload);
 
-		URI uri = new URI(Config.getInstance().COLLECTIONS_URL + "/collections/items/" + recids + ".xml");
-		String collectionsXml;
-		try {
-			Date start = new Date();
-			collectionsXml = IOUtils.toString(uri.toURL().openStream(), "UTF-8");
-			Date end = new Date();
-			log.trace("CollectionsProcessor query time: " + (end.getTime() - start.getTime()));
-			log.trace("CollectionsProcessor query : " +  uri.toURL());
-		} catch (FileNotFoundException e) {
-			// If none of the items are in a collection, we'll get a 404
-			return;
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
-		}
-		
-		log.trace("CollectionsProcessor result:" + collectionsXml);
-		
-		try {
-			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/addcollections.xsl",collectionsXml);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-		
+		data = MessageUtils.transformPayloadData(temporaryMessage, "src/main/resources/addcollections.xsl", collectionData);
+
 		Payload payload = new Payload();
 		payload.setData(data);
+
         libCommMessage.setPayload(payload);
         
 	}
+
+	private String getSolrModsRecord(String itemId)
+	{
+		String modsRecord = "";
+
+		SolrDocumentList docs;
+		SolrDocument doc = null;
+		HttpSolrServer server = null;
+		try {
+			server = SolrServer.getSolrConnection();
+			SolrQuery query = new SolrQuery("recordIdentifier:" + itemId);
+			QueryResponse response = server.query(query);
+			docs = response.getResults();
+			if (docs.size() == 0)
+				log.debug("Item " + itemId + " not found");
+			else {
+				doc = docs.get(0);
+
+			}
+		}
+		catch (SolrServerException  se) {
+			se.printStackTrace();
+			log.error(se.getMessage());
+		}
+
+		modsRecord = doc.getFieldValue("originalMods").toString();
+		return modsRecord;
+	}
+
 }
