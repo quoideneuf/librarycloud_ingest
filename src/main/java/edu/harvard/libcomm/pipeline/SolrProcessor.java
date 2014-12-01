@@ -40,7 +40,7 @@ public class SolrProcessor implements IProcessor {
 
 	    HttpSolrServer server = null;
 		Date start = new Date();
-	    server = SolrServer.getSolrConnection(Config.getInstance().SOLR_URL_LIBRARYCLOUD);
+	    server = SolrServer.getSolrConnection();
 		UpdateRequest update = new UpdateRequest();
 		update.add(getSolrInputDocumentList(solrXml));
 		if (commitWithinTime > 0) {

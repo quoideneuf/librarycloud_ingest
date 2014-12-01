@@ -38,8 +38,7 @@ import java.util.Properties;
 
 public class Config {
 	
-	public String SOLR_URL_LIBRARYCLOUD;
-	public String SOLR_URL_COLLECTIONS1;
+	public String SOLR_URL;
 	public String HOLDINGS_URL;
 	public String ITEM_URL;
 	public String COLLECTIONS_URL;
@@ -59,8 +58,7 @@ public class Config {
 			throw new RuntimeException("Couldn't load project configuration!", e);
 		} 
 		
-		SOLR_URL_LIBRARYCLOUD = props.getProperty("solr_url_librarycloud");
-		SOLR_URL_COLLECTIONS1 = props.getProperty("solr_url_collections1");
+		SOLR_URL = props.getProperty("solr_url");
 		HOLDINGS_URL = props.getProperty("holdings_url");
 		ITEM_URL = props.getProperty("item_url");
 		COLLECTIONS_URL = props.getProperty("collections_url");
