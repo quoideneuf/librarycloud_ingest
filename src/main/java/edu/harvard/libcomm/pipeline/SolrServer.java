@@ -37,9 +37,9 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 public class SolrServer {
 	private static HttpSolrServer server = null;
 	
-	protected static HttpSolrServer getSolrConnection() {
+	protected static HttpSolrServer getSolrConnection(String solrUrl) {
 		try {
-			server = new HttpSolrServer(Config.getInstance().SOLR_URL);
+			server = new HttpSolrServer(solrUrl);
 		} catch (Exception e) {
 			// TO DO - error handling
 			System.out.println( e);
