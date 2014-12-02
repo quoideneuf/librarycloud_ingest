@@ -23,15 +23,9 @@ if [ $# -ne 4 ]; then
     exit 1
 fi
 
-if [ -z "$INGEST_INSTRUCTION"]
-    then
-    INGEST_INSTRUCTION = "ingest"
-fi
-
 # Create buckets (it's not a problem if the bucket already exists)
 aws s3 mb s3://$COMMAND_BUCKET
 aws s3 mb s3://$TARGET_BUCKET
-
 
 # Copy data file to target
 aws s3 cp $SOURCE_FILE_PATH s3://$TARGET_BUCKET/$TARGET_FILE_NAME
