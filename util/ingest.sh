@@ -18,8 +18,8 @@ TARGET_FILE_NAME=`echo $SOURCE_FILE_NAME | sed 's/#//g'`
 TARGET_BUCKET=harvard.librarycloud.upload.$SQS_ENVIRONMENT.$DATA_SOURCE_NAME
 COMMAND_BUCKET=harvard.librarycloud.command.$SQS_ENVIRONMENT.$DATA_SOURCE_NAME
 
-if [ $# -ne 3 ]; then
-    echo "Usage: ingest.sh [SOURCE] [SQS_ENVIRONMENT] [DATA_FILE]"
+if [ $# -ne 4 ]; then
+    echo "Usage: ingest.sh [INSTRUCTION] [SOURCE] [SQS_ENVIRONMENT] [DATA_FILE] "
     exit 1
 fi
 
