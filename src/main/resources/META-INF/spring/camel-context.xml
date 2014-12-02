@@ -73,6 +73,11 @@
             <bean class="edu.harvard.libcomm.pipeline.ModsProcessor"/>
         </property>
     </bean>
+    <bean id="filterUnchangedProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.FilterUnchangedProcessor"/>
+        </property>
+    </bean>
     <bean id="holdingsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.HoldingsProcessor"/>
@@ -93,7 +98,7 @@
             <bean class="edu.harvard.libcomm.pipeline.CollectionsProcessor"/>
         </property>
     </bean>
-    <bean id="publishProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+    <bean id="removeRestrictedProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.PublishProcessor"/>
         </property>
@@ -305,7 +310,8 @@
         </route>
         <route id="publish" errorHandlerRef="eh">
             <from uri="seda:enrich-end?concurrentConsumers=1" />
-            <process ref="publishProcessor"/>
+            <process ref="removeRestrictedProcessor"/>
+            <process ref="filterUnchangedProcessor"/>
             <!-- Don't try to publish empty messages -->
             <choice>
                 <when>
@@ -332,6 +338,6 @@
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
             <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
         </route>
-        
+	
     </camelContext>
 </beans>
