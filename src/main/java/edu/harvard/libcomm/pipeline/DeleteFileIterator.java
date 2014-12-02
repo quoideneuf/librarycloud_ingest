@@ -17,20 +17,18 @@ import edu.harvard.libcomm.message.LibCommMessage.Payload;
 
 public class DeleteFileIterator {
 	protected Logger log = Logger.getLogger(DeleteFileIterator.class); 
-	private Integer commitWithinTime = -1;
 	
     public Iterator<String> getDeleteIds(InputStream is) throws Exception {
     	BufferedReader br = new BufferedReader(new InputStreamReader(is));
     	List<String> idList = new ArrayList<String>();
     	String id = null;
     	while((id = br.readLine()) != null){
-    		System.out.println(id);
     		LibCommMessage lcmessage = new LibCommMessage();
 			Payload payload = new Payload();
 			payload.setFormat("DELETE_ID");
-			payload.setSource("MARCDELETE");
+			payload.setSource("DELETE");
 			payload.setData(id);
-			lcmessage.setCommand("DELETED");
+			lcmessage.setCommand("DELETE");
         	lcmessage.setPayload(payload);
         	idList.add(MessageUtils.marshalMessage(lcmessage));
 		}

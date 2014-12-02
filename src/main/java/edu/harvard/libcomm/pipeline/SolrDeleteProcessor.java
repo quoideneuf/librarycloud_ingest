@@ -17,20 +17,16 @@ import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
 
 public class SolrDeleteProcessor implements IProcessor {
-	protected Logger log = Logger.getLogger(CollectionsProcessor.class);
+	protected Logger log = Logger.getLogger(SolrDeleteProcessor.class);
 	private Integer commitWithinTime = -1;
 
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {
-
 		String recordId = libCommMessage.getPayload().getData();
 		deleteFromSolr(recordId);
-
 	}
 
 	private void deleteFromSolr(String id) throws Exception{
-		HttpSolrServer server = null;
-		Date start = new Date();
-		server = SolrServer.getSolrConnection();
+		HttpSolrServer server = SolrServer.getSolrConnection();
 		UpdateRequest update = new UpdateRequest();
 		update.deleteById(id);
 		if (commitWithinTime > 0) {
@@ -40,8 +36,6 @@ public class SolrDeleteProcessor implements IProcessor {
 			update.process(server);
 			server.commit();
 		}
-		Date end = new Date();
-		log.debug("Solr delete time: " + (end.getTime() - start.getTime()));
 	}
 
 	public void setCommitWithinTime(Integer commitWithinTime) {

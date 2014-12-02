@@ -6,11 +6,11 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 public class DeleteFileSplitter implements ISplitter {
-	protected Logger log = Logger.getLogger(EADSplitter.class); 	
+	protected Logger log = Logger.getLogger(DeleteFileSplitter.class); 	
 
 	public Iterator getIterator(InputStream is) throws Exception {
-		DeleteFileIterator marcDeleteFileIterator = new DeleteFileIterator();
-	    return marcDeleteFileIterator.getDeleteIds(is);
+		DeleteFileIterator deleteFileIterator = new DeleteFileIterator();
+	    return deleteFileIterator.getDeleteIds(is);
 	}
 
 
