@@ -122,6 +122,11 @@
             </bean>
         </property>
     </bean>
+    <bean id="solrLoadProcessorImmediate" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.SolrProcessor"/>
+        </property>
+    </bean>
     <bean id="solrDeleteProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.SolrDeleteProcessor"/>
@@ -361,6 +366,13 @@
             <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
         </route>
 
+        <!-- SOLR consumer for loading into item API where the updates should be commited immediately -->
+        <route id="modstosolr-immediate" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public-immediate?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <process ref="solrLoadProcessorImmediate"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>        
+        </route>
+
         <!-- Delete handling -->
          <route id="aleph-delete-ingest-split">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-delete-aleph?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
@@ -383,15 +395,24 @@
         </route>
 
         <!-- Collection update handling -->
-         <route id="updatecollections-seda" errorHandlerRef="eh">
-         <!--<from uri="file://{{librarycloud.files.basepath}}/updateCollection-input" /> -->
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-update-collection?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />-->
-            <to uri="seda:updateCollection-input?size=20&amp;blockWhenFull=true" />
+        <route id="updatecollections-seda" errorHandlerRef="eh">
+        <!--<from uri="file://{{librarycloud.files.basepath}}/updateCollection-input" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-update-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <to uri="seda:update-public?size=20&amp;blockWhenFull=true" />
         </route>
+
         <route id="updateCollection" errorHandlerRef="eh">
-            <from uri="seda:updateCollection-input?concurrentConsumers=5"/>
+            <from uri="seda:update-public?concurrentConsumers=1"/>
             <process ref="collectionUpdateProcessor"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <choice>
+                <when>
+                    <xpath>string-length(/lib_comm_message/payload/data) = 0</xpath>
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-empty-message?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                </when>
+                <otherwise>
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public-immediate?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+                </otherwise>
+            </choice>
         </route>
 
         
