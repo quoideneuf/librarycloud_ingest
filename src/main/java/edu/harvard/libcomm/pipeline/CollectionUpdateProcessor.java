@@ -23,20 +23,21 @@ public class CollectionUpdateProcessor implements IProcessor {
 
 		itemId = MessageUtils.transformPayloadData(libCommMessage, "src/main/resources/item_id.xsl", null);
 		if (itemId == null || itemId.length() == 0){
-			Payload payload = new Payload();
-			payload.setData("");
-			libCommMessage.setPayload(payload);
+			libCommMessage.getPayload().setData("");
 			return;
 		}
 
 		data = getSolrModsRecord(itemId);
+		if (data == null){
+			libCommMessage.getPayload().setData("");
+			return;
+		}
+
 		LibCommMessage temporaryMessage = new LibCommMessage();
 		Payload temporaryPayload = new Payload();
 		temporaryPayload.setData(data);
 		temporaryMessage.setPayload(temporaryPayload);
-
 		data = MessageUtils.transformPayloadData(temporaryMessage, "src/main/resources/addcollections.xsl", collectionData);
-
 		Payload payload = new Payload();
 		payload.setData(data);
 
@@ -68,8 +69,7 @@ public class CollectionUpdateProcessor implements IProcessor {
 			log.error(se.getMessage());
 		}
 
-		modsRecord = doc.getFieldValue("originalMods").toString();
-		return modsRecord;
+		return (doc == null) ? null : doc.getFieldValue("originalMods").toString();
 	}
 
 }
