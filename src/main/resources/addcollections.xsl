@@ -49,6 +49,9 @@
         </xsl:copy>
     </xsl:template>
     
+    <!-- Remove existing collections -->
+    <xsl:template match="mods:extension[lc:collections]"/>
+
     <xsl:template match="mods:mods">
         <xsl:copy>
             <xsl:apply-templates select="*[not(local-name()='recordInfo')]" />
@@ -61,9 +64,6 @@
                         <xsl:element name="collection" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
                             <xsl:element name="type" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
                                 <xsl:value-of select="ns3:type"/>
-                            </xsl:element>
-                            <xsl:element name="extent" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                                <xsl:value-of select="ns2:extent"/>
                             </xsl:element>
                             <xsl:element name="identifier" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
                                 <xsl:value-of select="ns3:identifier"/>
