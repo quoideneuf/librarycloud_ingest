@@ -337,7 +337,10 @@
         <route id="publish" errorHandlerRef="eh">
             <from uri="seda:enrich-end?concurrentConsumers=1" />
             <process ref="removeRestrictedProcessor"/>
-            <process ref="filterUnchangedProcessor"/>
+            
+            <!-- Commenting out unchanged filter until we are set to deploy the associated database -->
+            <!-- <process ref="filterUnchangedProcessor"/> -->
+            
             <!-- Don't try to publish empty messages -->
             <choice>
                 <when>
