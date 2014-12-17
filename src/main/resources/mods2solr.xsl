@@ -26,7 +26,7 @@
                     <xsl:text>isOnline</xsl:text>
                 </xsl:attribute>
                 <xsl:choose>
-                    <xsl:when test="mods:location/mods:url">
+                    <xsl:when test="//mods:location/mods:url">
                         <xsl:text>true</xsl:text>
                     </xsl:when>
                     <xsl:otherwise>
@@ -48,6 +48,7 @@
             <xsl:apply-templates select="mods:location"/>
             <xsl:apply-templates select="mods:recordInfo"/>
             <xsl:apply-templates select="mods:relatedItem[@type='series']"/>
+            <xsl:apply-templates select="mods:relatedItem/mods:location"/>
             <xsl:apply-templates select="mods:extension/usage:usageData/usage:stackScore"/>
             <xsl:apply-templates select="mods:extension/collection:collection/dc:title"/>
             <!--
