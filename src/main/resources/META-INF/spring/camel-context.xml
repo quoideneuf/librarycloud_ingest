@@ -241,7 +241,11 @@
             <from uri="file://{{librarycloud.files.basepath}}/ingest-via-file" />
             <doTry>
                 <split streaming="true">
-                    <tokenize token="viaRecord" xml="true"/>                
+                    <tokenize token="viaRecord" xml="true"/>          
+                    <setHeader headerName="outerSplitIndex">
+                        <simple>${header.CamelSplitIndex}</simple>
+                    </setHeader>
+    
                     <split streaming="true" parallelProcessing="true">
                         <method bean="viaRawSplitter" method="split"/>
                         <aggregate strategyRef="modsVIARawAggregator" completionSize="100" completionInterval="10000">
@@ -251,8 +255,8 @@
                             <completionPredicate>
                                 <simple>${header.messageLength} > 150000</simple>
                             </completionPredicate>  
-                            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-                            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.CamelSplitIndex}" /> -->
+                            <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
+                            <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.outerSplitIndex}-${header.CamelSplitIndex}" />
                         </aggregate>
                     </split>
                 </split>
