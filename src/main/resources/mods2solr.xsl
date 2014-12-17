@@ -45,10 +45,9 @@
             <xsl:apply-templates select="mods:subject"/>
             <xsl:apply-templates select="mods:classification"/>
             <xsl:apply-templates select="mods:identifier"/>
-            <xsl:apply-templates select="mods:location"/>
+            <xsl:apply-templates select="//mods:location"/>
             <xsl:apply-templates select="mods:recordInfo"/>
             <xsl:apply-templates select="mods:relatedItem[@type='series']"/>
-            <xsl:apply-templates select="mods:relatedItem/mods:location"/>
             <xsl:apply-templates select="mods:extension/usage:usageData/usage:stackScore"/>
             <xsl:apply-templates select="mods:extension/collection:collection/dc:title"/>
             <!--
