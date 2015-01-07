@@ -255,8 +255,8 @@
                             <completionPredicate>
                                 <simple>${header.messageLength} > 150000</simple>
                             </completionPredicate>  
-                            <!-- <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" /> -->
-                            <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.outerSplitIndex}-${header.CamelSplitIndex}" />
+                            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.outerSplitIndex}-${header.CamelSplitIndex}" /> -->
                         </aggregate>
                     </split>
                 </split>
