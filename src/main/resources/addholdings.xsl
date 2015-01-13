@@ -29,14 +29,14 @@
             
             <xsl:for-each select="$holdings//docs[MarcLKRB=$hollisid]">
                 <xsl:element name="location" namespace="http://www.loc.gov/mods/v3">
-                    <xsl:if test="$holdings//docs[MarcLKRB=$hollisid]/DisplayCallNumber">
-                        <xsl:element name="shelfLocator" namespace="http://www.loc.gov/mods/v3"><xsl:value-of select="$holdings//docs[MarcLKRB=$hollisid]/DisplayCallNumber"/></xsl:element>
+                    <xsl:if test="./DisplayCallNumber">
+                        <xsl:element name="shelfLocator" namespace="http://www.loc.gov/mods/v3"><xsl:value-of select="./DisplayCallNumber"/></xsl:element>
                     </xsl:if>
-                    <xsl:if test="$holdings//docs[MarcLKRB=$hollisid]/Marc852B">
-                        <xsl:element name="physicalLocation" namespace="http://www.loc.gov/mods/v3"><xsl:value-of select="$holdings//docs[MarcLKRB=$hollisid]/Marc852B"/></xsl:element>
+                    <xsl:if test="./Marc852B">
+                        <xsl:element name="physicalLocation" namespace="http://www.loc.gov/mods/v3"><xsl:value-of select="./Marc852B"/></xsl:element>
                     </xsl:if>
-                    <xsl:if test="$holdings//docs[MarcLKRB=$hollisid]/Marc856U">
-                        <xsl:element name="url" namespace="http://www.loc.gov/mods/v3"><xsl:value-of select="$holdings//docs[MarcLKRB=$hollisid]/Marc856U"/></xsl:element>
+                    <xsl:if test="./Marc856U">
+                        <xsl:element name="url" namespace="http://www.loc.gov/mods/v3"><xsl:value-of select="./Marc856U"/></xsl:element>
                     </xsl:if>
                 </xsl:element>
             </xsl:for-each>
