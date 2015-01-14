@@ -46,6 +46,9 @@
 				<xsl:when test="work/surrogate/image[contains(@href,$urn)]">
 					<xsl:value-of select="work/surrogate/image[contains(@href,$urn)]/../@componentID"/>
 				</xsl:when>
+				<xsl:when test="work/surrogate/image[contains(@xlink:href,$urn)]">
+					<xsl:value-of select="work/surrogate/image[contains(@xlink:href,$urn)]/../@componentID"/>
+				</xsl:when>
 				<xsl:otherwise>
 					<xsl:value-of select="substring-after($urn,'edu/')"/>
 				</xsl:otherwise>
@@ -71,7 +74,6 @@
 
 <xsl:template match="subwork">
 	<xsl:if test="contains(image/@href,$urn)">
-	<!--xsl:if test="$urn=$ids/*"-->
 		<relatedItem type="constituent">
 			<xsl:call-template name="recordElements"/>
 			<recordInfo>
@@ -81,13 +83,22 @@
 			</recordInfo>
                         <xsl:apply-templates select="surrogate"/>
 		</relatedItem>
-	<!--/xsl:if-->	
 	</xsl:if>	
+	<xsl:if test="contains(image/@xlink:href,$urn)">
+		<relatedItem type="constituent">
+			<xsl:call-template name="recordElements"/>
+			<recordInfo>
+				<recordIdentifier>
+					<xsl:value-of select="@componentID"/>
+				</recordIdentifier>
+			</recordInfo>
+			<xsl:apply-templates select="surrogate"/>
+		</relatedItem>
+	</xsl:if>
 </xsl:template>
 
 <xsl:template match="surrogate">
 	<xsl:if test="contains(image/@href,$urn)">
-	<!--xsl:if test="$urn=$ids/*"-->
 		<relatedItem type="constituent">
 			<xsl:call-template name="recordElements"/>
 			<recordInfo>
@@ -96,7 +107,16 @@
 				</recordIdentifier>
 			</recordInfo>		
 		</relatedItem>
-	<!--/xsl:if-->	
+	</xsl:if>
+	<xsl:if test="contains(image/@xlink:href,$urn)">
+		<relatedItem type="constituent">
+			<xsl:call-template name="recordElements"/>
+			<recordInfo>
+				<recordIdentifier>
+					<xsl:value-of select="@componentID"/>
+				</recordIdentifier>
+			</recordInfo>		
+		</relatedItem>
 	</xsl:if>
 </xsl:template>
 
@@ -457,6 +477,24 @@
 			<xsl:value-of select="thumbnail/@href"/>
 		</url>
 	</location>
+	</xsl:if>
+	<xsl:if test="contains(@xlink:href,$urn)">
+		<location>
+			<url displayLabel="Full Image">
+				<xsl:attribute name="note">
+					<xsl:if test="./@restrictedImage='true'">
+						<xsl:text>restricted</xsl:text>
+					</xsl:if>
+					<xsl:if test="./@restrictedImage='false'">
+						<xsl:text>unrestricted</xsl:text>
+					</xsl:if>
+				</xsl:attribute>
+				<xsl:value-of select="./@xlink:href"/>
+			</url>
+			<url displayLabel="Thumbnail">
+				<xsl:value-of select="thumbnail/@xlink:href"/>
+			</url>
+		</location>
 	</xsl:if>
 </xsl:template>
 

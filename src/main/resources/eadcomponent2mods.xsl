@@ -235,7 +235,8 @@
     <xsl:template match="dao">
         <xsl:element name="location">
             <xsl:element name="url">
-                <xsl:value-of select="@href"/>
+                <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
+                <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
             </xsl:element>
         </xsl:element>
     </xsl:template>
@@ -255,13 +256,15 @@
     <xsl:template match="daoloc[@label=../arc/@to[../@show='embed']]">
         <xsl:element name="url">
             <xsl:attribute name="displayLabel">Thumbnail</xsl:attribute>
-            <xsl:value-of select="@href"/>
+            <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
+            <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
         </xsl:element>
     </xsl:template>
     <xsl:template match="daoloc[@label=../arc/@to[../@show='new']]">
         <xsl:element name="url">
             <xsl:attribute name="displayLabel">Full Image</xsl:attribute>
-            <xsl:value-of select="@href"/>
+            <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
+            <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
         </xsl:element>
     </xsl:template>    
 
