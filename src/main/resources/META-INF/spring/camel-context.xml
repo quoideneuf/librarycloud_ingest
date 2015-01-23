@@ -133,6 +133,8 @@
         </property>
     </bean>
 
+    <bean id="prepareURI" class="edu.harvard.libcomm.pipeline.PrepareURIForHTTPEndpoint" />
+
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
         <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
@@ -233,12 +235,20 @@
         </route>
 
         <!-- VIA ingest and normalization -->
-        <!--  Read from raw VIA export files dropped on disk.
-              We want to change this to a model whereby the command is read from SQS with a reference
-              to the raw VIA file in S3, which camel will download; rather than forcing us to drop the
-              raw VIA file on a specific server.   -->
-        <route id="via-ingest-raw-file" errorHandlerRef="eh">
-            <from uri="file://{{librarycloud.files.basepath}}/ingest-via-file" />
+        <route id="via-ingest" errorHandlerRef="eh">
+            <!-- <from uri="file://{{librarycloud.files.basepath}}/ingest-via" />             -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-via?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800&amp;extendMessageVisibility=true" />
+            <split>
+                <xtokenize mode="t">//filepath</xtokenize>
+                <bean ref="prepareURI" method="prepare"/>
+                <!-- Download the file identified in the message header. This URI (http://www.example.com) is ignored -->
+                <to uri="http://www.example.com" />
+                <!-- <to uri="file://{{librarycloud.files.basepath}}/ingest-via-file-url?fileName=via-file-${id}" /> -->
+                <to uri="direct:via-ingest-file"/>
+            </split>
+        </route>
+        <route id="via-ingest-file" errorHandlerRef="eh">
+            <from uri="direct:via-ingest-file"/>
             <doTry>
                 <split streaming="true">
                     <tokenize token="viaRecord" xml="true"/>          
@@ -352,8 +362,8 @@
                     <to uri="aws-sqs://{{librarycloud.sqs.environment}}-empty-message?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
                 </when>
                 <otherwise>
-            <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
+                    <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
                 </otherwise>
             </choice>
         </route>
