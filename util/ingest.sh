@@ -28,12 +28,15 @@ if [ ! -f $SOURCE_FILE_PATH ]; then
   exit 1
 fi
 
-# Create buckets (it's not a problem if the bucket already exists)
-aws s3 mb s3://$COMMAND_BUCKET
-aws s3 mb s3://$TARGET_BUCKET
-
-# Copy data file to target
-aws s3 cp $SOURCE_FILE_PATH s3://$TARGET_BUCKET/$TARGET_FILE_NAME
+# Copy data file to target, creating bucket if it doesn't already exist
+if ! aws s3 cp $SOURCE_FILE_PATH s3://$TARGET_BUCKET/$TARGET_FILE_NAME; then
+    echo "Creating bucket $TARGET_BUCKET"
+    aws s3 mb s3://$TARGET_BUCKET
+    if ! aws s3 cp $SOURCE_FILE_PATH s3://$TARGET_BUCKET/$TARGET_FILE_NAME; then
+        echo "Error uploading file"
+        exit 1
+    fi
+fi
 
 # Create download URL
 SOURCE_FILE_URL=`sign_s3_url.bash --bucket $TARGET_BUCKET --file-path $TARGET_FILE_NAME --minute-expire 1440`
