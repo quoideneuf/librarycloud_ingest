@@ -23,6 +23,11 @@ if [ $# -ne 4 ]; then
     exit 1
 fi
 
+if [ ! -f $SOURCE_FILE_PATH ]; then
+  echo "Data file does not exist"
+  exit 1
+fi
+
 # Create buckets (it's not a problem if the bucket already exists)
 aws s3 mb s3://$COMMAND_BUCKET
 aws s3 mb s3://$TARGET_BUCKET
