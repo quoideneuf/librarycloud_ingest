@@ -32,6 +32,7 @@ fi
 if ! aws s3 cp $SOURCE_FILE_PATH s3://$TARGET_BUCKET/$TARGET_FILE_NAME; then
     echo "Creating bucket $TARGET_BUCKET"
     aws s3 mb s3://$TARGET_BUCKET
+    aws s3api put-bucket-lifecycle --bucket $TARGET_BUCKET --lifecycle-configuration '{"Rules":[{"Status":"Enabled","Prefix":"","Expiration":{"Days":30},"ID":"Delete old items"}]}'
     if ! aws s3 cp $SOURCE_FILE_PATH s3://$TARGET_BUCKET/$TARGET_FILE_NAME; then
         echo "Error uploading file"
         exit 1
