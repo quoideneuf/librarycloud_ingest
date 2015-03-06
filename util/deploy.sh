@@ -26,13 +26,13 @@ if [ $? -ne 0 ]; then
   echo "WARNING: Could not stop librarycloud service before deployment. It may not have been running."
 fi
 
-ssh $TARGET_SERVER git -c $TARGET_DIRECTORY status >/dev/null 2>&1
+ssh $TARGET_SERVER git -C $TARGET_DIRECTORY status >/dev/null 2>&1
 if [ $? -ne 0 ]; then
   echo "ERROR: Librarycloud directory ($TARGET_DIRECTORY) is not a git repository"
   exit 1
 fi
 
-ssh $TARGET_SERVER sudo git -c $TARGET_DIRECTORY fetch && sudo git -c $TARGET_DIRECTORY checkout $RELEASE_TAG
+ssh $TARGET_SERVER "sudo git -C $TARGET_DIRECTORY fetch && sudo git -C $TARGET_DIRECTORY checkout $RELEASE_TAG --quiet"
 if [ $? -ne 0 ]; then
   echo "ERROR: Could not checkout new release from git"
   exit 1
@@ -43,6 +43,7 @@ if [ $? -ne 0 ]; then
   echo "WARNING: Could not restart librarycloud service"
 fi
 
+echo "Deployment of release $RELEASE_TAG to $TARGET_SERVER complete"
 
 # if [ ! -f $SOURCE_FILE_PATH ]; then
 #   echo "Data file does not exist"
