@@ -23,23 +23,16 @@ fi
 # in the /etc/sudoers file. See https://bugzilla.redhat.com/show_bug.cgi?id=1020147
 ssh $TARGET_SERVER sudo service librarycloud stop
 if [ $? -ne 0 ]; then
-  echo "ERROR: Could not stop librarycloud service before deployment"
-  exit 1
+  echo "WARNING: Could not stop librarycloud service before deployment. It may not have been running."
 fi
 
-ssh $TARGET_SERVER cd $TARGET_DIRECTORY
-if [ $? -ne 0 ]; then
-  echo "ERROR: Librarycloud directory ($TARGET_DIRECTORY) does not exist or is not accessible"
-  exit 1
-fi
-
-ssh $TARGET_SERVER git status >/dev/null 2>&1
+ssh $TARGET_SERVER git -c $TARGET_DIRECTORY status >/dev/null 2>&1
 if [ $? -ne 0 ]; then
   echo "ERROR: Librarycloud directory ($TARGET_DIRECTORY) is not a git repository"
   exit 1
 fi
 
-ssh $TARGET_SERVER sudo git fetch && sudo git checkout $RELEASE_TAG
+ssh $TARGET_SERVER sudo git -c $TARGET_DIRECTORY fetch && sudo git -c $TARGET_DIRECTORY checkout $RELEASE_TAG
 if [ $? -ne 0 ]; then
   echo "ERROR: Could not checkout new release from git"
   exit 1
@@ -48,7 +41,6 @@ fi
 ssh $TARGET_SERVER sudo service librarycloud start
 if [ $? -ne 0 ]; then
   echo "WARNING: Could not restart librarycloud service"
-  exit 1
 fi
 
 
