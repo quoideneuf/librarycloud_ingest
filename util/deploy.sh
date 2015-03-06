@@ -22,31 +22,31 @@ fi
 # If the target server is running RHEL, this may fail if 'Defaults requiretty' is set
 # in the /etc/sudoers file. See https://bugzilla.redhat.com/show_bug.cgi?id=1020147
 ssh $TARGET_SERVER sudo service librarycloud stop
-if [ $? -eq 0 ]
+if [ $? -eq 0 ]; then
   echo "ERROR: Could not stop librarycloud service before deployment"
   exit 1
 fi
 
 ssh $TARGET_SERVER cd $TARGET_DIRECTORY
-if [ $? -eq 0 ]
+if [ $? -eq 0 ]; then
   echo "ERROR: Librarycloud directory ($TARGET_DIRECTORY) does not exist or is not accessible"
   exit 1
 fi
 
 ssh $TARGET_SERVER git status >/dev/null 2>&1
-if [ $? -eq 0 ]
+if [ $? -eq 0 ]; then
   echo "ERROR: Librarycloud directory ($TARGET_DIRECTORY) is not a git repository"
   exit 1
 fi
 
 ssh $TARGET_SERVER sudo git fetch && sudo git checkout $RELEASE_TAG
-if [ $? -eq 0 ]
+if [ $? -eq 0 ]; then
   echo "ERROR: Could not checkout new release from git"
   exit 1
 fi
 
 ssh $TARGET_SERVER sudo service librarycloud start
-if [ $? -eq 0 ]
+if [ $? -eq 0 ]; then
   echo "WARNING: Could not restart librarycloud service"
   exit 1
 fi
