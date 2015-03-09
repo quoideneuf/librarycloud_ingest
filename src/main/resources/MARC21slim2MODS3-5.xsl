@@ -2,7 +2,7 @@
 	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	exclude-result-prefixes="xlink marc" version="1.0">
 	<xsl:include href="src/main/resources/MARC21slimUtils.xsl"/>
-	<xsl:output encoding="UTF-8" indent="no" method="xml" omit-xml-declaration="yes"/>
+	<xsl:output encoding="UTF-8" indent="yes" method="xml" omit-xml-declaration="yes"/>
 	<xsl:strip-space elements="*"/>
 
 <!-- Harvard modifications -->
@@ -2717,6 +2717,15 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 		</xsl:for-each>
 	</xsl:template>
 	<xsl:template name="role">
+	<!-- HARVARD CHANGE add role for every 100,110,111 -->
+		<xsl:if test="@tag='100' or @tag='110' or @tag='111'">
+		<role>
+			<roleTerm type="text">
+				<xsl:text>creator</xsl:text>
+			</roleTerm>
+		</role>	
+	</xsl:if>
+	<!-- 
 		<xsl:for-each select="marc:subfield[@code='e']">
 			<role>
 				<roleTerm type="text">
@@ -2731,6 +2740,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 				</roleTerm>
 			</role>
 		</xsl:for-each>
+	-->
 	</xsl:template>
 	<xsl:template name="part">
 		<xsl:variable name="partNumber">
@@ -3267,9 +3277,10 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 	</xsl:template>
 	<xsl:template name="script">
 		<xsl:param name="scriptCode"/>
+		<!-- 
 		<xsl:attribute name="script">
 			<xsl:choose>
-				<!-- ISO 15924	and CJK is a local code	20101123-->
+
 				<xsl:when test="$scriptCode='(3'">Arab</xsl:when>
 				<xsl:when test="$scriptCode='(4'">Arab</xsl:when>
 				<xsl:when test="$scriptCode='(B'">Latn</xsl:when>
@@ -3281,6 +3292,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 				<xsl:when test="$scriptCode='(S'">Grek</xsl:when>
 			</xsl:choose>
 		</xsl:attribute>
+		 -->
 	</xsl:template>
 	<xsl:template name="parsePart">
 		<!-- assumes 773$q= 1:2:3<4
@@ -3532,6 +3544,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 	</xsl:template>
 
 	<xsl:template name="scriptCode">
+	<!-- 
 		<xsl:variable name="sf06" select="normalize-space(child::marc:subfield[@code='6'])"/>
 		<xsl:variable name="sf06a" select="substring($sf06, 1, 3)"/>
 		<xsl:variable name="sf06b" select="substring($sf06, 5, 2)"/>
@@ -3553,6 +3566,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 				</xsl:choose>
 			</xsl:attribute>
 		</xsl:if>
+ 	-->
 	</xsl:template>
 
 	<!-- tmee 20100927 for 880s & corresponding fields  20101123 scriptCode -->
@@ -3568,6 +3582,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 				<xsl:attribute name="altRepGroup">
 					<xsl:value-of select="$sf06b"/>
 				</xsl:attribute>
+				<!-- 
 				<xsl:attribute name="script">
 					<xsl:choose>
 						<xsl:when test="$scriptCode=''">Latn</xsl:when>
@@ -3582,6 +3597,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 						<xsl:when test="$scriptCode='(S'">Grek</xsl:when>
 					</xsl:choose>
 				</xsl:attribute>
+			 -->
 			</xsl:if>
 		</xsl:if>
 	</xsl:template>

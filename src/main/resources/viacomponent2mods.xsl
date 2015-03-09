@@ -6,8 +6,8 @@
 >
 
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
-	<xsl:param name="urn"/>
-	<!-- <xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:3989047</xsl:param>-->
+	<!-- <xsl:param name="urn"/>-->
+	<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:1154698</xsl:param>
 <xsl:template match="/viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
 	<xsl:if test="@numberOfSubworks='0'">
@@ -232,6 +232,7 @@
 </xsl:template>
 
 <xsl:template name="originInfo">
+	<xsl:variable name="wherefrom"><xsl:value-of select="name()"/></xsl:variable>
     <xsl:if test="production|structuredDate|freeDate|state">
 	<originInfo>
 	 	<xsl:if test="production/placeOfProduction/place">
@@ -246,7 +247,9 @@
 				<xsl:value-of select="production/producer"/>
 			</publisher>
 		</xsl:if>
-			<!-- dateOther keyDate is used for date sorting -->
+		<!-- dateOther keyDate is used for date sorting -->
+		<!-- 2015-02-27 - but only for work/group-level-->
+		<xsl:if test="$wherefrom='group' or $wherefrom='work'">
 			<dateOther keyDate="yes">
 			    <xsl:if test="/record/metadata/viaRecord/@sortDate">
 				<xsl:value-of select="/record/metadata/viaRecord/@sortDate"/>
@@ -255,12 +258,7 @@
 				<xsl:value-of select="//freeDate[1]"/>
 			    </xsl:if>
 			</dateOther>
-			<!--dateOther keyDate="yes">
-				<xsl:value-of select="//beginDate[1]"/>
-			</dateOther-->
-			<!--dateOther keyDate="yes">
-				<xsl:value-of select="//freeDate[1]"/>
-			</dateOther-->
+		</xsl:if>
 		<xsl:if test="structuredDate/beginDate">
 			<dateCreated point="start">
 				<xsl:value-of select="structuredDate/beginDate"/>
@@ -502,9 +500,6 @@
 	<location>
 		<physicalLocation>
 			<xsl:attribute name="type">
-				<xsl:value-of select="'current'"/>
-			</xsl:attribute>
-			<xsl:attribute name="displayLabel">
 				<xsl:value-of select="'repository'"/>
 			</xsl:attribute>
 			<xsl:value-of select="repositoryName"/>
