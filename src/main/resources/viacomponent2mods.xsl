@@ -7,7 +7,7 @@
 
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="no"/>
 	<xsl:param name="urn"/>
-	<!-- <xsl:param name="urn">http://nrs.harvard.edu/urn-3:HUL.ARCH:5226846</xsl:param>-->
+	<!-- <xsl:param name="urn"></xsl:param>-->
 <xsl:template match="/viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
 	<xsl:if test="@numberOfSubworks='0'">

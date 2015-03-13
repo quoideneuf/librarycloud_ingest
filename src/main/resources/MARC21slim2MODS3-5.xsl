@@ -7,7 +7,8 @@
 
 <!-- Harvard modifications -->
 <!-- 
-
+Revision 2.4 add role creator to 100, 110, 111 
+Revision 2.3 remove script attribute from 880 and linked fields 
 Revision 2.2 use MH:ALEPH in recordIdentifier/@source rather than 003	
 Revision 2.1 change to indent="no" 
 Revision 2.0 added omit-xml-declaration ="yes" on xsl output element - we need to wrap mods in message xml doc 
