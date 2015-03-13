@@ -5,6 +5,11 @@
     xmlns="http://www.loc.gov/mods/v3" 
 >
 
+<!--  Revisions
+	  2015-03-13 fix key date (was ending up in component where it didn't belong
+	  2015-03-13 put repository in a "type" attribute
+ -->
+
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="no"/>
 	<xsl:param name="urn"/>
 	<!-- <xsl:param name="urn"></xsl:param>-->
