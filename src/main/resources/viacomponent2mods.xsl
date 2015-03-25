@@ -10,9 +10,9 @@
 	  2015-03-13 put repository in a "type" attribute
  -->
 
-<xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="no"/>
-	<xsl:param name="urn"/>
-	<!-- <xsl:param name="urn"></xsl:param>-->
+<xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
+	<!-- <xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:1154698</xsl:param>-->
+	<xsl:param name="urn"></xsl:param>
 <xsl:template match="/viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
 	<xsl:if test="@numberOfSubworks='0'">
@@ -464,37 +464,31 @@
 
 <xsl:template match="image">
 	<xsl:if test="contains(@href,$urn)">
-	<relatedItem type="constituent">	
-		<xsl:if test="caption">
-			<titleInfo>
-				<title><xsl:value-of select="caption"/></title>
-			</titleInfo>
-		</xsl:if>
-		<location>
-			<url displayLabel="Full Image">
-				<xsl:attribute name="note">
-					<xsl:if test="./@restrictedImage='true'">
-						<xsl:text>restricted</xsl:text>
-					</xsl:if>
-					<xsl:if test="./@restrictedImage='false'">
-						<xsl:text>unrestricted</xsl:text>
-					</xsl:if>
-				</xsl:attribute>
-				<xsl:value-of select="./@href"/>
-			</url>
-			<url displayLabel="Thumbnail">
-				<xsl:value-of select="thumbnail/@href"/>
-			</url>
-		</location>
-	</relatedItem>
-	</xsl:if>
-	<xsl:if test="contains(@xlink:href,$urn)">
-		<relatedItem type="constituent">	
-			<xsl:if test="caption">
+	<xsl:choose>
+		<xsl:when test="caption and not(../surrogate)">
+			<relatedItem type="constituent">	
 				<titleInfo>
 					<title><xsl:value-of select="caption"/></title>
 				</titleInfo>
-			</xsl:if>
+				<location>
+					<url displayLabel="Full Image">
+						<xsl:attribute name="note">
+							<xsl:if test="./@restrictedImage='true'">
+								<xsl:text>restricted</xsl:text>
+							</xsl:if>
+							<xsl:if test="./@restrictedImage='false'">
+								<xsl:text>unrestricted</xsl:text>
+							</xsl:if>
+						</xsl:attribute>
+						<xsl:value-of select="./@href"/>
+					</url>
+					<url displayLabel="Thumbnail">
+						<xsl:value-of select="thumbnail/@href"/>
+					</url>
+				</location>
+			</relatedItem>			
+		</xsl:when>
+		<xsl:otherwise>
 			<location>
 				<url displayLabel="Full Image">
 					<xsl:attribute name="note">
@@ -505,13 +499,59 @@
 							<xsl:text>unrestricted</xsl:text>
 						</xsl:if>
 					</xsl:attribute>
-					<xsl:value-of select="./@xlink:href"/>
+					<xsl:value-of select="./@href"/>
 				</url>
 				<url displayLabel="Thumbnail">
-					<xsl:value-of select="thumbnail/@xlink:href"/>
+					<xsl:value-of select="thumbnail/@href"/>
 				</url>
 			</location>
-		</relatedItem>
+		</xsl:otherwise>
+	</xsl:choose>	
+	</xsl:if>
+	<xsl:if test="contains(@xlink:href,$urn)">
+		<xsl:choose>
+			<xsl:when test="caption and not(../surrogate)">
+				<relatedItem type="constituent">	
+					<titleInfo>
+						<title><xsl:value-of select="caption"/></title>
+					</titleInfo>
+					<location>
+						<url displayLabel="Full Image">
+							<xsl:attribute name="note">
+								<xsl:if test="./@restrictedImage='true'">
+									<xsl:text>restricted</xsl:text>
+								</xsl:if>
+								<xsl:if test="./@restrictedImage='false'">
+									<xsl:text>unrestricted</xsl:text>
+								</xsl:if>
+							</xsl:attribute>
+							<xsl:value-of select="./@xlink:href"/>
+						</url>
+						<url displayLabel="Thumbnail">
+							<xsl:value-of select="thumbnail/@xlink:href"/>
+						</url>
+					</location>
+				</relatedItem>			
+			</xsl:when>
+			<xsl:otherwise>
+				<location>
+					<url displayLabel="Full Image">
+						<xsl:attribute name="note">
+							<xsl:if test="./@restrictedImage='true'">
+								<xsl:text>restricted</xsl:text>
+							</xsl:if>
+							<xsl:if test="./@restrictedImage='false'">
+								<xsl:text>unrestricted</xsl:text>
+							</xsl:if>
+						</xsl:attribute>
+						<xsl:value-of select="./@xlink:href"/>
+					</url>
+					<url displayLabel="Thumbnail">
+						<xsl:value-of select="thumbnail/@xlink:href"/>
+					</url>
+				</location>
+			</xsl:otherwise>
+		</xsl:choose>	
 	</xsl:if>
 </xsl:template>
 
