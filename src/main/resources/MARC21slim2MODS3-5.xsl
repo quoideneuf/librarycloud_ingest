@@ -2428,8 +2428,8 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 				<xsl:if test="starts-with(./marc:subfield[@code=6],'880')">
 					<xsl:variable name="sbf6"><xsl:value-of select="./marc:subfield[@code=6]"/></xsl:variable>
 					<xsl:variable name="sbf6linkno"><xsl:value-of select="concat('830-',substring-after(./marc:subfield[@code=6],'-'))"/></xsl:variable>
-					<xsl:if test="//marc:datafield[@tag=880][marc:subfield[@code=6]=$sbf6linkno]">
-						<xsl:for-each select="//marc:datafield[@tag=880][marc:subfield[@code=6]=$sbf6linkno]">
+					<xsl:if test="../marc:datafield[@tag=880][marc:subfield[@code=6]=$sbf6linkno]">
+						<xsl:for-each select="../marc:datafield[@tag=880][marc:subfield[@code=6]=$sbf6linkno]">
 							<titleInfo>
 								<xsl:call-template name="xxx880"/>
 								<title>
@@ -5505,8 +5505,8 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 			<xsl:if test="starts-with(./marc:subfield[@code=6],'880')">
 				<xsl:variable name="sbf6"><xsl:value-of select="./marc:subfield[@code=6]"/></xsl:variable>
 				<xsl:variable name="sbf6linkno"><xsl:value-of select="concat('490-',substring-after(./marc:subfield[@code=6],'-'))"/></xsl:variable>
-				<xsl:if test="//marc:datafield[@tag=880][marc:subfield[@code=6]=$sbf6linkno]">
-					<xsl:for-each select="//marc:datafield[@tag=880][marc:subfield[@code=6]=$sbf6linkno]">
+				<xsl:if test="../marc:datafield[@tag=880][marc:subfield[@code=6]=$sbf6linkno]">
+					<xsl:for-each select="../marc:datafield[@tag=880][marc:subfield[@code=6]=$sbf6linkno]">
 					<titleInfo>
 						<xsl:call-template name="xxx880"/>
 						<title>
