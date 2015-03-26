@@ -4613,7 +4613,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 		<xsl:if test="marc:subfield[@code='c']">
 				<note type="statement of responsibility">
 					<!-- Harvard change - test to see if an 880 of type 245 exists, otherwise don't bother with the altRepGroup -->
-					<xsl:if test="//marc:datafield[@tag=880][starts-with(marc:subfield[@code=6],'245')]">
+					<xsl:if test="../marc:datafield[@tag=880][starts-with(marc:subfield[@code=6],'245')]">
 						<xsl:attribute name="altRepGroup">
 							<xsl:text>00</xsl:text>
 						</xsl:attribute>
