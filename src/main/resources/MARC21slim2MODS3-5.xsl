@@ -2794,14 +2794,13 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 	<xsl:template name="role">
 	<!-- HARVARD CHANGE add role for every 100,110,111 -->
 		<xsl:if test="@tag='100' or @tag='110' or @tag='111'">
-		<role>
-			<roleTerm type="text">
-				<xsl:text>creator</xsl:text>
-			</roleTerm>
-		</role>	
-	</xsl:if>
-	<!-- 
-		<xsl:for-each select="marc:subfield[@code='e']">
+			<role>
+				<roleTerm type="text">
+					<xsl:text>creator</xsl:text>
+				</roleTerm>
+			</role>	
+		</xsl:if>
+	 	<xsl:for-each select="marc:subfield[@code='e']">
 			<role>
 				<roleTerm type="text">
 					<xsl:value-of select="."/>
@@ -2815,7 +2814,6 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 				</roleTerm>
 			</role>
 		</xsl:for-each>
-	-->
 	</xsl:template>
 	<xsl:template name="part">
 		<xsl:variable name="partNumber">
@@ -3952,6 +3950,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 			<xsl:when test="$sf06a='505'">
 				<xsl:call-template name="createTOCFrom505"/>
 			</xsl:when>
+
 			<xsl:when test="$sf06a='520'">
 				<xsl:call-template name="createAbstractFrom520"/>
 			</xsl:when>
@@ -3972,6 +3971,9 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 			</xsl:when>
 			<xsl:when test="$sf06a='362'">
 				<xsl:call-template name="createNoteFrom362"/>
+			</xsl:when>
+			<xsl:when test="$sf06a='500'">
+				<xsl:call-template name="createNoteFrom500"/>
 			</xsl:when>
 			<xsl:when test="$sf06a='502'">
 				<xsl:call-template name="createNoteFrom502"/>
