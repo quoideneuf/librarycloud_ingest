@@ -528,7 +528,7 @@
 							<xsl:value-of select="./@xlink:href"/>
 						</url>
 						<url displayLabel="Thumbnail">
-							<xsl:value-of select="thumbnail/@xlink:href"/>
+							<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
 						</url>
 					</location>
 				</relatedItem>			
@@ -547,7 +547,6 @@
 						<xsl:value-of select="./@xlink:href"/>
 					</url>
 					<url displayLabel="Thumbnail">
-						
 						<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
 					</url>
 				</location>
