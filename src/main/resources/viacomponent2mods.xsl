@@ -11,7 +11,7 @@
  -->
 
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
-	<!-- <xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:1154698</xsl:param>-->
+	<!--<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:1154698</xsl:param>-->
 	<xsl:param name="urn"></xsl:param>
 <xsl:template match="/viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
@@ -547,7 +547,8 @@
 						<xsl:value-of select="./@xlink:href"/>
 					</url>
 					<url displayLabel="Thumbnail">
-						<xsl:value-of select="thumbnail/@xlink:href"/>
+						
+						<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
 					</url>
 				</location>
 			</xsl:otherwise>
