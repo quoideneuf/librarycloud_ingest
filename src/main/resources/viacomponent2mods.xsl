@@ -5,9 +5,14 @@
     xmlns="http://www.loc.gov/mods/v3" 
 >
 
+<!--  Revisions
+	  2015-03-13 fix key date (was ending up in component where it didn't belong
+	  2015-03-13 put repository in a "type" attribute
+ -->
+
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
-	<xsl:param name="urn"/>
-	<!-- <xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:3989047</xsl:param>-->
+	<!--<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:1154698</xsl:param>-->
+	<xsl:param name="urn"></xsl:param>
 <xsl:template match="/viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
 	<xsl:if test="@numberOfSubworks='0'">
@@ -232,6 +237,7 @@
 </xsl:template>
 
 <xsl:template name="originInfo">
+	<xsl:variable name="wherefrom"><xsl:value-of select="name()"/></xsl:variable>
     <xsl:if test="production|structuredDate|freeDate|state">
 	<originInfo>
 	 	<xsl:if test="production/placeOfProduction/place">
@@ -246,7 +252,9 @@
 				<xsl:value-of select="production/producer"/>
 			</publisher>
 		</xsl:if>
-			<!-- dateOther keyDate is used for date sorting -->
+		<!-- dateOther keyDate is used for date sorting -->
+		<!-- 2015-02-27 - but only for work/group-level-->
+		<xsl:if test="$wherefrom='group' or $wherefrom='work'">
 			<dateOther keyDate="yes">
 			    <xsl:if test="/record/metadata/viaRecord/@sortDate">
 				<xsl:value-of select="/record/metadata/viaRecord/@sortDate"/>
@@ -255,12 +263,7 @@
 				<xsl:value-of select="//freeDate[1]"/>
 			    </xsl:if>
 			</dateOther>
-			<!--dateOther keyDate="yes">
-				<xsl:value-of select="//beginDate[1]"/>
-			</dateOther-->
-			<!--dateOther keyDate="yes">
-				<xsl:value-of select="//freeDate[1]"/>
-			</dateOther-->
+		</xsl:if>
 		<xsl:if test="structuredDate/beginDate">
 			<dateCreated point="start">
 				<xsl:value-of select="structuredDate/beginDate"/>
@@ -461,40 +464,94 @@
 
 <xsl:template match="image">
 	<xsl:if test="contains(@href,$urn)">
-	<location>
-		<url displayLabel="Full Image">
-			<xsl:attribute name="note">
-				<xsl:if test="./@restrictedImage='true'">
-					<xsl:text>restricted</xsl:text>
-				</xsl:if>
-				<xsl:if test="./@restrictedImage='false'">
-					<xsl:text>unrestricted</xsl:text>
-				</xsl:if>
-			</xsl:attribute>
-			<xsl:value-of select="./@href"/>
-		</url>
-		<url displayLabel="Thumbnail">
-			<xsl:value-of select="thumbnail/@href"/>
-		</url>
-	</location>
+	<xsl:choose>
+		<xsl:when test="caption and not(../surrogate)">
+			<relatedItem type="constituent">	
+				<titleInfo>
+					<title><xsl:value-of select="caption"/></title>
+				</titleInfo>
+				<location>
+					<url displayLabel="Full Image">
+						<xsl:attribute name="note">
+							<xsl:if test="./@restrictedImage='true'">
+								<xsl:text>restricted</xsl:text>
+							</xsl:if>
+							<xsl:if test="./@restrictedImage='false'">
+								<xsl:text>unrestricted</xsl:text>
+							</xsl:if>
+						</xsl:attribute>
+						<xsl:value-of select="./@href"/>
+					</url>
+					<url displayLabel="Thumbnail">
+						<xsl:value-of select="thumbnail/@href"/>
+					</url>
+				</location>
+			</relatedItem>			
+		</xsl:when>
+		<xsl:otherwise>
+			<location>
+				<url displayLabel="Full Image">
+					<xsl:attribute name="note">
+						<xsl:if test="./@restrictedImage='true'">
+							<xsl:text>restricted</xsl:text>
+						</xsl:if>
+						<xsl:if test="./@restrictedImage='false'">
+							<xsl:text>unrestricted</xsl:text>
+						</xsl:if>
+					</xsl:attribute>
+					<xsl:value-of select="./@href"/>
+				</url>
+				<url displayLabel="Thumbnail">
+					<xsl:value-of select="thumbnail/@href"/>
+				</url>
+			</location>
+		</xsl:otherwise>
+	</xsl:choose>	
 	</xsl:if>
 	<xsl:if test="contains(@xlink:href,$urn)">
-		<location>
-			<url displayLabel="Full Image">
-				<xsl:attribute name="note">
-					<xsl:if test="./@restrictedImage='true'">
-						<xsl:text>restricted</xsl:text>
-					</xsl:if>
-					<xsl:if test="./@restrictedImage='false'">
-						<xsl:text>unrestricted</xsl:text>
-					</xsl:if>
-				</xsl:attribute>
-				<xsl:value-of select="./@xlink:href"/>
-			</url>
-			<url displayLabel="Thumbnail">
-				<xsl:value-of select="thumbnail/@xlink:href"/>
-			</url>
-		</location>
+		<xsl:choose>
+			<xsl:when test="caption and not(../surrogate)">
+				<relatedItem type="constituent">	
+					<titleInfo>
+						<title><xsl:value-of select="caption"/></title>
+					</titleInfo>
+					<location>
+						<url displayLabel="Full Image">
+							<xsl:attribute name="note">
+								<xsl:if test="./@restrictedImage='true'">
+									<xsl:text>restricted</xsl:text>
+								</xsl:if>
+								<xsl:if test="./@restrictedImage='false'">
+									<xsl:text>unrestricted</xsl:text>
+								</xsl:if>
+							</xsl:attribute>
+							<xsl:value-of select="./@xlink:href"/>
+						</url>
+						<url displayLabel="Thumbnail">
+							<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
+						</url>
+					</location>
+				</relatedItem>			
+			</xsl:when>
+			<xsl:otherwise>
+				<location>
+					<url displayLabel="Full Image">
+						<xsl:attribute name="note">
+							<xsl:if test="./@restrictedImage='true'">
+								<xsl:text>restricted</xsl:text>
+							</xsl:if>
+							<xsl:if test="./@restrictedImage='false'">
+								<xsl:text>unrestricted</xsl:text>
+							</xsl:if>
+						</xsl:attribute>
+						<xsl:value-of select="./@xlink:href"/>
+					</url>
+					<url displayLabel="Thumbnail">
+						<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
+					</url>
+				</location>
+			</xsl:otherwise>
+		</xsl:choose>	
 	</xsl:if>
 </xsl:template>
 
@@ -502,9 +559,6 @@
 	<location>
 		<physicalLocation>
 			<xsl:attribute name="type">
-				<xsl:value-of select="'current'"/>
-			</xsl:attribute>
-			<xsl:attribute name="displayLabel">
 				<xsl:value-of select="'repository'"/>
 			</xsl:attribute>
 			<xsl:value-of select="repositoryName"/>
