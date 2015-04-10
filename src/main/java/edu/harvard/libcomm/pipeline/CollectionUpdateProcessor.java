@@ -45,6 +45,14 @@ public class CollectionUpdateProcessor implements IProcessor {
         
 	}
 
+	private String replaceSolrSpecialCharacters(String s) {
+		String specials = "+-&|!(){}[]^\"~*?:";
+		for (int i = 0; i < specials.length(); i++) {
+			s = s.replace(specials.substring(i,i+1),"\\" + specials.substring(i,i+1));			
+		}
+		return s;
+	}
+
 	private String getSolrModsRecord(String itemId)
 	{
 		String modsRecord = "";
@@ -54,7 +62,8 @@ public class CollectionUpdateProcessor implements IProcessor {
 		HttpSolrServer server = null;
 		try {
 			server = SolrServer.getSolrConnection();
-			SolrQuery query = new SolrQuery("recordIdentifier:" + itemId);
+
+			SolrQuery query = new SolrQuery("recordIdentifier:" + replaceSolrSpecialCharacters(itemId));
 			QueryResponse response = server.query(query);
 			docs = response.getResults();
 			if (docs.size() == 0)
