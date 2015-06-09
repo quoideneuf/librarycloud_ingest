@@ -30,11 +30,7 @@ public class LCCProcessor implements IProcessor {
 		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=collection:hollis_catalog&filter=id_inst:(" + recids + ")&fields=loc_call_num_subject,id_inst&limit=250");
 		JSONTokener tokener;
 		try {
-			Date start = new Date();
 			tokener = new JSONTokener(uri.toURL().openStream());
-			Date end = new Date();
-			log.trace("LCCProcesser query time: " + (end.getTime() - start.getTime()));
-			log.trace("LCCProcesser query : " +  uri.toURL());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;

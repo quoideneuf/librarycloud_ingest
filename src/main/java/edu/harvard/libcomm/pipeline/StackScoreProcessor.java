@@ -30,11 +30,7 @@ public class StackScoreProcessor implements IProcessor {
 		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=collection:hollis_catalog&filter=id_inst:(" + recids + ")&fields=shelfrank,id_inst&limit=250");
 		JSONTokener tokener;
 		try {
-			Date start = new Date();
 			tokener = new JSONTokener(uri.toURL().openStream());
-			Date end = new Date();
-			log.trace("StackScoreProcesser query time: " + (end.getTime() - start.getTime()));
-			log.trace("StackScoreProcesser query : " +  uri.toURL());
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;
