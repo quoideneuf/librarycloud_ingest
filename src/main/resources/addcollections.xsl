@@ -2,9 +2,9 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs mods"
     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" 
-    xmlns:ns2="http://purl.org/dc/terms" xmlns:ns4="http://purl.org/dc/terms/"
-    xmlns:ns3="http://purl.org/dc/elements/1.1" xmlns:ns5="http://purl.org/dc/elements/1.1/"
-    xmlns:ns6="http://api.lib.harvard.edu/v2/collection/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:col="http://api.lib.harvard.edu/v2/collection/"
     xmlns:lc="http://hul.harvard.edu/ois/xml/ns/libraryCloud"
     version="1.0">
     
@@ -60,19 +60,19 @@
             <xsl:variable name="recordid"><xsl:value-of select="./mods:recordInfo/mods:recordIdentifier"/></xsl:variable>
             <xsl:element name="extension" namespace="http://www.loc.gov/mods/v3">
                 <xsl:element name="collections" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                    <xsl:for-each select="$collections//collections">
+                    <xsl:for-each select="$collections//col:collections">
                         <xsl:element name="collection" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
                             <xsl:element name="type" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                                <xsl:value-of select="ns3:type"/>
+                                <xsl:value-of select="dc:type"/>
                             </xsl:element>
                             <xsl:element name="identifier" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                                <xsl:value-of select="ns3:identifier"/>
+                                <xsl:value-of select="dc:identifier"/>
                             </xsl:element>
                             <xsl:element name="abstract" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                                <xsl:value-of select="ns4:abstract"/>
+                                <xsl:value-of select="dcterms:abstract"/>
                             </xsl:element>
                             <xsl:element name="title" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                                <xsl:value-of select="ns5:title"/>
+                                <xsl:value-of select="dc:title"/>
                             </xsl:element>
                         </xsl:element>
                     </xsl:for-each>

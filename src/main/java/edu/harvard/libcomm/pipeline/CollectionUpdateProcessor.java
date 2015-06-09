@@ -24,12 +24,14 @@ public class CollectionUpdateProcessor implements IProcessor {
 		itemId = MessageUtils.transformPayloadData(libCommMessage, "src/main/resources/item_id.xsl", null);
 		if (itemId == null || itemId.length() == 0){
 			libCommMessage.getPayload().setData("");
+			log.error("Could not find item id in message");
 			return;
 		}
 
 		data = getSolrModsRecord(itemId);
 		if (data == null){
 			libCommMessage.getPayload().setData("");
+			log.error("Could not find item id in solr");
 			return;
 		}
 
