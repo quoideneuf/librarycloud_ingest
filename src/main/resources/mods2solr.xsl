@@ -3,7 +3,7 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs"
     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" 
     xmlns:usage="http://lib.harvard.edu/usagedata" version="1.0"
-    xmlns:collection="http://api.lib.harvard.edu/v2/collection"
+    xmlns:collection="http://hul.harvard.edu/ois/xml/ns/libraryCloud"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     >
 
@@ -49,7 +49,8 @@
             <xsl:apply-templates select="mods:recordInfo"/>
             <xsl:apply-templates select="mods:relatedItem[@type='series']"/>
             <xsl:apply-templates select="mods:extension/usage:usageData/usage:stackScore"/>
-            <xsl:apply-templates select="mods:extension/collection:collection/dc:title"/>
+            <xsl:apply-templates select="mods:extension/collection:collections/collection:collection/collection:title"/>
+            <xsl:apply-templates select="mods:extension/collection:collections/collection:collection/collection:identifier"/>
             <!--
             <xsl:apply-templates select="//mods:relatedItem[@displayLabel='collection']"/>
             <xsl:apply-templates select="mods:relatedItem[@type='constituent']"/>
@@ -523,10 +524,19 @@
         </xsl:element>        
     </xsl:template>
  
-    <xsl:template match="dc:title">
+    <xsl:template match="collection:title">
         <xsl:element name="field">
             <xsl:attribute name="name">
                 <xsl:text>collectionTitle</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>        
+    </xsl:template>
+ 
+    <xsl:template match="collection:identifier">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>collectionId</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>        
