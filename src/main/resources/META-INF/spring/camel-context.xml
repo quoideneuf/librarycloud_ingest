@@ -56,7 +56,7 @@
 
 	<bean id="deleteSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
         <property name="splitter">
-            <bean class="edu.harvard.libcomm.pipeline.DeleteFileSplitter"/>
+            <bean class="edu.harvard.libcomm.pipeline.delete.DeleteFileSplitter"/>
         </property>
     </bean>	
 
