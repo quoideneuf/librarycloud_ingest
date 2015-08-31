@@ -12,13 +12,29 @@
     >
     <!-- AWS Configuration -->
     <context:property-placeholder location="classpath:/aws.properties" />
+    <bean name="awsCredentials" class="com.amazonaws.auth.BasicAWSCredentials">
+        <constructor-arg value="${access.key}"/>
+        <constructor-arg value="${secret.key}"/>
+    </bean>
     <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
         <constructor-arg>
-            <bean class="com.amazonaws.auth.BasicAWSCredentials">
-                <constructor-arg value="${access.key}"/>
-                <constructor-arg value="${secret.key}"/>
-            </bean>
+            <ref bean="awsCredentials"/>
         </constructor-arg>
+    </bean>
+    <bean name="snsClient" class="com.amazonaws.services.sns.AmazonSNSClient">
+        <constructor-arg>
+            <ref bean="awsCredentials"/>
+        </constructor-arg>
+    </bean>
+    <bean name="s3Client" class="com.amazonaws.services.s3.AmazonS3Client">
+        <constructor-arg>
+            <ref bean="awsCredentials"/>
+        </constructor-arg>
+    </bean>
+    
+    <!-- Zip data format -->
+    <bean id="zip" class="org.apache.camel.dataformat.zipfile.ZipFileDataFormat">
+        <property name="usingIterator" value="false"/>
     </bean>
     <!-- Set a shorter timeout for shutdown, primarily for testing purposes. Default is 300. -->
     <bean id="shutdown" class="org.apache.camel.impl.DefaultShutdownStrategy">
@@ -74,6 +90,8 @@
     <bean id="modsVIARawAggregator" class="edu.harvard.libcomm.pipeline.MODSRawAggregatorStrategy">
         <property name="source" value="VIA"/>
     </bean>
+
+    <bean id="extractPayloadProcessor" class="edu.harvard.libcomm.pipeline.ExtractPayloadProcessor"/>
 
     <bean id="modsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
@@ -135,12 +153,6 @@
 
     <bean id="prepareURI" class="edu.harvard.libcomm.pipeline.PrepareURIForHTTPEndpoint" />
 
-    <bean id="solrUpdateProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
-        <property name="processor">
-            <bean class="edu.harvard.libcomm.pipeline.SolrUpdateProcessor"/>
-        </property>
-    </bean>
-
     <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
         <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
@@ -179,16 +191,19 @@
             </doTry>
         </route>
 
+        <!-- ============================== -->
         <!-- Aleph ingest and normalization -->
+        <!-- ============================== -->
+
+        <!-- Take a command file, which references a MARC file. Download the MARC file and split it into a 
+             series of messages containing MARCXML -->
         <route id="aleph-ingest-split" errorHandlerRef="eh">
-            <!-- <from uri="file:{{librarycloud.files.basepath}}/ingest-aleph?include=.*.xml" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-aleph?amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
                 <split streaming="true" parallelProcessing="true">
                     <method bean="marcSplitter" method="split"/>
                     <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?amazonSQSClient=#sqsClient" />
-                    <!-- <to uri="file://{{librarycloud.files.basepath}}/normalize-marcxml?fileName=${header.CamelSplitIndex}" /> -->
                 </split>
                 <doCatch>
                     <exception>java.lang.Exception</exception>
@@ -197,19 +212,54 @@
             </doTry>
          </route>
          
+        <!-- Read messages containing MARCXML from S3 and place them in an in-memory queue for processing -->         
         <route id="marctomods-seda" errorHandlerRef="eh">
-            <!-- <from uri="file://{{librarycloud.files.basepath}}/normalize-marcxml" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <to uri="seda:normalize-marcxml?size=20&amp;blockWhenFull=true"/>
         </route>
-        <route id="marctomods" errorHandlerRef="eh">
+        
+        <!-- Read an in-memory queue to get messages containing MARCXML, and route to two locations. 
+             One copy is transformed to MODS and sent through the rest of the pipeline. 
+             The other copy is used to upload raw MARCXML data to S3 -->
+        <route id="multicast-marc" errorHandlerRef="eh">
             <from uri="seda:normalize-marcxml?concurrentConsumers=4" />
+            <multicast parallelProcessing="true">
+                <to uri="direct:normalize-marcxml"/>
+                <to uri="direct:save-raw-marcxml"/>
+            </multicast>            
+        </route>
+        
+        <!-- Transform MARCXML to MODS -->
+        <route id="marctomods" errorHandlerRef="eh">
+            <from uri="direct:normalize-marcxml" />
             <process ref="modsProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?amazonSQSClient=#sqsClient" />
-            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start" /> -->
         </route>
 
+        <!-- Extract the aleph ID from the MARCXML, and upload the record to S3, keyed by aleph ID-->
+        <route id="save-raw-marcxml" errorHandlerRef="eh">
+            <from uri="direct:save-raw-marcxml" />
+            <process ref="extractPayloadProcessor" />
+            <split>
+                <tokenize token="record" xml="true" />
+                <setHeader headerName="recordFileName">
+                    <xpath resultType="java.lang.String">
+                        /record/controlfield[@tag='001']
+                    </xpath>
+                </setHeader>
+                <setHeader headerName="CamelAwsS3Key">
+                    <simple>${header.recordFileName.substring(0,9)}</simple>
+                </setHeader>
+                <setHeader headerName="CamelAwsS3CannedAcl">
+                    <simple>PublicRead</simple>
+                </setHeader>
+                <to uri="aws-s3://harvard.librarycloud.original.{{librarycloud.sqs.environment}}?amazonS3Client=#s3Client" />
+            </split>
+        </route>
+
+        <!-- ============================== -->
         <!-- OASIS ingest and normalization -->
+        <!-- ============================== -->
         <route id="oasis-ingest-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/ingest-oasis" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-oasis?amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800&amp;extendMessageVisibility=true" />

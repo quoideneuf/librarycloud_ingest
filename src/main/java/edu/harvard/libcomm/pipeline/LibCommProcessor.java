@@ -86,7 +86,7 @@ public class LibCommProcessor implements Processor {
 	 * Get the JAXBContext to be used for marshalling and unmarshalling
 	 * @return populated context
 	 */
-    private JAXBContext initContext() throws JAXBException {
+    protected JAXBContext initContext() throws JAXBException {
 		return JAXBContext.newInstance(LibCommMessage.class,ModsCollection.class,CollectionType.class);
     }	
 	
@@ -97,7 +97,7 @@ public class LibCommProcessor implements Processor {
 	 * @return               populated LibCommMessage
 	 * @throws JAXBException 
 	 */
-	private LibCommMessage unmarshalMessage (JAXBContext context, InputStream is) throws JAXBException {
+	protected LibCommMessage unmarshalMessage (JAXBContext context, InputStream is) throws JAXBException {
  		Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
 		libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(is);
 		return libCommMessage;		
@@ -110,7 +110,7 @@ public class LibCommProcessor implements Processor {
 	 * @return                XML representation of the object
 	 * @throws JAXBException  
 	 */
-	private String marshalMessage (JAXBContext context, LibCommMessage libCommMessage) throws JAXBException {
+	protected String marshalMessage (JAXBContext context, LibCommMessage libCommMessage) throws JAXBException {
 		StringWriter sw = new StringWriter();
 		Marshaller jaxbMarshaller = context.createMarshaller();
 		// Uncomment this to get pretty-printed output.
