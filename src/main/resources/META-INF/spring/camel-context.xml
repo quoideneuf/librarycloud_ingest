@@ -423,17 +423,18 @@
                         <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?amazonSQSClient=#sqsClient" />
                         <to uri="aws-sns://harvard-librarycloud-publish-full-{{librarycloud.sqs.environment}}?amazonSNSClient=#snsClient" />
                         <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
-                        <to uri="direct:compressfile" />
+                        <!-- <to uri="direct:compressfile" /> -->
                     </multicast>
                 </otherwise>
             </choice>
         </route>
-        <route id="compressedFile"  errorHandlerRef="eh">
+
+<!--         <route id="compressedFile"  errorHandlerRef="eh">
             <from uri="direct:compressfile"/>
             <marshal ref="zip"/>
             <to uri="file://{{librarycloud.files.basepath}}/publish-public" />
         </route>
-
+ -->
 
         <!-- SOLR consumer for loading into item API -->
         <route id="modstosolr-seda" errorHandlerRef="eh">
