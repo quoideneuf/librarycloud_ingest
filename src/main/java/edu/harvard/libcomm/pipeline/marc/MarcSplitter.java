@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.marc;
 
 import java.io.InputStream;
 import java.util.Iterator;
@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import org.marc4j.MarcReader;
 import org.marc4j.MarcStreamReader;
 
+import edu.harvard.libcomm.pipeline.ISplitter;
 
 public class MarcSplitter implements ISplitter {
 	protected Logger log = Logger.getLogger(MarcSplitter.class); 	

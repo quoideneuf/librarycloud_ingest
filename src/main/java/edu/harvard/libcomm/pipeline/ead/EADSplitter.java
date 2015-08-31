@@ -1,10 +1,11 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.ead;
 
 import java.io.InputStream;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
+import edu.harvard.libcomm.pipeline.ISplitter;
 
 public class EADSplitter implements ISplitter {
 	protected Logger log = Logger.getLogger(EADSplitter.class); 	

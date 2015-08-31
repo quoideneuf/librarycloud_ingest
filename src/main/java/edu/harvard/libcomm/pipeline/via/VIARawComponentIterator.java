@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.via;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -16,35 +16,30 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.log4j.Logger;
 import org.w3c.dom.NodeList;
 
-import edu.harvard.libcomm.message.LibCommMessage;
-import edu.harvard.libcomm.message.LibCommMessage.Payload;
+public class VIARawComponentIterator extends VIAComponentIterator {
+	protected Logger log = Logger.getLogger(VIARawComponentIterator.class);
 
-public class EADRawComponentIterator extends EADComponentIterator {
-	protected Logger log = Logger.getLogger(EADRawComponentIterator.class);
-
-    public EADRawComponentIterator(EADReader reader) throws Exception {
-    	super(reader);
+    public VIARawComponentIterator(VIAReader reader) throws Exception {
+        super(reader);
     }
 
     @Override
     public String next() {
     	log.trace("Processing node " + position + " of " + nodes.getLength());
-    	String eadComponentMods = "";
+        String viaComponentMods = "";
     	while ((nodes != null) && (position < nodes.getLength())) {
 	        String nodeName = nodes.item(position).getNodeName();
 	        String nodeValue = nodes.item(position).getNodeValue();
 	        position++;
-	        if (nodeName.equals("id")) {
-				try {
-					eadComponentMods = transformOASIS(nodeValue);
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw new NoSuchElementException();
-				}
-	        }
-	        return eadComponentMods;
+			try {
+				viaComponentMods += transformVIA(nodeValue);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new NoSuchElementException();
+			}
+            break;
     	}
-		throw new NoSuchElementException();
+        return viaComponentMods;
 	}
     
 }

@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.ead;
 
 import java.io.IOException;
 import java.io.InputStream;

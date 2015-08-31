@@ -25,9 +25,12 @@
  * (617)495-3724
  * hulois@hulmail.harvard.edu
  **********************************************************************/
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.solr;
 
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+
+import edu.harvard.libcomm.pipeline.Config;
+import edu.harvard.libcomm.pipeline.IProcessor;
 /**
 *
 *
@@ -37,7 +40,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 public class SolrServer {
 	private static HttpSolrServer server = null;
 	
-	protected static HttpSolrServer getSolrConnection() {
+	public static HttpSolrServer getSolrConnection() {
 		try {
 			server = new HttpSolrServer(Config.getInstance().SOLR_URL);
 		} catch (Exception e) {

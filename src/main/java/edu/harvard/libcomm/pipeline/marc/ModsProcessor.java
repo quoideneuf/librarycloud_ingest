@@ -1,9 +1,11 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.marc;
 
 import org.apache.log4j.Logger;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import edu.harvard.libcomm.pipeline.IProcessor;
+import edu.harvard.libcomm.pipeline.MessageUtils;
 
 public class ModsProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(ModsProcessor.class); 

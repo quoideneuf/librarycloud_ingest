@@ -94,7 +94,7 @@ public class MessageUtils {
 		
 	}
 
-	protected synchronized static CollectionType unmarshalMarc(Reader r) throws JAXBException {
+	public synchronized static CollectionType unmarshalMarc(Reader r) throws JAXBException {
 		CollectionType collectionType = null;
 	 	try {
 			 
@@ -110,7 +110,7 @@ public class MessageUtils {
 		
 	}
 	
-	protected synchronized static String marshalMessage(LibCommMessage libCommMessage) throws JAXBException {
+	public synchronized static String marshalMessage(LibCommMessage libCommMessage) throws JAXBException {
 		StringWriter sw = null;
 	 	try {
 			 
@@ -129,7 +129,7 @@ public class MessageUtils {
 		return sw.toString();
 	}
 
-	static synchronized protected String transformPayloadData (LibCommMessage libCommMessage, String xslFilePath, String xslParam) throws Exception {
+	static synchronized public String transformPayloadData (LibCommMessage libCommMessage, String xslFilePath, String xslParam) throws Exception {
 		String data = libCommMessage.getPayload().getData();
 		// System.out.println("DATA: " + data);
 		StringReader dataReader = new StringReader(data);

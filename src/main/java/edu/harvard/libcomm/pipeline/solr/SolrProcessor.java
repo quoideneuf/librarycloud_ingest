@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.solr;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -19,6 +19,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import edu.harvard.libcomm.message.LibCommMessage;
+import edu.harvard.libcomm.pipeline.IProcessor;
+import edu.harvard.libcomm.pipeline.MessageUtils;
 
 public class SolrProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(SolrProcessor.class); 	

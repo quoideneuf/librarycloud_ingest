@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.marc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -13,6 +13,7 @@ import org.marc4j.marc.Record;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import edu.harvard.libcomm.pipeline.MessageUtils;
 
 public class MarcFileIterator implements Iterator<String> {
 
