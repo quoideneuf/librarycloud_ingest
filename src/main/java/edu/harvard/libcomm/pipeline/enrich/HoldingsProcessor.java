@@ -11,49 +11,19 @@ import org.json.XML;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
-import edu.harvard.libcomm.pipeline.IProcessor;
 import edu.harvard.libcomm.pipeline.Config;
+import edu.harvard.libcomm.pipeline.IProcessor;
 import edu.harvard.libcomm.pipeline.MessageUtils;
 
-public class HoldingsProcessor implements IProcessor {
+/* Add Holdings data (physicalLocation, shelfLocator, url) to MODS records, retrieved from lilCloud API */
+public class HoldingsProcessor extends ExternalServiceProcessor implements IProcessor {
+
 	protected Logger log = Logger.getLogger(HoldingsProcessor.class); 	
-	
+
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 	
-		String data = null;
-		String recids = "0";
-
-		try {
-			recids = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/recids.xsl",null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-
-		URI uri = new URI(Config.getInstance().HOLDINGS_URL + "?filter=MarcLKRB:(" + recids + ")&fields=MarcLKRB,Marc852B,Marc856U,DisplayCallNumber&limit=250");
-		JSONTokener tokener;
-		try {
-			tokener = new JSONTokener(uri.toURL().openStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
-		}
-		
-		JSONObject holdingsJson = new JSONObject(tokener);
-		String holdingsXml = XML.toString(holdingsJson);
-		holdingsXml = "<holdings>" + holdingsXml + "</holdings>";
-		log.trace("HoldingsProcessor result:" + holdingsXml);
-		
-		try {
-			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/addholdings.xsl",holdingsXml);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-		
-		Payload payload = new Payload();
-		payload.setData(data);
-        libCommMessage.setPayload(payload);
+		URI uri = new URI(Config.getInstance().HOLDINGS_URL + "?filter=MarcLKRB:(" + getRecordIds(libCommMessage) + ")&fields=MarcLKRB,Marc852B,Marc856U,DisplayCallNumber&limit=250");
+		process(libCommMessage, uri, "holdings", "src/main/resources/addholdings.xsl");
         
 	}
 }

@@ -11,50 +11,19 @@ import org.json.XML;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
-import edu.harvard.libcomm.pipeline.IProcessor;
 import edu.harvard.libcomm.pipeline.Config;
+import edu.harvard.libcomm.pipeline.IProcessor;
 import edu.harvard.libcomm.pipeline.MessageUtils;
 
-public class StackScoreProcessor implements IProcessor {
+/* Add StackScore to MODS records, retrieved from lilCloud API */
+public class StackScoreProcessor extends ExternalServiceProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(StackScoreProcessor.class); 	
 	
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
-	
-		String data = null;
-		String recids = "0";
-		
-		try {
-			recids = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/recids.xsl",null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
 
-		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=collection:hollis_catalog&filter=id_inst:(" + recids + ")&fields=shelfrank,id_inst&limit=250");
-		JSONTokener tokener;
-		try {
-			tokener = new JSONTokener(uri.toURL().openStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
-		}
-		
-		JSONObject stackscoreJson = new JSONObject(tokener);
-		String stackscoreXml = XML.toString(stackscoreJson);
-		stackscoreXml = "<stackscore>" + stackscoreXml + "</stackscore>";
-		log.trace("StackScoreProcessor result:" + stackscoreXml);
-		
-		try {
-			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/addstackscore.xsl",stackscoreXml);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-		
-		Payload payload = new Payload();
-		payload.setData(data);
-        libCommMessage.setPayload(payload);
-        
+		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=collection:hollis_catalog&filter=id_inst:(" + getRecordIds(libCommMessage) + ")&fields=shelfrank,id_inst&limit=250");
+		process(libCommMessage, uri, "stackscore", "src/main/resources/addstackscore.xsl");
+
 	}
 
 }

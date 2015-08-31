@@ -15,47 +15,15 @@ import edu.harvard.libcomm.pipeline.Config;
 import edu.harvard.libcomm.pipeline.MessageUtils;
 import edu.harvard.libcomm.pipeline.IProcessor;
 
-public class LCCProcessor implements IProcessor {
+/* Add LCC Subject Headings as subjects, based on call number, using data from lilCloud API */
+public class LCCProcessor extends ExternalServiceProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(LCCProcessor.class); 	
 	
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 	
-		String data = null;
-		String recids = "0";
-		
-		try {
-			recids = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/recids.xsl",null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
+		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=collection:hollis_catalog&filter=id_inst:(" + getRecordIds(libCommMessage) + ")&fields=loc_call_num_subject,id_inst&limit=250");
+		process(libCommMessage, uri, "lcc", "src/main/resources/addlcc.xsl");
 
-		URI uri = new URI(Config.getInstance().ITEM_URL + "?filter=collection:hollis_catalog&filter=id_inst:(" + recids + ")&fields=loc_call_num_subject,id_inst&limit=250");
-		JSONTokener tokener;
-		try {
-			tokener = new JSONTokener(uri.toURL().openStream());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
-		}
-		
-		JSONObject lccJson = new JSONObject(tokener);
-		String lccXml = XML.toString(lccJson);
-		lccXml = "<lcc>" + lccXml + "</lcc>";
-		log.trace("LCCProcessor result:" + lccXml);
-		//System.out.println("lccXml: " + lccXml);
-		
-		try {
-			data = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/addlcc.xsl",lccXml);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-		
-		Payload payload = new Payload();
-		payload.setData(data);
-        libCommMessage.setPayload(payload);
-        
 	}
 
 }
