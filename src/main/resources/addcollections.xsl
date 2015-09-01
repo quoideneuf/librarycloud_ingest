@@ -11,33 +11,7 @@
     <xsl:output indent="yes"/>
     <xsl:strip-space elements="*"/>
  
-    <!-- try the commented out param statements when actually passing param via java - dont forget to remove the hardcoded sample param1 xml -->
     <xsl:param name="param1"/>
-    <!--<xsl:param name="param1"><ns6:item/></xsl:param>-->
-    <!--<xsl:param name="param1"><ns6:item xmlns:ns6="http://api.lib.harvard.edu/v2/collection/"/></xsl:param>-->
-    <!-- remove below when actully passing param in java -->
-    <!--<xsl:param name="param1">
-        <ns6:item xmlns:ns2="http://purl.org/dc/terms" xmlns:ns4="http://purl.org/dc/terms/"
-            xmlns:ns3="http://purl.org/dc/elements/1.1" xmlns:ns5="http://purl.org/dc/elements/1.1/"
-            xmlns:ns6="http://api.lib.harvard.edu/v2/collection/">
-            <item_id>013634709</item_id>
-            <collections>
-                <ns3:type>collection</ns3:type>
-                <ns2:extent>0</ns2:extent>
-                <ns3:identifier>6</ns3:identifier>
-                <ns4:abstract>Lorem upson</ns4:abstract>
-                <ns5:title>6th collection</ns5:title>
-            </collections>
-            <collections>
-                <ns3:type>collection</ns3:type>
-                <ns2:extent>0</ns2:extent>
-                <ns3:identifier>9</ns3:identifier>
-                <ns4:abstract/>
-                <ns5:title>User 1 collection</ns5:title>
-            </collections>
-        </ns6:item>
-    </xsl:param> -->
- 
      
     <xsl:template match="@*|node()">
         <xsl:copy-of select="."/>

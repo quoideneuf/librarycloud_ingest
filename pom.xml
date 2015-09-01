@@ -92,7 +92,7 @@
 	  <version>${openjpa.version}</version>
       </dependency>
       
-          <!-- Spring -->
+        <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
