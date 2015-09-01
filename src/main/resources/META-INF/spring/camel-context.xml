@@ -11,7 +11,8 @@
     http://www.springframework.org/schema/context/spring-context-3.0.xsd"
     >
     <!-- AWS Configuration -->
-    <context:property-placeholder location="classpath:/aws.properties" />
+    <context:property-placeholder location="classpath:/aws.properties" ignore-unresolvable="true"/>
+    <context:property-placeholder location="classpath:/librarycloud.env.properties" />
     <bean name="awsCredentials" class="com.amazonaws.auth.BasicAWSCredentials">
         <constructor-arg value="${access.key}"/>
         <constructor-arg value="${secret.key}"/>
@@ -106,6 +107,13 @@
     <bean id="holdingsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.enrich.HoldingsProcessor"/>
+        </property>
+    </bean>
+    <bean id="addMarcLocationProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.enrich.AddMarcLocationProcessor">
+                <property name="marcBaseUrl" value="https://s3.amazonaws.com/${librarycloud.s3.marc_bucket}.${librarycloud.sqs.environment}/" />
+            </bean>
         </property>
     </bean>
     <bean id="stackscoreProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
@@ -233,6 +241,7 @@
         <route id="marctomods" errorHandlerRef="eh">
             <from uri="direct:normalize-marcxml" />
             <process ref="modsProcessor"/>
+            <process ref="addMarcLocationProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?amazonSQSClient=#sqsClient" />
         </route>
 
@@ -253,7 +262,7 @@
                 <setHeader headerName="CamelAwsS3CannedAcl">
                     <simple>PublicRead</simple>
                 </setHeader>
-                <to uri="aws-s3://harvard.librarycloud.original.{{librarycloud.sqs.environment}}?amazonS3Client=#s3Client" />
+                <to uri="aws-s3://{{librarycloud.s3.marc_bucket}}.{{librarycloud.sqs.environment}}?amazonS3Client=#s3Client" />
             </split>
         </route>
 
