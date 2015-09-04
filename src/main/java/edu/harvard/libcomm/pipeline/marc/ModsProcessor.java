@@ -20,11 +20,7 @@ public class ModsProcessor implements IProcessor {
 			throw e;
 		}	
 		log.trace("ModProcessor Result:" + modsCollection);
-        Payload payload = new Payload();
-        payload.setSource("aleph");
-        payload.setFormat("mods");
-        payload.setData(modsCollection);
-        libCommMessage.setPayload(payload);
+        libCommMessage.getPayload().setData(modsCollection);
 	}
 
 	

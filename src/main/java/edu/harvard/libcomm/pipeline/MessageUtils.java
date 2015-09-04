@@ -1,10 +1,13 @@
-
 package edu.harvard.libcomm.pipeline;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -15,6 +18,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.apache.camel.Message;
+import org.apache.camel.component.file.GenericFile;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import gov.loc.marc.CollectionType;
@@ -63,7 +69,6 @@ public class MessageUtils {
 		return libCommMessage;
 		
 	}
-	
 
 	protected synchronized static LibCommMessage unmarshalLibCommMessage(InputStream is) throws JAXBException {
 		
@@ -128,6 +133,30 @@ public class MessageUtils {
 		  }
 		return sw.toString();
 	}
+
+	public synchronized static InputStream readMessageBody (Message message) throws FileNotFoundException, UnsupportedEncodingException {
+		Object body = message.getBody(); 
+		InputStream messageIS = null; 
+		
+		if (body instanceof GenericFile) { 
+			GenericFile<File> file = (GenericFile<File>) body; 
+			try {
+				messageIS = new FileInputStream(file.getFile());
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				throw e;
+			}
+		} else if (body instanceof String) {
+			try {
+				messageIS = new ByteArrayInputStream(((String)body).getBytes("UTF-8"));	
+			} catch (java.io.UnsupportedEncodingException e) {
+				e.printStackTrace();
+				throw e;
+			}			
+		}
+		return messageIS;
+	}
+
 
 	static synchronized public String transformPayloadData (LibCommMessage libCommMessage, String xslFilePath, String xslParam) throws Exception {
 		String data = libCommMessage.getPayload().getData();

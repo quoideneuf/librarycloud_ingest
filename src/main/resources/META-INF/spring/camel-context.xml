@@ -18,25 +18,22 @@
         <constructor-arg value="${secret.key}"/>
     </bean>
     <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
-        <constructor-arg>
-            <ref bean="awsCredentials"/>
-        </constructor-arg>
+        <constructor-arg><ref bean="awsCredentials"/></constructor-arg>
     </bean>
     <bean name="snsClient" class="com.amazonaws.services.sns.AmazonSNSClient">
-        <constructor-arg>
-            <ref bean="awsCredentials"/>
-        </constructor-arg>
+        <constructor-arg><ref bean="awsCredentials"/></constructor-arg>
     </bean>
     <bean name="s3Client" class="com.amazonaws.services.s3.AmazonS3Client">
-        <constructor-arg>
-            <ref bean="awsCredentials"/>
-        </constructor-arg>
+        <constructor-arg><ref bean="awsCredentials"/></constructor-arg>
     </bean>
     
-    <!-- Zip data format -->
-    <bean id="zip" class="org.apache.camel.dataformat.zipfile.ZipFileDataFormat">
-        <property name="usingIterator" value="false"/>
+    <!-- Custom S3 marshaller to place body on S3 -->
+    <bean id="cloudbody" class="edu.harvard.libcomm.pipeline.MessageBodyS3Marshaller">
+        <constructor-arg><ref bean="awsCredentials"/></constructor-arg>
+        <constructor-arg value="20000" /> <!-- If message size in bytes is greater than this, save body to S3 -->
+        <constructor-arg value="${librarycloud.s3.cache_bucket}.${librarycloud.sqs.environment}" />
     </bean>
+
     <!-- Set a shorter timeout for shutdown, primarily for testing purposes. Default is 300. -->
     <bean id="shutdown" class="org.apache.camel.impl.DefaultShutdownStrategy">
         <property name="timeout" value="30"/>
@@ -46,12 +43,13 @@
         <property name="showBody" value="false"/>
         <property name="showHeaders" value="false"/>
     </bean>
-    <!-- Add an event notifier to log throughput -->
-    <!-- <bean id="eventTimer" class="edu.harvard.libcomm.pipeline.EventTimer"/> -->
+
     <!-- Definition of beans that handle processing of items in the pipeline -->
     <bean id="marcSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
         <property name="splitter">
-            <bean class="edu.harvard.libcomm.pipeline.marc.MarcSplitter"/>
+            <bean class="edu.harvard.libcomm.pipeline.marc.MarcSplitter">
+                <constructor-arg value="500000" /> <!-- Approx. max size of messages, in bytes -->
+            </bean>
         </property>
     </bean>	
 
@@ -199,6 +197,12 @@
             </doTry>
         </route>
 
+        <!-- Setup bucket used by cloudbody marshalling service if it does not already exist -->
+        <route id="forceCreationOfS3Bucket" errorHandlerRef="eh">
+            <from uri="direct:nothing" />
+            <to uri="aws-s3://{{librarycloud.s3.cache_bucket}}.{{librarycloud.sqs.environment}}?amazonS3Client=#s3Client" />
+        </route>
+
         <!-- ============================== -->
         <!-- Aleph ingest and normalization -->
         <!-- ============================== -->
@@ -211,7 +215,14 @@
             <doTry>
                 <split streaming="true" parallelProcessing="true">
                     <method bean="marcSplitter" method="split"/>
-                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?amazonSQSClient=#sqsClient" />
+                    <marshal><custom ref="cloudbody"/></marshal>
+                    <!-- <to uri="file://{{librarycloud.files.basepath}}/cloudbody?fileName=${header.CamelSplitIndex}" /> -->
+                    <!-- Route to two locations. One copy is transformed to MODS and sent through the rest of the pipeline. 
+                         The other copy is used to upload raw MARCXML data to S3 -->
+                    <multicast parallelProcessing="true">
+                        <to uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?amazonSQSClient=#sqsClient" />
+                        <to uri="aws-sqs://{{librarycloud.sqs.environment}}-upload-marc?amazonSQSClient=#sqsClient" />
+                    </multicast>
                 </split>
                 <doCatch>
                     <exception>java.lang.Exception</exception>
@@ -220,34 +231,28 @@
             </doTry>
          </route>
          
-        <!-- Read messages containing MARCXML from S3 and place them in an in-memory queue for processing -->         
+        <!-- Transform MARCXML to MODS -->
         <route id="marctomods-seda" errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>
             <to uri="seda:normalize-marcxml?size=20&amp;blockWhenFull=true"/>
-        </route>
-        
-        <!-- Read an in-memory queue to get messages containing MARCXML, and route to two locations. 
-             One copy is transformed to MODS and sent through the rest of the pipeline. 
-             The other copy is used to upload raw MARCXML data to S3 -->
-        <route id="multicast-marc" errorHandlerRef="eh">
-            <from uri="seda:normalize-marcxml?concurrentConsumers=4" />
-            <multicast parallelProcessing="true">
-                <to uri="direct:normalize-marcxml"/>
-                <to uri="direct:save-raw-marcxml"/>
-            </multicast>            
-        </route>
-        
-        <!-- Transform MARCXML to MODS -->
+        </route>               
         <route id="marctomods" errorHandlerRef="eh">
-            <from uri="direct:normalize-marcxml" />
+            <from uri="seda:normalize-marcxml?concurrentConsumers=4" />
             <process ref="modsProcessor"/>
             <process ref="addMarcLocationProcessor"/>
+            <marshal><custom ref="cloudbody"/></marshal>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?amazonSQSClient=#sqsClient" />
         </route>
 
         <!-- Extract the aleph ID from the MARCXML, and upload the record to S3, keyed by aleph ID-->
-        <route id="save-raw-marcxml" errorHandlerRef="eh">
-            <from uri="direct:save-raw-marcxml" />
+        <route id="uploadmarc-seda" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-upload-marc?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>
+            <to uri="seda:upload-marc?size=20&amp;blockWhenFull=true"/>
+        </route>               
+        <route id="upload-marc" errorHandlerRef="eh">
+            <from uri="seda:upload-marc?concurrentConsumers=4" />
             <process ref="extractPayloadProcessor" />
             <split>
                 <tokenize token="record" xml="true" />
@@ -346,6 +351,7 @@
         <route id="enrich-start" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-start" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>            
             <choice>
                 <when>
                     <xpath>//source = 'aleph'</xpath>
@@ -369,6 +375,7 @@
         <route id="addholdingstomods" errorHandlerRef="eh">
             <from uri="seda:enrich-01?concurrentConsumers=1"/>
             <process ref="holdingsProcessor"/>
+            <marshal><custom ref="cloudbody"/></marshal>            
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02?amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-02" /> -->
         </route>
@@ -376,33 +383,39 @@
         <route id="addstackscoretomods-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-02" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>            
             <to uri="seda:enrich-02?size=20&amp;blockWhenFull=true" />
         </route>
         <route id="addstackscoretomods" errorHandlerRef="eh">
             <from uri="seda:enrich-02?concurrentConsumers=1"/>
             <process ref="stackscoreProcessor"/>
+            <marshal><custom ref="cloudbody"/></marshal>            
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-03?amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-03" /> -->
         </route>
 
         <route id="addslcctomods-seda" errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-03?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>            
             <to uri="seda:enrich-03?size=20&amp;blockWhenFull=true" />
         </route>
         <route id="addslcctomods" errorHandlerRef="eh">
             <from uri="seda:enrich-03?concurrentConsumers=1"/>
             <process ref="lccProcessor"/>
+            <marshal><custom ref="cloudbody"/></marshal>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-04?amazonSQSClient=#sqsClient" />
         </route> 
 
         <route id="addcollectionstomods-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-04" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-04?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>            
             <to uri="seda:enrich-04?size=20&amp;blockWhenFull=true" />
         </route>
         <route id="addcollectionstomods" errorHandlerRef="eh">
             <from uri="seda:enrich-04?concurrentConsumers=5"/>
             <process ref="collectionsProcessor"/>
+            <marshal><custom ref="cloudbody"/></marshal>            
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
         </route>
@@ -411,6 +424,7 @@
         <route id="publish-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>            
             <to uri="seda:enrich-end?size=20&amp;blockWhenFull=true"/>
         </route>
         <route id="publish" errorHandlerRef="eh">
@@ -428,6 +442,7 @@
                 </when>
                 <otherwise>
                     <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
+                    <marshal><custom ref="cloudbody"/></marshal>            
                     <multicast>
                         <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?amazonSQSClient=#sqsClient" />
                         <to uri="aws-sns://harvard-librarycloud-publish-full-{{librarycloud.sqs.environment}}?amazonSNSClient=#snsClient" />
@@ -438,23 +453,18 @@
             </choice>
         </route>
 
-<!--         <route id="compressedFile"  errorHandlerRef="eh">
-            <from uri="direct:compressfile"/>
-            <marshal ref="zip"/>
-            <to uri="file://{{librarycloud.files.basepath}}/publish-public" />
-        </route>
- -->
-
         <!-- SOLR consumer for loading into item API -->
         <route id="modstosolr-seda" errorHandlerRef="eh">
             <!--<from uri="file://{{librarycloud.files.basepath}}/publish-public-to" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>            
             <to uri="seda:publish-public?size=20&amp;blockWhenFull=true"/>
         </route>
         <route id="modstosolr" errorHandlerRef="eh">
             <from uri="seda:publish-public?concurrentConsumers=1" />
             <process ref="solrLoadProcessor"/>
             <to uri="log:edu.harvard.libcomm.throughput?level=TRACE&amp;marker=solrLoadProcessor&amp;groupSize=10"/>
+            <marshal><custom ref="cloudbody"/></marshal>            
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?amazonSQSClient=#sqsClient"/>
             <!-- <to uri="file://{{librarycloud.files.basepath}}/done" /> -->
         </route>

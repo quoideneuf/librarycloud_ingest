@@ -15,13 +15,20 @@ import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
 import edu.harvard.libcomm.pipeline.MessageUtils;
 
+/**
+ * Iterate over the MarcReader provided, generating LibraryCloud
+ * messages which contain the MarcXML in a payload. Multiple
+ * Marc records are included in a single message. Once the size of the 
+ * payload goes above chunkSize, start a new message.
+ */
 public class MarcFileIterator implements Iterator<String> {
 
     private MarcReader marcReader;
-    //private int chunkSize = 25;
 
-    public MarcFileIterator(MarcReader marcReader) {
+    private long chunkSize;
+    public MarcFileIterator(MarcReader marcReader, long chunkSize) {
         this.marcReader = marcReader;
+        this.chunkSize = chunkSize;
     }
 
     @Override
@@ -37,14 +44,13 @@ public class MarcFileIterator implements Iterator<String> {
         boolean newChunk = false;
         int totalSize = 0;
         while (marcReader.hasNext() && newChunk == false) {
-
             try {
                 Record record = marcReader.next();
                 writer.setIndent(false);
                 writer.write(record);
                 count++;           
                 totalSize += output.toString().length();
-                newChunk = totalSize > 125000 ? true:false;
+                newChunk = totalSize > this.chunkSize ? true:false;
                 totalSize = 0;
             } catch (org.marc4j.MarcException ex) {
                 ex.printStackTrace();

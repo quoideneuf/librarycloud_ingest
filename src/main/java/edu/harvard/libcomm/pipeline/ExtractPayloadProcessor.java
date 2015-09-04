@@ -37,7 +37,7 @@ public class ExtractPayloadProcessor  extends LibCommProcessor implements Proces
 		
 		JAXBContext context = initContext();
 		Message message = exchange.getIn();
-		InputStream messageIS = readMessageBody(message);			
+		InputStream messageIS = MessageUtils.readMessageBody(message);			
 		libCommMessage = unmarshalMessage(context, messageIS);		
 	    message.setBody(libCommMessage.getPayload().getData());
 	    exchange.setOut(message);

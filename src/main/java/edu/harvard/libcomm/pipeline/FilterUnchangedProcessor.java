@@ -39,16 +39,14 @@ public class FilterUnchangedProcessor implements IProcessor {
 		if(duplicateRecordIds == null ||  duplicateRecordIds.size() == 0){
 	        return;
 		} else if (duplicateRecordIds.size() == recordMap.size()){
-			payload.setData("");
-			libCommMessage.setPayload(payload);
+			libCommMessage.getPayload().setData("");
 			return;
 		}
 		//remove duplicates
 		String duplicateRecordIdString = "<recordIdList><recordId>" + StringUtils.join(duplicateRecordIds,"</recordId><recordId>") + "</recordId></recordIdList>"; 
 		String scrubbedMessage = MessageUtils.transformPayloadData(libCommMessage, "src/main/resources/Remove-MODS-Records.xsl", duplicateRecordIdString);
         
-        payload.setData(scrubbedMessage);
-        libCommMessage.setPayload(payload);
+        libCommMessage.getPayload().setData(scrubbedMessage);
 	}
 	
 	private Map<String, Integer> splitIdAndChecksum(String body)

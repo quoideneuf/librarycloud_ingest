@@ -43,11 +43,7 @@ public class CollectionUpdateProcessor implements IProcessor {
 		temporaryPayload.setData(data);
 		temporaryMessage.setPayload(temporaryPayload);
 		data = MessageUtils.transformPayloadData(temporaryMessage, "src/main/resources/addcollections.xsl", collectionData);
-		Payload payload = new Payload();
-		payload.setData(data);
-
-        libCommMessage.setPayload(payload);
-        
+		libCommMessage.getPayload().setData(data);        
 	}
 
 	private String replaceSolrSpecialCharacters(String s) {

@@ -44,7 +44,7 @@ public class LibCommProcessor implements Processor {
 		}
 
 		Message message = exchange.getIn();
-		InputStream messageIS = readMessageBody(message);			
+		InputStream messageIS = MessageUtils.readMessageBody(message);			
 		libCommMessage = unmarshalMessage(context, messageIS);
 		try {
 			processor.processMessage(libCommMessage);			
@@ -57,29 +57,6 @@ public class LibCommProcessor implements Processor {
 		log.trace("MESSAGE BODY OUT: " + messageString);
 	    message.setBody(messageString);
 	    exchange.setOut(message);
-	}
-
-	protected InputStream readMessageBody (Message message) throws FileNotFoundException, UnsupportedEncodingException {
-		Object body = message.getBody(); 
-		InputStream messageIS = null; 
-		
-		if (body instanceof GenericFile) { 
-			GenericFile<File> file = (GenericFile<File>) body; 
-			try {
-				messageIS = new FileInputStream(file.getFile());
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				throw e;
-			}
-		} else if (body instanceof String) {
-			try {
-				messageIS = new ByteArrayInputStream(((String)body).getBytes("UTF-8"));	
-			} catch (java.io.UnsupportedEncodingException e) {
-				e.printStackTrace();
-				throw e;
-			}			
-		}
-		return messageIS;
 	}
 
 	/**
