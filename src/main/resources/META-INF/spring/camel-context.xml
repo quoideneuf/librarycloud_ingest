@@ -102,6 +102,7 @@
             <bean class="edu.harvard.libcomm.pipeline.FilterUnchangedProcessor"/>
         </property>
     </bean>
+    <bean id="filterUnchangedMarcProcessor" class="edu.harvard.libcomm.pipeline.FilterUnchangedMarcProcessor" />
     <bean id="holdingsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.enrich.HoldingsProcessor"/>
@@ -260,14 +261,20 @@
                     <xpath resultType="java.lang.String">
                         /record/controlfield[@tag='001']
                     </xpath>
-                </setHeader>
-                <setHeader headerName="CamelAwsS3Key">
-                    <simple>${header.recordFileName.substring(0,9)}</simple>
-                </setHeader>
-                <setHeader headerName="CamelAwsS3CannedAcl">
-                    <simple>PublicRead</simple>
-                </setHeader>
-                <to uri="aws-s3://{{librarycloud.s3.marc_bucket}}.{{librarycloud.sqs.environment}}?amazonS3Client=#s3Client" />
+                </setHeader>                
+                <process ref="filterUnchangedMarcProcessor"/>
+                <choice>
+                    <when>
+                        <simple>${in.body} != ""</simple>
+                        <setHeader headerName="CamelAwsS3Key">
+                            <simple>${header.recordFileName.substring(0,9)}</simple>
+                        </setHeader>
+                        <setHeader headerName="CamelAwsS3CannedAcl">
+                            <simple>PublicRead</simple>
+                        </setHeader>
+                        <to uri="aws-s3://{{librarycloud.s3.marc_bucket}}.{{librarycloud.sqs.environment}}?amazonS3Client=#s3Client" />
+                    </when>
+                </choice>
             </split>
         </route>
 
@@ -431,9 +438,18 @@
             <from uri="seda:enrich-end?concurrentConsumers=1" />
             <process ref="removeRestrictedProcessor"/>
             
-            <!-- Commenting out unchanged filter until we are set to deploy the associated database -->
-            <!-- <process ref="filterUnchangedProcessor"/> -->
-            
+            <multicast>
+                <to uri="direct:publish-delta"/>
+                <to uri="direct:publish-full"/>
+            </multicast>
+        </route>            
+
+        <!-- Publish records that have changed -->
+        <route id="publish-delta" errorHandlerRef="eh">
+            <from uri="direct:publish-delta"/>
+            <!-- Remove any items that haven't changed -->
+            <process ref="filterUnchangedProcessor"/>
+
             <!-- Don't try to publish empty messages -->
             <choice>
                 <when>
@@ -441,13 +457,30 @@
                     <to uri="aws-sqs://{{librarycloud.sqs.environment}}-empty-message?amazonSQSClient=#sqsClient" />
                 </when>
                 <otherwise>
-                    <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
                     <marshal><custom ref="cloudbody"/></marshal>            
                     <multicast>
-                        <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?amazonSQSClient=#sqsClient" />
+                        <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public-delta?amazonSQSClient=#sqsClient" />
+                        <to uri="aws-sns://harvard-librarycloud-publish-delta-{{librarycloud.sqs.environment}}?amazonSNSClient=#snsClient" />
+                    </multicast>
+                </otherwise>
+            </choice>
+        </route>
+
+        <!-- Publish all records -->
+        <route id="publish-full" errorHandlerRef="eh">
+            <from uri="direct:publish-full"/>
+
+            <!-- Don't try to publish empty messages -->
+            <choice>
+                <when>
+                    <xpath>string-length(/lib_comm_message/payload/data) = 0</xpath>
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-empty-message?amazonSQSClient=#sqsClient" />
+                </when>
+                <otherwise>
+                    <marshal><custom ref="cloudbody"/></marshal>            
+                    <multicast>
+                        <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public-full?amazonSQSClient=#sqsClient" />
                         <to uri="aws-sns://harvard-librarycloud-publish-full-{{librarycloud.sqs.environment}}?amazonSNSClient=#snsClient" />
-                        <!-- <to uri="file://{{librarycloud.files.basepath}}/publish-public" /> -->
-                        <!-- <to uri="direct:compressfile" /> -->
                     </multicast>
                 </otherwise>
             </choice>
@@ -455,8 +488,8 @@
 
         <!-- SOLR consumer for loading into item API -->
         <route id="modstosolr-seda" errorHandlerRef="eh">
-            <!--<from uri="file://{{librarycloud.files.basepath}}/publish-public-to" /> -->
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <!--<from uri="file://{{librarycloud.files.basepath}}/publish-public-delta" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public-delta?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <unmarshal><custom ref="cloudbody"/></unmarshal>            
             <to uri="seda:publish-public?size=20&amp;blockWhenFull=true"/>
         </route>

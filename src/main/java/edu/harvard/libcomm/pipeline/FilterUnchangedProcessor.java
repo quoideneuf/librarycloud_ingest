@@ -13,6 +13,11 @@ import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
 import edu.harvard.libcomm.dao.IngestDAO;
 
+/**
+ * Take a message with a set of MODS records, extract the individual MODS records, and compare
+ * each one against a checksum saved in a database, keyed by item ID. If the MODS record 
+ * matches the checksum (i.e. is unchanged) remove it from the message.
+ */
 public class FilterUnchangedProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(FilterUnchangedProcessor.class);
 	
