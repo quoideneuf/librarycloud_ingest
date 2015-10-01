@@ -39,7 +39,7 @@ import edu.harvard.libcomm.dao.IngestDAO;
    message. If they differ, empty the contents of the message */
 public class FilterUnchangedMarcProcessor  extends LibCommProcessor implements Processor {
 
-	protected Logger log = Logger.getLogger(ExtractPayloadProcessor.class); 
+	protected Logger log = Logger.getLogger(FilterUnchangedMarcProcessor.class); 
 
 	@Autowired
 	private IngestDAO ingestDao;
@@ -66,7 +66,6 @@ public class FilterUnchangedMarcProcessor  extends LibCommProcessor implements P
 		recordMap.put(hashId, checksum);
 		Set<String> duplicateRecordIds = ingestDao.checkAndSaveItemChecksum(recordMap);
 
-		log.error("Set size : " + duplicateRecordIds.size());
 		if (duplicateRecordIds.size() == 1) {
 		    message.setBody("");
 		}
