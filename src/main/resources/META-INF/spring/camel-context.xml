@@ -248,8 +248,8 @@
 
         <!-- Extract the aleph ID from the MARCXML, and upload the record to S3, keyed by aleph ID-->
         <route id="uploadmarc-seda" errorHandlerRef="eh">
-            <!-- Note the reduced messages per poll, so we dont end up getting messages timed out, since this takes a while -->
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-upload-marc?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=1" />
+            <!-- Note the reduced messages per poll, so we don't end up getting messages timed out, since this takes a while -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-upload-marc?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=1&amp;visibilityTimeout=1800&amp;extendMessageVisibility=true" />
             <unmarshal><custom ref="cloudbody"/></unmarshal>
             <to uri="seda:upload-marc?size=20&amp;blockWhenFull=true"/>
         </route>               
