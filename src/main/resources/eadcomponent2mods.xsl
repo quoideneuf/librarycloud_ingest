@@ -7,8 +7,8 @@
     version="2.0">
     <xsl:output encoding="UTF-8" method="xml" indent="yes" omit-xml-declaration="yes"></xsl:output>
     <xsl:strip-space elements="*"/>
-    <xsl:param name="componentid">sch01290c00002</xsl:param>
-    <!--<xsl:param name="componentid"/>-->
+    <!--<xsl:param name="componentid">hou01285c00002</xsl:param>-->
+    <xsl:param name="componentid"/>
 
     <xsl:variable name="cid_legacy_or_new">
 	<xsl:choose>
@@ -234,10 +234,48 @@
  
     <xsl:template match="dao">
         <xsl:element name="location">
-            <xsl:element name="url">
-                <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
-                <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
-            </xsl:element>
+            <xsl:choose>
+                <xsl:when test="contains(@*[local-name()='href'],'nrs.harvard.edu')">
+                    <xsl:variable name="geturn">
+                        <xsl:value-of select="concat('http://vctest.lib.harvard.edu:9017/vc/deliver/urninfo?urn=urn-3:',substring-after(@*[local-name()='href'],'urn-3:'))"/>
+                    </xsl:variable>
+                    <xsl:variable name="thumb">
+                        <xsl:value-of select="document($geturn)/*/thumb"/>
+                    </xsl:variable>
+                    <xsl:variable name="restrictflag">
+                        <xsl:choose>
+                            <xsl:when test="document($geturn)/*/restrictflag='P'">
+                                <xsl:text>unrestricted</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="document($geturn)/*/restrictflag='unknown'">
+                                <xsl:text>unknown</xsl:text>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:text>restricted</xsl:text>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:variable>
+                    <xsl:if test="not($thumb='')">
+                        <xsl:element name="url">
+                            <xsl:attribute name="displayLabel"><xsl:text>thumb</xsl:text></xsl:attribute>
+                            <xsl:value-of select="$thumb"/>
+                        </xsl:element>                
+                    </xsl:if>
+                    <xsl:element name="url">
+                        <xsl:attribute name="access"><xsl:text>raw object</xsl:text></xsl:attribute>
+                        <xsl:attribute name="note"><xsl:value-of select="$restrictflag"/></xsl:attribute>
+                        <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
+                        <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
+                    </xsl:element>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:element name="url">
+                        <xsl:attribute name="access"><xsl:text>raw object</xsl:text></xsl:attribute>
+                        <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
+                        <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
+                    </xsl:element>
+                </xsl:otherwise>
+            </xsl:choose>
         </xsl:element>
     </xsl:template>
     

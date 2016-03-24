@@ -34,6 +34,19 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:element>
+            <xsl:element name="field">
+                <xsl:attribute name="name">
+                    <xsl:text>restricted</xsl:text>
+                </xsl:attribute>
+                <xsl:choose>
+                    <xsl:when test=".//mods:location/mods:url/@note='restricted'">
+                        <xsl:text>true</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text>false</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:element>
             <xsl:apply-templates select="mods:genre"/>
             <xsl:apply-templates select="mods:originInfo"/>
             <xsl:apply-templates select="mods:language"/>

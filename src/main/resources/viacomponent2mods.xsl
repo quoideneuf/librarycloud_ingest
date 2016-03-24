@@ -11,8 +11,10 @@
  -->
 
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
-	<!--<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:1154698</xsl:param>-->
-	<xsl:param name="urn"></xsl:param>
+	
+	<xsl:param name="componentid">olvsurrogate528097</xsl:param>
+<!--<xsl:param name="componentid"></xsl:param>-->
+	
 <xsl:template match="/viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
 	<xsl:if test="@numberOfSubworks='0'">
@@ -24,6 +26,15 @@
 	<recordInfo>
 		<recordContentSource authority="marcorg">MH</recordContentSource>
 		<recordContentSource authority="marcorg">MH-VIA</recordContentSource>
+		<xsl:variable name="latest">
+			<xsl:for-each select="admin/createDate|admin/updateNote/updateDate">
+				<xsl:sort select="." order="descending" />
+				<xsl:if test="position() = 1">
+					<xsl:value-of select="replace(.,'-','')"/>
+				</xsl:if>
+			</xsl:for-each>
+		</xsl:variable>
+		<recordChangeDate><xsl:value-of select="$latest"/></recordChangeDate>
 		<recordIdentifier>
 	        <xsl:attribute name="source">
 	                <xsl:value-of select="'MH:VIA'"/>
@@ -45,19 +56,10 @@
 					<xsl:value-of select="recordId"/>
 				</xsl:otherwise>
 			</xsl:choose>
-
-			<xsl:text>_</xsl:text>
-			<xsl:choose>
-				<xsl:when test="work/surrogate/image[contains(@href,$urn)]">
-					<xsl:value-of select="work/surrogate/image[contains(@href,$urn)]/../@componentID"/>
-				</xsl:when>
-				<xsl:when test="work/surrogate/image[contains(@xlink:href,$urn)]">
-					<xsl:value-of select="work/surrogate/image[contains(@xlink:href,$urn)]/../@componentID"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="substring-after($urn,'edu/')"/>
-				</xsl:otherwise>
-			</xsl:choose>
+			<xsl:if test="not($componentid='')">
+				<xsl:text>_</xsl:text>
+				<xsl:value-of select="$componentid"/>
+			</xsl:if>
 		</recordIdentifier>
 		<languageOfCataloging>
 			<languageTerm>eng</languageTerm>
@@ -68,42 +70,29 @@
 
 <xsl:template match="work">
 	<xsl:call-template name="recordElements"/>
-	<xsl:apply-templates select="surrogate"/>
+	<xsl:apply-templates select="surrogate[@componentID=$componentid]"/>
 </xsl:template>	
 
 <xsl:template match="group">
 	<xsl:call-template name="recordElements"/>
-	<xsl:apply-templates select="surrogate"/>
-	<xsl:apply-templates select="subwork"/>
+	<xsl:apply-templates select="surrogate[@componentID=$componentid]"/>
+	<xsl:apply-templates select="subwork[@componentID=$componentid]"/>
 </xsl:template>
 
 <xsl:template match="subwork">
-	<xsl:if test="contains(image/@href,$urn)">
-		<relatedItem type="constituent">
-			<xsl:call-template name="recordElements"/>
-			<recordInfo>
-				<recordIdentifier>
-					<xsl:value-of select="@componentID"/>
-				</recordIdentifier>
-			</recordInfo>
-                        <xsl:apply-templates select="surrogate"/>
-		</relatedItem>
-	</xsl:if>	
-	<xsl:if test="contains(image/@xlink:href,$urn)">
-		<relatedItem type="constituent">
-			<xsl:call-template name="recordElements"/>
-			<recordInfo>
-				<recordIdentifier>
-					<xsl:value-of select="@componentID"/>
-				</recordIdentifier>
-			</recordInfo>
-			<xsl:apply-templates select="surrogate"/>
-		</relatedItem>
-	</xsl:if>
+	<relatedItem type="constituent">
+		<xsl:call-template name="recordElements"/>
+		<recordInfo>
+			<recordIdentifier>
+				<xsl:value-of select="@componentID"/>
+			</recordIdentifier>
+		</recordInfo>
+       <xsl:apply-templates select="surrogate"/>
+	</relatedItem>
 </xsl:template>
 
 <xsl:template match="surrogate">
-	<xsl:if test="contains(image/@href,$urn)">
+	<!--<xsl:if test="contains(image/@href,$urn)">-->
 		<relatedItem type="constituent">
 			<xsl:call-template name="recordElements"/>
 			<recordInfo>
@@ -112,17 +101,8 @@
 				</recordIdentifier>
 			</recordInfo>		
 		</relatedItem>
-	</xsl:if>
-	<xsl:if test="contains(image/@xlink:href,$urn)">
-		<relatedItem type="constituent">
-			<xsl:call-template name="recordElements"/>
-			<recordInfo>
-				<recordIdentifier>
-					<xsl:value-of select="@componentID"/>
-				</recordIdentifier>
-			</recordInfo>		
-		</relatedItem>
-	</xsl:if>
+	<!--</xsl:if>-->
+
 </xsl:template>
 
 <xsl:template name="recordElements">
@@ -424,13 +404,13 @@
 		-->
 		<xsl:apply-templates select="creator"/>
 		<xsl:call-template name="originInfo"/>
-		    <xsl:if test="contains(@href,$urn)">
+		    <!--<xsl:if test="contains(@href,$urn)">-->
 			<location>
 			    <url>
 				<xsl:value-of select="@href"/>
 			    </url>
 			</location>
-		    </xsl:if>
+		    <!--</xsl:if>-->
 	</relatedItem>
 </xsl:template>
 
@@ -463,7 +443,6 @@
 </xsl:template>
 
 <xsl:template match="image">
-	<xsl:if test="contains(@href,$urn)">
 	<xsl:choose>
 		<xsl:when test="caption and not(../surrogate)">
 			<relatedItem type="constituent">	
@@ -480,10 +459,10 @@
 								<xsl:text>unrestricted</xsl:text>
 							</xsl:if>
 						</xsl:attribute>
-						<xsl:value-of select="./@href"/>
+						<xsl:value-of select="./attribute::node()[local-name()='href']"/>
 					</url>
 					<url displayLabel="Thumbnail">
-						<xsl:value-of select="thumbnail/@href"/>
+						<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
 					</url>
 				</location>
 			</relatedItem>			
@@ -499,60 +478,14 @@
 							<xsl:text>unrestricted</xsl:text>
 						</xsl:if>
 					</xsl:attribute>
-					<xsl:value-of select="./@href"/>
+					<xsl:value-of select="./attribute::node()[local-name()='href']"/>
 				</url>
 				<url displayLabel="Thumbnail">
-					<xsl:value-of select="thumbnail/@href"/>
+					<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
 				</url>
 			</location>
 		</xsl:otherwise>
 	</xsl:choose>	
-	</xsl:if>
-	<xsl:if test="contains(@xlink:href,$urn)">
-		<xsl:choose>
-			<xsl:when test="caption and not(../surrogate)">
-				<relatedItem type="constituent">	
-					<titleInfo>
-						<title><xsl:value-of select="caption"/></title>
-					</titleInfo>
-					<location>
-						<url displayLabel="Full Image">
-							<xsl:attribute name="note">
-								<xsl:if test="./@restrictedImage='true'">
-									<xsl:text>restricted</xsl:text>
-								</xsl:if>
-								<xsl:if test="./@restrictedImage='false'">
-									<xsl:text>unrestricted</xsl:text>
-								</xsl:if>
-							</xsl:attribute>
-							<xsl:value-of select="./@xlink:href"/>
-						</url>
-						<url displayLabel="Thumbnail">
-							<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
-						</url>
-					</location>
-				</relatedItem>			
-			</xsl:when>
-			<xsl:otherwise>
-				<location>
-					<url displayLabel="Full Image">
-						<xsl:attribute name="note">
-							<xsl:if test="./@restrictedImage='true'">
-								<xsl:text>restricted</xsl:text>
-							</xsl:if>
-							<xsl:if test="./@restrictedImage='false'">
-								<xsl:text>unrestricted</xsl:text>
-							</xsl:if>
-						</xsl:attribute>
-						<xsl:value-of select="./@xlink:href"/>
-					</url>
-					<url displayLabel="Thumbnail">
-						<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
-					</url>
-				</location>
-			</xsl:otherwise>
-		</xsl:choose>	
-	</xsl:if>
 </xsl:template>
 
 <xsl:template match="repository">

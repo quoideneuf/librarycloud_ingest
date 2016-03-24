@@ -32,26 +32,28 @@
             <xsl:variable name="collections" select="$param1"/> 
              <!--<xsl:variable name="holdings" select="document('')//xsl:param[@name='param1']//holdings"/>-->
             <xsl:variable name="recordid"><xsl:value-of select="./mods:recordInfo/mods:recordIdentifier"/></xsl:variable>
-            <xsl:element name="extension" namespace="http://www.loc.gov/mods/v3">
-                <xsl:element name="collections" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                    <xsl:for-each select="$collections//col:collections">
-                        <xsl:element name="collection" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                            <xsl:element name="type" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                                <xsl:value-of select="dc:type"/>
+            <xsl:for-each select="$collections//col:item[col:item_id=$recordid]">
+                <xsl:element name="extension" namespace="http://www.loc.gov/mods/v3">
+                    <xsl:element name="collections" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
+                        <xsl:for-each select="col:collections">
+                            <xsl:element name="collection" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
+                                <xsl:element name="type" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
+                                    <xsl:value-of select="dc:type"/>
+                                </xsl:element>
+                                <xsl:element name="identifier" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
+                                    <xsl:value-of select="dc:identifier"/>
+                                </xsl:element>
+                                <xsl:element name="abstract" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
+                                    <xsl:value-of select="dcterms:abstract"/>
+                                </xsl:element>
+                                <xsl:element name="title" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
+                                    <xsl:value-of select="dc:title"/>
+                                </xsl:element>
                             </xsl:element>
-                            <xsl:element name="identifier" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                                <xsl:value-of select="dc:identifier"/>
-                            </xsl:element>
-                            <xsl:element name="abstract" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                                <xsl:value-of select="dcterms:abstract"/>
-                            </xsl:element>
-                            <xsl:element name="title" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                                <xsl:value-of select="dc:title"/>
-                            </xsl:element>
-                        </xsl:element>
-                    </xsl:for-each>
-                </xsl:element>   
-            </xsl:element> 
+                        </xsl:for-each>
+                    </xsl:element>
+                </xsl:element>
+            </xsl:for-each>
             <xsl:apply-templates select="mods:recordInfo" />
         </xsl:copy>
     </xsl:template>
