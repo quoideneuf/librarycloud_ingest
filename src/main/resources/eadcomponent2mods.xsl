@@ -237,7 +237,7 @@
             <xsl:choose>
                 <xsl:when test="contains(@*[local-name()='href'],'nrs.harvard.edu')">
                     <xsl:variable name="geturn">
-                        <xsl:value-of select="concat('http://vctest.lib.harvard.edu:9017/vc/deliver/urninfo?urn=urn-3:',substring-after(@*[local-name()='href'],'urn-3:'))"/>
+                        <xsl:value-of select="concat('',substring-after(@*[local-name()='href'],'urn-3:'))"/>
                     </xsl:variable>
                     <xsl:variable name="thumb">
                         <xsl:value-of select="document($geturn)/*/thumb"/>
