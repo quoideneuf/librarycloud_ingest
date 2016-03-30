@@ -46,7 +46,7 @@
     <xsl:template match="Marc856U">
         <xsl:choose>
             <xsl:when test="contains(.,'nrs.harvard.edu') and not(contains(lower-case(.),'hul.e')and not(contains(lower-case(.),'hul.fig')))">
-                <xsl:variable name="geturn"><xsl:value-of select="concat('http://vctest.lib.harvard.edu:9017/vc/deliver/urninfo?urn=urn-3:',substring-after(.,'urn-3:'))"/></xsl:variable>
+                <xsl:variable name="geturn"><xsl:value-of select="concat('',substring-after(.,'urn-3:'))"/></xsl:variable>
                 <xsl:variable name="thumb">
                     <xsl:value-of select="document($geturn)/*/thumb"/>
                 </xsl:variable>
