@@ -41,13 +41,13 @@
             <!--<xsl:apply-templates select="(//c[@id=$cid_legacy_or_new and not(.//accessrestrict) and ancestor::*//accessrestrict]/ancestor::*//accessrestrict)[position()=1]"/>-->
             <xsl:choose>
                 <xsl:when test="//c[@id=$cid_legacy_or_new]/accessrestrict">
-                    1:<xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/accessrestrict"/>
+                    <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/accessrestrict"/>
                 </xsl:when>
                 <xsl:when test="//c[@id=$cid_legacy_or_new and ancestor::c/accessrestrict]">
-                    2:<xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/ancestor::c[accessrestrict][position()=1]/accessrestrict"/>
+                    <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/ancestor::c[accessrestrict][position()=1]/accessrestrict"/>
                 </xsl:when>
                 <xsl:when test="//archdesc[accessrestrict]">
-                   3: <xsl:apply-templates select="//archdesc/accessrestrict"/>
+                   <xsl:apply-templates select="//archdesc/accessrestrict"/>
                 </xsl:when>
             </xsl:choose>
             
