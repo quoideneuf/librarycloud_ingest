@@ -7,8 +7,8 @@
     version="2.0">
     <xsl:output encoding="UTF-8" method="xml" indent="yes" omit-xml-declaration="yes"></xsl:output>
     <xsl:strip-space elements="*"/>
-    <xsl:param name="componentid">sch01290c00002</xsl:param>
-    <!--<xsl:param name="componentid"/>-->
+    <!--<xsl:param name="componentid">sch01290c00002</xsl:param>-->
+    <xsl:param name="componentid"/>
 
     <xsl:variable name="cid_legacy_or_new">
 	<xsl:choose>
@@ -37,8 +37,20 @@
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/@level"/>
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did//unitid"/>
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did//container"/>
-            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]//accessrestrict"/>
-            <xsl:apply-templates select="(//c[@id=$cid_legacy_or_new and not(.//accessrestrict) and ancestor::*//accessrestrict]/ancestor::*//accessrestrict)[last()]"/>
+            <!--<xsl:apply-templates select="//c[@id=$cid_legacy_or_new]//accessrestrict"/>-->
+            <!--<xsl:apply-templates select="(//c[@id=$cid_legacy_or_new and not(.//accessrestrict) and ancestor::*//accessrestrict]/ancestor::*//accessrestrict)[position()=1]"/>-->
+            <xsl:choose>
+                <xsl:when test="//c[@id=$cid_legacy_or_new]/accessrestrict">
+                    <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/accessrestrict"/>
+                </xsl:when>
+                <xsl:when test="//c[@id=$cid_legacy_or_new and ancestor::c/accessrestrict]">
+                    <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/ancestor::c[accessrestrict][position()=1]/accessrestrict"/>
+                </xsl:when>
+                <xsl:when test="//archdesc[accessrestrict]">
+                   <xsl:apply-templates select="//archdesc/accessrestrict"/>
+                </xsl:when>
+            </xsl:choose>
+
 
             <!--<xsl:call-template name="access">
                 <xsl:with-param name="cid">
