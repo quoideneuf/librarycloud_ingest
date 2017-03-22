@@ -42,7 +42,7 @@
    <dependency>
        <groupId>org.apache.camel</groupId>
        <artifactId>camel-aws</artifactId>
-       <version>${camel.version}</version>
+       <version>2.13.2</version>
    </dependency>
 
     <!-- logging -->
