@@ -377,6 +377,7 @@
     <xsl:template match="mods:location">
         <xsl:apply-templates select="mods:physicalLocation"/>
         <xsl:apply-templates select="mods:url"/>
+        <xsl:apply-templates select="mods:shelfLocator"/>
     </xsl:template>
 
     <xsl:template match="mods:physicalLocation">
@@ -388,6 +389,14 @@
         </xsl:element>
     </xsl:template>
 
+    <xsl:template match="mods:shelfLocator">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>shelfLocator</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
 
     <xsl:template match="mods:url">
         <xsl:element name="field">
