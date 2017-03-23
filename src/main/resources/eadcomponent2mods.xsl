@@ -255,8 +255,8 @@
     
     <xsl:template match="daogrp">
         <xsl:element name="location">
-            <xsl:apply-templates select="daoloc[@label=../arc/@to[../@show='embed']]"/>
-            <xsl:apply-templates select="daoloc[@label=../arc/@to[../@show='new']]"/>
+            <xsl:apply-templates select="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='embed']]"/>
+            <xsl:apply-templates select="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='new']]"/>
         <!--<xsl:element name="location">
             <xsl:element name="url">
                 <xsl:value-of select="daoloc/@href"/>
@@ -265,14 +265,14 @@
         </xsl:element>    
     </xsl:template>
     
-    <xsl:template match="daoloc[@label=../arc/@to[../@show='embed']]">
+    <xsl:template match="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='embed']]">
         <xsl:element name="url">
             <xsl:attribute name="displayLabel">Thumbnail</xsl:attribute>
             <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
             <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
         </xsl:element>
     </xsl:template>
-    <xsl:template match="daoloc[@label=../arc/@to[../@show='new']]">
+    <xsl:template match="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='new']]">
         <xsl:element name="url">
             <xsl:attribute name="displayLabel">Full Image</xsl:attribute>
             <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
