@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xsi:schemaLocation="
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
     http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans.xsd
     http://camel.apache.org/schema/spring
     http://camel.apache.org/schema/spring/camel-spring.xsd
     http://www.springframework.org/schema/context
     http://www.springframework.org/schema/context/spring-context-3.0.xsd"
-    >
+>
     <!-- AWS Configuration -->
     <context:property-placeholder location="classpath:/aws.properties" />
     <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
@@ -36,13 +36,13 @@
         <property name="splitter">
             <bean class="edu.harvard.libcomm.pipeline.MarcSplitter"/>
         </property>
-    </bean>	
+    </bean>
 
-	<bean id="deleteSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
+    <bean id="deleteSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
         <property name="splitter">
             <bean class="edu.harvard.libcomm.pipeline.DeleteFileSplitter"/>
         </property>
-    </bean>	
+    </bean>
 
     <bean id="eadSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
         <property name="splitter">
@@ -140,7 +140,7 @@
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
         <!-- Error handling behavior -->
         <errorHandler id="eh" redeliveryPolicyRef="myPolicy" type="DeadLetterChannel"
-            deadLetterUri="direct:dead-letter"/>
+                      deadLetterUri="direct:dead-letter"/>
         <redeliveryPolicyProfile id="myPolicy" maximumRedeliveries="0"/>
         <route id="dead-letter">
             <from uri="direct:dead-letter"/>
@@ -189,8 +189,8 @@
                     <to uri="direct:dead-letter" />
                 </doCatch>
             </doTry>
-         </route>
-         
+        </route>
+
         <route id="marctomods-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/normalize-marcxml" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-normalize-marcxml?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
@@ -222,7 +222,7 @@
                         </correlationExpression>
                         <completionPredicate>
                             <simple>${header.messageLength} > 150000</simple>
-                        </completionPredicate>  
+                        </completionPredicate>
                         <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
                         <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.CamelSplitIndex}" /> -->
                     </aggregate>
@@ -251,11 +251,11 @@
             <from uri="direct:via-ingest-file"/>
             <doTry>
                 <split streaming="true">
-                    <tokenize token="viaRecord" xml="true"/>          
+                    <tokenize token="viaRecord" xml="true"/>
                     <setHeader headerName="outerSplitIndex">
                         <simple>${header.CamelSplitIndex}</simple>
                     </setHeader>
-    
+
                     <split streaming="true" parallelProcessing="true">
                         <method bean="viaRawSplitter" method="split"/>
                         <aggregate strategyRef="modsVIARawAggregator" completionSize="100" completionInterval="10000">
@@ -264,7 +264,7 @@
                             </correlationExpression>
                             <completionPredicate>
                                 <simple>${header.messageLength} > 150000</simple>
-                            </completionPredicate>  
+                            </completionPredicate>
                             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
                             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.outerSplitIndex}-${header.CamelSplitIndex}" /> -->
                         </aggregate>
@@ -328,7 +328,7 @@
             <from uri="seda:enrich-03?concurrentConsumers=1"/>
             <process ref="lccProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-04?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient" />
-        </route> 
+        </route>
 
         <route id="addcollectionstomods-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-04" /> -->
@@ -351,10 +351,10 @@
         <route id="publish" errorHandlerRef="eh">
             <from uri="seda:enrich-end?concurrentConsumers=1" />
             <process ref="removeRestrictedProcessor"/>
-            
+
             <!-- Commenting out unchanged filter until we are set to deploy the associated database -->
             <!-- <process ref="filterUnchangedProcessor"/> -->
-            
+
             <!-- Don't try to publish empty messages -->
             <choice>
                 <when>
@@ -387,11 +387,11 @@
         <route id="modstosolr-immediate" errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public-immediate?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <process ref="solrLoadProcessorImmediate"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>        
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
         </route>
 
         <!-- Delete handling -->
-         <route id="aleph-delete-ingest-split">
+        <route id="aleph-delete-ingest-split">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-delete-aleph?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
@@ -402,18 +402,18 @@
                 <doCatch>
                     <exception>java.lang.Exception</exception>
                     <to uri="direct:dead-letter" />
-                </doCatch>                
+                </doCatch>
             </doTry>
-         </route>
+        </route>
         <route id="deletesolr" errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-delete-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <process ref="solrDeleteProcessor"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>          
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient"/>
         </route>
 
         <!-- Collection update handling -->
         <route id="updatecollections-seda" errorHandlerRef="eh">
-        <!--<from uri="file://{{librarycloud.files.basepath}}/updateCollection-input" /> -->
+            <!--<from uri="file://{{librarycloud.files.basepath}}/updateCollection-input" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-update-public?accessKey=${access.key}&amp;secretKey=${secret.key}&amp;amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <to uri="seda:update-public?size=20&amp;blockWhenFull=true" />
         </route>
@@ -432,6 +432,6 @@
             </choice>
         </route>
 
-        
+
     </camelContext>
 </beans>
