@@ -263,7 +263,7 @@
                         /record/controlfield[@tag='001']
                     </xpath>
                 </setHeader>                
-                <process ref="filterUnchangedMarcProcessor"/>
+                <!--<process ref="filterUnchangedMarcProcessor"/>-->
                 <choice>
                     <when>
                         <simple>${in.body} != ""</simple>
@@ -359,7 +359,7 @@
         <route id="enrich-start" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-start" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-start?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <unmarshal><custom ref="cloudbody"/></unmarshal>            
+            <unmarshal><custom ref="cloudbody"/></unmarshal>
             <choice>
                 <when>
                     <xpath>//source = 'aleph'</xpath>
@@ -449,7 +449,7 @@
         <route id="publish-delta" errorHandlerRef="eh">
             <from uri="direct:publish-delta"/>
             <!-- Remove any items that haven't changed -->
-            <process ref="filterUnchangedProcessor"/>
+            <!--<process ref="filterUnchangedProcessor"/>-->
 
             <!-- Don't try to publish empty messages -->
             <choice>
