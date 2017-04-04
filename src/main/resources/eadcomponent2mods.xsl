@@ -9,19 +9,19 @@
     <xsl:strip-space elements="*"/>
     <!--<xsl:param name="componentid">sch01290c00002</xsl:param>-->
     <xsl:param name="componentid"/>
-    
+
     <xsl:variable name="cid_legacy_or_new">
-        <xsl:choose>
-            <xsl:when test="//c[@id=$componentid]">
-                <xsl:value-of select="$componentid"/>
-            </xsl:when>
-            <xsl:when test="//c[@id=substring($componentid,9)]">
-                <xsl:value-of select="substring($componentid,9)"/>
-            </xsl:when>
-        </xsl:choose>
+	<xsl:choose>
+	    <xsl:when test="//c[@id=$componentid]">
+		<xsl:value-of select="$componentid"/>
+	    </xsl:when>
+	    <xsl:when test="//c[@id=substring($componentid,9)]">
+		<xsl:value-of select="substring($componentid,9)"/>
+	    </xsl:when>
+	</xsl:choose>
     </xsl:variable>
     
-    
+
     <xsl:template match="ead">
         <xsl:variable name="sibcount">
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]" mode="siblingcount"/>
@@ -50,8 +50,8 @@
                    <xsl:apply-templates select="//archdesc/accessrestrict"/>
                 </xsl:when>
             </xsl:choose>
-            
-            
+
+
             <!--<xsl:call-template name="access">
                 <xsl:with-param name="cid">
                     <xsl:value-of select="//c[@id=$cid_legacy_or_new]"/>
@@ -65,7 +65,7 @@
             <xsl:element name="recordInfo">
                 <xsl:if test="eadheader/revisiondesc/change[item='Loaded into OASIS']">
                     <xsl:element name="recordChangeDate">
-                        <xsl:attribute name="encoding">iso8601</xsl:attribute>
+                	    <xsl:attribute name="encoding">iso8601</xsl:attribute>
                         <xsl:value-of select="format-number(max(eadheader/revisiondesc/change[item='Loaded into OASIS']/date/@normal),'00000000')"/>
                     </xsl:element>
                 </xsl:if>
@@ -78,18 +78,18 @@
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]"/>
         </mods>
     </xsl:template>
-    
+
     <xsl:template match="c" mode="siblingcount">
         <xsl:value-of select="count(preceding-sibling::c) + 1"/>
     </xsl:template>
-    
+
     <xsl:template match="c">
         <relatedItem>
             <xsl:attribute name="type">host</xsl:attribute>
             <xsl:if test="parent::c">
                 <xsl:apply-templates select="parent::c/did/unittitle"/>
                 <xsl:apply-templates select="parent::c/did//unitdate"/>
-                <xsl:apply-templates select="parent::c/did//unitid"/>
+                 <xsl:apply-templates select="parent::c/did//unitid"/>
                 <xsl:element name="recordInfo">
                     <xsl:element name="recordIdentifier">
                         <xsl:value-of select="parent::c/@id"/>
@@ -98,21 +98,21 @@
                 <xsl:apply-templates select="parent::c"/>
             </xsl:if>
             <xsl:if test="not(parent::c)">
-                <xsl:attribute name="displayLabel">collection</xsl:attribute>
-                <xsl:apply-templates select="/ead/archdesc/did//repository"/>
-                <xsl:apply-templates select="/ead/archdesc/did//unitid"/>
-                <xsl:apply-templates select="/ead/archdesc/did/origination"/>
-                <xsl:apply-templates select="/ead/archdesc/did/unittitle"/>
-                <xsl:apply-templates select="/ead/archdesc/did//unitdate"/>
-                <xsl:element name="recordInfo">
-                    <xsl:element name="recordIdentifier">
-                        <xsl:value-of select="/ead/eadheader/eadid"/>
+            	<xsl:attribute name="displayLabel">collection</xsl:attribute>
+                   <xsl:apply-templates select="/ead/archdesc/did//repository"/>
+                    <xsl:apply-templates select="/ead/archdesc/did//unitid"/>
+                    <xsl:apply-templates select="/ead/archdesc/did/origination"/>
+                    <xsl:apply-templates select="/ead/archdesc/did/unittitle"/>
+                    <xsl:apply-templates select="/ead/archdesc/did//unitdate"/>
+                    <xsl:element name="recordInfo">
+                        <xsl:element name="recordIdentifier">
+                            <xsl:value-of select="/ead/eadheader/eadid"/>
+                        </xsl:element>
                     </xsl:element>
-                </xsl:element>
             </xsl:if>
         </relatedItem>
     </xsl:template>
-    
+
     <xsl:template match="unittitle">
         <xsl:element name="titleInfo">
             <xsl:element name="title">        
@@ -147,7 +147,7 @@
             </xsl:element>
         </xsl:element>
     </xsl:template>       
-    
+
     <xsl:template match="origination">
         <xsl:element name="name">
             <xsl:element name="namePart">
@@ -158,7 +158,7 @@
             </xsl:element>
         </xsl:element>
     </xsl:template> 
-    
+
     <xsl:template match="physdesc">
         <xsl:element name="physicalDescription">
             <xsl:element name="extent">
@@ -174,7 +174,7 @@
             </xsl:element>
         </xsl:element>
     </xsl:template> 
-    
+ 
     <xsl:template match="@level">
         <xsl:element name="physicalDescription">
             <xsl:element name="note">
@@ -183,31 +183,31 @@
             </xsl:element>
         </xsl:element>
     </xsl:template>
-    
+ 
     <xsl:template match="unitid">
         <xsl:element name="identifier">
             <xsl:value-of select="."/>
         </xsl:element>
     </xsl:template> 
-    
+
     <xsl:template match="container">
         <xsl:element name="location">
-            <xsl:element name="physicalLocation">
-                <xsl:attribute name="type"><xsl:text>container</xsl:text></xsl:attribute>
-                <xsl:value-of select="."/>
-            </xsl:element>
+          <xsl:element name="physicalLocation">
+            <xsl:attribute name="type"><xsl:text>container</xsl:text></xsl:attribute>
+            <xsl:value-of select="."/>
+          </xsl:element>
         </xsl:element>
     </xsl:template> 
-    
+
     <xsl:template match="scopecontent//p[1]">
         <xsl:element name="abstract">
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="repository">
         <xsl:element name="location">
-            <xsl:element name="physicalLocation">	
+	    <xsl:element name="physicalLocation">	
                 <xsl:attribute name="type"><xsl:text>repository</xsl:text></xsl:attribute>
                 <xsl:value-of select="normalize-space()"/>
                 <!--<xsl:if test="./*">
@@ -216,7 +216,7 @@
             </xsl:element>
         </xsl:element>
     </xsl:template> 
-    
+
     <xsl:template match="accessrestrict">
         <xsl:element name="accessCondition">
             <xsl:value-of select="text()"/>
@@ -226,7 +226,7 @@
         </xsl:element>
     </xsl:template>
     
-    <!--
+ <!--
     <xsl:template name="access">
         <xsl:param name="cid"/>
         <xsl:choose>
@@ -243,7 +243,7 @@
         </xsl:choose>
     </xsl:template>
     -->
-    
+ 
     <xsl:template match="dao">
         <xsl:element name="location">
             <xsl:element name="url">
@@ -255,9 +255,9 @@
     
     <xsl:template match="daogrp">
         <xsl:element name="location">
-            <xsl:apply-templates select="daoloc[@label=../arc/@to[../@show='embed']]"/>
-            <xsl:apply-templates select="daoloc[@label=../arc/@to[../@show='new']]"/>
-            <!--<xsl:element name="location">
+            <xsl:apply-templates select="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='embed']]"/>
+            <xsl:apply-templates select="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='new']]"/>
+        <!--<xsl:element name="location">
             <xsl:element name="url">
                 <xsl:value-of select="daoloc/@href"/>
             </xsl:element>
@@ -265,19 +265,19 @@
         </xsl:element>    
     </xsl:template>
     
-    <xsl:template match="daoloc[@label=../arc/@to[../@show='embed']]">
+    <xsl:template match="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='embed']]">
         <xsl:element name="url">
             <xsl:attribute name="displayLabel">Thumbnail</xsl:attribute>
             <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
             <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
         </xsl:element>
     </xsl:template>
-    <xsl:template match="daoloc[@label=../arc/@to[../@show='new']]">
+    <xsl:template match="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='new']]">
         <xsl:element name="url">
             <xsl:attribute name="displayLabel">Full Image</xsl:attribute>
             <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
             <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
         </xsl:element>
     </xsl:template>    
-    
+
 </xsl:stylesheet>

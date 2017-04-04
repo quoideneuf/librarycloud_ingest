@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.enrich;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -10,6 +10,9 @@ import org.apache.solr.common.SolrDocumentList;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import edu.harvard.libcomm.pipeline.IProcessor;
+import edu.harvard.libcomm.pipeline.MessageUtils;
+import edu.harvard.libcomm.pipeline.solr.SolrServer;
 
 public class CollectionUpdateProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(CollectionsProcessor.class); 	
@@ -24,12 +27,14 @@ public class CollectionUpdateProcessor implements IProcessor {
 		itemId = MessageUtils.transformPayloadData(libCommMessage, "src/main/resources/item_id.xsl", null);
 		if (itemId == null || itemId.length() == 0){
 			libCommMessage.getPayload().setData("");
+			log.error("Could not find item id in message");
 			return;
 		}
 
 		data = getSolrModsRecord(itemId);
 		if (data == null){
 			libCommMessage.getPayload().setData("");
+			log.error("Could not find item id in solr");
 			return;
 		}
 
@@ -38,11 +43,7 @@ public class CollectionUpdateProcessor implements IProcessor {
 		temporaryPayload.setData(data);
 		temporaryMessage.setPayload(temporaryPayload);
 		data = MessageUtils.transformPayloadData(temporaryMessage, "src/main/resources/addcollections.xsl", collectionData);
-		Payload payload = new Payload();
-		payload.setData(data);
-
-        libCommMessage.setPayload(payload);
-        
+		libCommMessage.getPayload().setData(data);        
 	}
 
 	private String replaceSolrSpecialCharacters(String s) {

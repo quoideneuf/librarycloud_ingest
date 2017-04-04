@@ -15,7 +15,11 @@ import org.apache.log4j.Logger;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 
-
+/**
+ * Takes as a parameter to split() a command message with the URL or system path of a file to be ingested,
+ * and returns an iterator (set using setSplitter()) that iterates over the contents of 
+ * the referenced file.
+ */
 public class Splitter  {
 	protected Logger log = Logger.getLogger(Splitter.class); 	
 	private ISplitter splitter;

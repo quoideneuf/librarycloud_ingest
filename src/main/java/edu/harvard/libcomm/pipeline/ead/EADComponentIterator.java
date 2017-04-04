@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.ead;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -18,6 +18,8 @@ import org.w3c.dom.NodeList;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import edu.harvard.libcomm.pipeline.ISplitter;
+import edu.harvard.libcomm.pipeline.MessageUtils;
 
 public class EADComponentIterator implements Iterator<String> {
 	protected Logger log = Logger.getLogger(EADComponentIterator.class);

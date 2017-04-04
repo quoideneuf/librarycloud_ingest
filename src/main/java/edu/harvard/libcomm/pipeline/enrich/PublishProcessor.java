@@ -1,7 +1,9 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.enrich;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import edu.harvard.libcomm.pipeline.IProcessor;
+import edu.harvard.libcomm.pipeline.MessageUtils;
 
 public class PublishProcessor implements IProcessor {
 
@@ -29,10 +31,7 @@ public class PublishProcessor implements IProcessor {
 			data = "";
 		}
 
-		Payload payload = new Payload();
-        payload.setData(data);
-        libCommMessage.setPayload(payload);
-		
+		libCommMessage.getPayload().setData(data);		
 	}
 
 

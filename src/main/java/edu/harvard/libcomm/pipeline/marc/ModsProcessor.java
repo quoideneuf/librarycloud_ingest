@@ -1,9 +1,11 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.marc;
 
 import org.apache.log4j.Logger;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import edu.harvard.libcomm.pipeline.IProcessor;
+import edu.harvard.libcomm.pipeline.MessageUtils;
 
 public class ModsProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(ModsProcessor.class); 
@@ -18,11 +20,7 @@ public class ModsProcessor implements IProcessor {
 			throw e;
 		}	
 		log.trace("ModProcessor Result:" + modsCollection);
-        Payload payload = new Payload();
-        payload.setSource("aleph");
-        payload.setFormat("mods");
-        payload.setData(modsCollection);
-        libCommMessage.setPayload(payload);
+        libCommMessage.getPayload().setData(modsCollection);
 	}
 
 	

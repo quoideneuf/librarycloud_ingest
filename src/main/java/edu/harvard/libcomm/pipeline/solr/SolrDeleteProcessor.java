@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.solr;
 
 import java.io.IOException;
 import java.io.FileNotFoundException;
@@ -15,6 +15,7 @@ import org.json.XML;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import edu.harvard.libcomm.pipeline.IProcessor;
 
 public class SolrDeleteProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(SolrDeleteProcessor.class);

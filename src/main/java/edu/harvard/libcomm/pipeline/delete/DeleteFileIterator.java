@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline;
+package edu.harvard.libcomm.pipeline.delete;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -14,6 +14,7 @@ import org.apache.solr.client.solrj.request.UpdateRequest;
 
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
+import edu.harvard.libcomm.pipeline.MessageUtils;
 
 public class DeleteFileIterator {
 	protected Logger log = Logger.getLogger(DeleteFileIterator.class); 

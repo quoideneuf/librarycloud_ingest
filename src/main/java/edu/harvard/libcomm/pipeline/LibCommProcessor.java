@@ -44,7 +44,7 @@ public class LibCommProcessor implements Processor {
 		}
 
 		Message message = exchange.getIn();
-		InputStream messageIS = readMessageBody(message);			
+		InputStream messageIS = MessageUtils.readMessageBody(message);			
 		libCommMessage = unmarshalMessage(context, messageIS);
 		try {
 			processor.processMessage(libCommMessage);			
@@ -59,34 +59,11 @@ public class LibCommProcessor implements Processor {
 	    exchange.setOut(message);
 	}
 
-	protected InputStream readMessageBody (Message message) throws FileNotFoundException, UnsupportedEncodingException {
-		Object body = message.getBody(); 
-		InputStream messageIS = null; 
-		
-		if (body instanceof GenericFile) { 
-			GenericFile<File> file = (GenericFile<File>) body; 
-			try {
-				messageIS = new FileInputStream(file.getFile());
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				throw e;
-			}
-		} else if (body instanceof String) {
-			try {
-				messageIS = new ByteArrayInputStream(((String)body).getBytes("UTF-8"));	
-			} catch (java.io.UnsupportedEncodingException e) {
-				e.printStackTrace();
-				throw e;
-			}			
-		}
-		return messageIS;
-	}
-
 	/**
 	 * Get the JAXBContext to be used for marshalling and unmarshalling
 	 * @return populated context
 	 */
-    private JAXBContext initContext() throws JAXBException {
+    protected JAXBContext initContext() throws JAXBException {
 		return JAXBContext.newInstance(LibCommMessage.class,ModsCollection.class,CollectionType.class);
     }	
 	
@@ -97,7 +74,7 @@ public class LibCommProcessor implements Processor {
 	 * @return               populated LibCommMessage
 	 * @throws JAXBException 
 	 */
-	private LibCommMessage unmarshalMessage (JAXBContext context, InputStream is) throws JAXBException {
+	protected LibCommMessage unmarshalMessage (JAXBContext context, InputStream is) throws JAXBException {
  		Unmarshaller jaxbUnmarshaller = context.createUnmarshaller();
 		libCommMessage = (LibCommMessage) jaxbUnmarshaller.unmarshal(is);
 		return libCommMessage;		
@@ -110,7 +87,7 @@ public class LibCommProcessor implements Processor {
 	 * @return                XML representation of the object
 	 * @throws JAXBException  
 	 */
-	private String marshalMessage (JAXBContext context, LibCommMessage libCommMessage) throws JAXBException {
+	protected String marshalMessage (JAXBContext context, LibCommMessage libCommMessage) throws JAXBException {
 		StringWriter sw = new StringWriter();
 		Marshaller jaxbMarshaller = context.createMarshaller();
 		// Uncomment this to get pretty-printed output.

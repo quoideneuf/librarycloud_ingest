@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs mods"
-    xmlns:xlink="http://www.w3.org/1999/xlink" 
-    xmlns:mods="http://www.loc.gov/mods/v3" 
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:mods="http://www.loc.gov/mods/v3"
     xmlns:urlinfo="http://lib.harvard.edu/urlinfo" version="2.0"
     >
     
     <xsl:output indent="no"/>
     <xsl:strip-space elements="*"/>
  
-    <xsl:param name="param1"><holdings/></xsl:param>
+    <xsl:param name="param1"><holdings/></xsl:param> 
+ 
      
     <xsl:template match="@*|node()">
         <xsl:copy-of select="."/>
@@ -49,9 +50,10 @@
                         </xsl:element>
                     </xsl:if>
                     <xsl:apply-templates select="./Marc856U"/>
-                 </xsl:element>
+                </xsl:element>
             </xsl:for-each>
-         </xsl:copy>
+            
+        </xsl:copy>
     </xsl:template>
 
     <xsl:template match="Marc856U">
