@@ -108,6 +108,13 @@
             <bean class="edu.harvard.libcomm.pipeline.enrich.HoldingsProcessor"/>
         </property>
     </bean>
+
+    <bean id="drsExtensionsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.enrich.DRSExtensionsProcessor"/>
+        </property>
+    </bean>
+
     <bean id="addMarcLocationProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.enrich.AddMarcLocationProcessor">
@@ -203,6 +210,28 @@
             <from uri="direct:nothing" />
             <to uri="aws-s3://{{librarycloud.s3.cache_bucket}}.{{librarycloud.sqs.environment}}?amazonS3Client=#s3Client" />
         </route>
+
+
+        <!-- ============================== -->
+        <!-- Aleph HOLDINGS ingest -->
+        <!-- ============================== -->
+
+        <route id="holdings-ingest-split" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-holdings?amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
+            <doTry>
+                <split streaming="true" parallelProcessing="true">
+                    <method bean="marcSplitter" method="split"/>
+                    <!--<marshal><custom ref="cloudbody"/></marshal>-->
+                    <!--<to uri="aws-sqs://{{librarycloud.sqs.environment}}-split-holdings?amazonSQSClient=#sqsClient" />-->
+                    <to uri="file://{{librarycloud.files.basepath}}/splitholdings?fileName=${header.CamelSplitIndex}" />
+                </split>
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <to uri="direct:dead-letter" />
+                </doCatch>
+            </doTry>
+        </route>
+
 
         <!-- ============================== -->
         <!-- Aleph ingest and normalization -->
@@ -371,22 +400,23 @@
                 </when>
                 <otherwise>
                     <!-- Skip Holdings, Stackscore, and LCCSH steps for non-aleph records -->
-                    <to uri="seda:enrich-04?size=20&amp;blockWhenFull=true" />
+                    <to uri="seda:enrich-04a?size=20&amp;blockWhenFull=true" />
                 </otherwise>
             </choice>
         </route>
 
-        <route id="addholdingstomods-seda" errorHandlerRef="eh">
-            <from uri="direct:enrich-01"/>
-            <to uri="seda:enrich-01?size=20&amp;blockWhenFull=true" />
+
+        <route id="adddrsextensionsstomods-seda" errorHandlerRef="eh">
+            <from uri="direct:enrich-04a"/>
+            <to uri="seda:enrich-04a?size=20&amp;blockWhenFull=true" />
         </route>
-        <route id="addholdingstomods" errorHandlerRef="eh">
-            <from uri="seda:enrich-01?concurrentConsumers=1"/>
-            <process ref="holdingsProcessor"/>
-            <marshal><custom ref="cloudbody"/></marshal>            
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02?amazonSQSClient=#sqsClient" />
+        <route id="adddrsextensionstomods" errorHandlerRef="eh">
+            <from uri="seda:enrich-04a?concurrentConsumers=1"/>
+            <process ref="drsExtensionsProcessor"/>
+            <to uri="seda:enrich-04?size=20&amp;blockWhenFull=true" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-02" /> -->
         </route>
+
 
         <route id="addstackscoretomods-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-02" /> -->
@@ -449,7 +479,7 @@
         <route id="publish-delta" errorHandlerRef="eh">
             <from uri="direct:publish-delta"/>
             <!-- Remove any items that haven't changed -->
-            <process ref="filterUnchangedProcessor"/>
+            <!--<process ref="filterUnchangedProcessor"/>-->
 
             <!-- Don't try to publish empty messages -->
             <choice>
