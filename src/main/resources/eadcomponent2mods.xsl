@@ -7,8 +7,8 @@
     version="2.0">
     <xsl:output encoding="UTF-8" method="xml" indent="yes" omit-xml-declaration="yes"></xsl:output>
     <xsl:strip-space elements="*"/>
-    <!--<xsl:param name="componentid">sch01290c00002</xsl:param>-->
-    <xsl:param name="componentid"/>
+    <xsl:param name="componentid">div00579c00002</xsl:param>
+    <!--<xsl:param name="componentid"/>-->
 
     <xsl:variable name="cid_legacy_or_new">
 	<xsl:choose>
@@ -27,8 +27,8 @@
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]" mode="siblingcount"/>
         </xsl:variable>
         <mods xmlns:xlink="http://www.w3.org/1999/xlink">
-            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did/unittitle"/>
-            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did//unitdate"/>
+            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did/unittitle[not(.='')]"/>
+            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did//unitdate[not(.='')]"/>
             <xsl:apply-templates select="did//origination"/>
             <!--<xsl:apply-templates select="//c[@id=$componentid]/did//persname"/>
             <xsl:apply-templates select="//c[@id=$componentid]/did//famname"/>
@@ -247,8 +247,8 @@
     <xsl:template match="dao">
         <xsl:element name="location">
             <xsl:element name="url">
-                <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
-                <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
+                <xsl:attribute name="access">raw object</xsl:attribute>
+                <xsl:value-of select="@*[local-name()='href']"/>
             </xsl:element>
         </xsl:element>
     </xsl:template>
@@ -267,6 +267,7 @@
     
     <xsl:template match="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='embed']]">
         <xsl:element name="url">
+            <xsl:attribute name="access">preview</xsl:attribute>
             <xsl:attribute name="displayLabel">Thumbnail</xsl:attribute>
             <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
             <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
@@ -274,6 +275,7 @@
     </xsl:template>
     <xsl:template match="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='new']]">
         <xsl:element name="url">
+            <xsl:attribute name="access">raw object</xsl:attribute>
             <xsl:attribute name="displayLabel">Full Image</xsl:attribute>
             <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
             <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>

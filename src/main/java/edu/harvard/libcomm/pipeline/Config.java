@@ -42,6 +42,7 @@ public class Config {
 	public String HOLDINGS_URL;
 	public String ITEM_URL;
 	public String COLLECTIONS_URL;
+	public String DRSEXTENSIONS_URL;
 	
 	private static Config conf;
 	
@@ -62,6 +63,7 @@ public class Config {
 		HOLDINGS_URL = props.getProperty("holdings_url");
 		ITEM_URL = props.getProperty("item_url");
 		COLLECTIONS_URL = props.getProperty("collections_url");
+		DRSEXTENSIONS_URL = props.getProperty("drsextensions_url");
 	
 	}
 	

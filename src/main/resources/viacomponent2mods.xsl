@@ -471,7 +471,7 @@
 					<title><xsl:value-of select="caption"/></title>
 				</titleInfo>
 				<location>
-					<url displayLabel="Full Image">
+					<url displayLabel="Full Image" access="raw object">
 						<xsl:attribute name="note">
 							<xsl:if test="./@restrictedImage='true'">
 								<xsl:text>restricted</xsl:text>
@@ -482,7 +482,7 @@
 						</xsl:attribute>
 						<xsl:value-of select="./@href"/>
 					</url>
-					<url displayLabel="Thumbnail">
+					<url displayLabel="Thumbnail" access="preview">
 						<xsl:value-of select="thumbnail/@href"/>
 					</url>
 				</location>
@@ -490,7 +490,7 @@
 		</xsl:when>
 		<xsl:otherwise>
 			<location>
-				<url displayLabel="Full Image">
+				<url displayLabel="Full Image" access="raw object">
 					<xsl:attribute name="note">
 						<xsl:if test="./@restrictedImage='true'">
 							<xsl:text>restricted</xsl:text>
@@ -501,7 +501,7 @@
 					</xsl:attribute>
 					<xsl:value-of select="./@href"/>
 				</url>
-				<url displayLabel="Thumbnail">
+				<url displayLabel="Thumbnail" access="preview">
 					<xsl:value-of select="thumbnail/@href"/>
 				</url>
 			</location>
@@ -516,7 +516,7 @@
 						<title><xsl:value-of select="caption"/></title>
 					</titleInfo>
 					<location>
-						<url displayLabel="Full Image">
+						<url displayLabel="Full Image" access="raw object">
 							<xsl:attribute name="note">
 								<xsl:if test="./@restrictedImage='true'">
 									<xsl:text>restricted</xsl:text>
@@ -527,7 +527,7 @@
 							</xsl:attribute>
 							<xsl:value-of select="./@xlink:href"/>
 						</url>
-						<url displayLabel="Thumbnail">
+						<url displayLabel="Thumbnail" access="preview">
 							<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
 						</url>
 					</location>
@@ -535,7 +535,7 @@
 			</xsl:when>
 			<xsl:otherwise>
 				<location>
-					<url displayLabel="Full Image">
+					<url displayLabel="Full Image" access="raw object">
 						<xsl:attribute name="note">
 							<xsl:if test="./@restrictedImage='true'">
 								<xsl:text>restricted</xsl:text>
@@ -546,7 +546,7 @@
 						</xsl:attribute>
 						<xsl:value-of select="./@xlink:href"/>
 					</url>
-					<url displayLabel="Thumbnail">
+					<url displayLabel="Thumbnail" access="preview">
 						<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
 					</url>
 				</location>

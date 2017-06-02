@@ -34,7 +34,7 @@
             <xsl:variable name="recordid"><xsl:value-of select="./mods:recordInfo/mods:recordIdentifier"/></xsl:variable>
             <xsl:element name="extension" namespace="http://www.loc.gov/mods/v3">
                 <xsl:element name="collections" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
-                    <xsl:for-each select="$collections//col:collections">
+                    <xsl:for-each select="$collections//col:item[col:item_id=$recordid]/col:collections">
                         <xsl:element name="collection" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
                             <xsl:element name="type" namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
                                 <xsl:value-of select="dc:type"/>

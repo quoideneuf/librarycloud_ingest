@@ -4,10 +4,11 @@
     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" 
     xmlns:usage="http://lib.harvard.edu/usagedata" version="1.0"
     xmlns:collection="http://hul.harvard.edu/ois/xml/ns/libraryCloud"
+    xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     >
 
-    <xsl:output indent="no"/>
+    <xsl:output indent="yes"/>
 
     <xsl:template match="mods:modsCollection">
         <xsl:element name="add">
@@ -51,6 +52,19 @@
             <xsl:apply-templates select="mods:extension/usage:usageData/usage:stackScore"/>
             <xsl:apply-templates select="mods:extension/collection:collections/collection:collection/collection:title"/>
             <xsl:apply-templates select="mods:extension/collection:collections/collection:collection/collection:identifier"/>
+            <xsl:choose>
+                <xsl:when test="mods:extension/HarvardDRS:DRSMetadata">
+                    <xsl:apply-templates select="mods:extension/HarvardDRS:DRSMetadata"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">
+                            <xsl:text>inDRS</xsl:text>
+                        </xsl:attribute>
+                        <xsl:text>false</xsl:text>
+                    </xsl:element>
+                </xsl:otherwise>
+            </xsl:choose>
             <!--
             <xsl:apply-templates select="//mods:relatedItem[@displayLabel='collection']"/>
             <xsl:apply-templates select="mods:relatedItem[@type='constituent']"/>
@@ -551,6 +565,83 @@
         </xsl:element>        
     </xsl:template>
  
+    <xsl:template match="HarvardDRS:DRSMetadata">
+        <xsl:apply-templates/>
+    </xsl:template>
+    
+    <xsl:template match="HarvardDRS:inDRS">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>inDRS</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="HarvardDRS:accessFlag">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>accessFlag</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="HarvardDRS:contentModel">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>contentModel</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="HarvardDRS:uriType">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>uriType</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="HarvardDRS:ownerCode">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>ownerCode</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="HarvardDRS:ownerCodeDisplayName">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>ownerCodeDisplayName</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+    
+    <xsl:template match="HarvardDRS:metsLabel">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>metsLabel</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="HarvardDRS:lastModifiedDate">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>lastModifiedDate</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+    
+
     <!-- will add space for sibs except for the last -->
     <xsl:template match="*">
         <xsl:value-of select="."/><xsl:if test="not(position()=last())"><xsl:text> </xsl:text></xsl:if>
