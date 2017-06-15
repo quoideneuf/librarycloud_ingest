@@ -3,6 +3,10 @@ package edu.harvard.libcomm.pipeline.enrich;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -20,7 +24,7 @@ import edu.harvard.libcomm.pipeline.MessageUtils;
  * record IDs, and then uses the results to transform the records using and XSL
  * stylesheet.
  */
-public class ExternalServiceProcessor implements IProcessor {
+public class ExternalXMLServiceProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(ExternalServiceProcessor.class); 	
 	
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
@@ -51,25 +55,35 @@ public class ExternalServiceProcessor implements IProcessor {
 		return urns;
 	}
 
-	protected void process(LibCommMessage libCommMessage, URI uri, String wrapperToken, String transformXSL) throws Exception {
-		
-		String data = null;
 
-		JSONTokener tokener;
+	protected void process(LibCommMessage libCommMessage, URI uri, String wrapperToken, String transformXSL) throws Exception {
+
+		String data = null;
+		String xml = null;
+
 		try {
-			tokener = new JSONTokener(uri.toURL().openStream());
-			//System.out.println(uri.toString());
+			xml = readUrl(uri.toURL().openStream());
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw e;
 		}
+		xml = xml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
+		xml = xml.replace("&lt;record","<record");
+		xml = xml.replace("record&gt;","record>");
+		xml = xml.replace("&lt;leader","<leader");
+		xml = xml.replace("leader&gt;","leader>");
+		xml = xml.replace("&lt;controlfield","<controlfield");
+		xml = xml.replace("controlfield&gt;","controlfield>");
+		xml = xml.replace("&lt;datafield","<datafield");
+		xml = xml.replace("datafield&gt;","datafield>");
+		xml = xml.replace("&lt;subfield","<subfield");
+		xml = xml.replace("subfield&gt;","subfield>");
+		xml = xml.replace("&lt;/","</");
+		xml = xml.replace("\"&gt;","\">");
 
-		JSONObject json = new JSONObject(tokener);
-		String xml = XML.toString(json);
 		xml = "<" + wrapperToken + ">" + xml + "</" + wrapperToken + ">";
 		//System.out.println("EXT XML: " + xml);
 		log.trace("External Service result:" + xml);
-		
+
 		try {
 			data = MessageUtils.transformPayloadData(libCommMessage,transformXSL,xml);
 		} catch (Exception e) {
@@ -77,7 +91,25 @@ public class ExternalServiceProcessor implements IProcessor {
 			throw e;
 		}
 		//System.out.println("DATA: " + data);
-		libCommMessage.getPayload().setData(data);		
+		libCommMessage.getPayload().setData(data);
+	}
+
+	private String readUrl(InputStream is) {
+		StringBuilder content = new StringBuilder();
+		try {
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+			String line;
+			// read from the urlconnection via the bufferedreader
+			while ((line = bufferedReader.readLine()) != null) {
+				content.append(line + "\n");
+			}
+			bufferedReader.close();
+		} catch (Exception e) {
+			System.out.println("BAD REQ: " + e.getMessage());
+			e.printStackTrace();
+		}
+		//System.out.println("READURL: " + content.toString());
+		return content.toString();
 	}
 
 }

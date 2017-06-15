@@ -80,6 +80,18 @@
         </property>
     </bean>
 
+    <bean id="modsSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.mods.MODSSplitter"/>
+        </property>
+    </bean>
+
+    <bean id="modsMessageSplitter" class="edu.harvard.libcomm.pipeline.MessageSplitter">
+        <property name="splitter">
+            <bean class="edu.harvard.libcomm.pipeline.mods.MODSRawSplitter"/>
+        </property>
+    </bean>
+
     <bean id="modsAggregator" class="edu.harvard.libcomm.pipeline.MODSAggregatorStrategy"/>
 
     <bean id="modsEADRawAggregator" class="edu.harvard.libcomm.pipeline.MODSRawAggregatorStrategy">
@@ -88,6 +100,10 @@
 
     <bean id="modsVIARawAggregator" class="edu.harvard.libcomm.pipeline.MODSRawAggregatorStrategy">
         <property name="source" value="VIA"/>
+    </bean>
+
+    <bean id="modsRawAggregator" class="edu.harvard.libcomm.pipeline.MODSRawAggregatorStrategy">
+        <property name="source" value="ALEPH"/>
     </bean>
 
     <bean id="extractPayloadProcessor" class="edu.harvard.libcomm.pipeline.ExtractPayloadProcessor"/>
@@ -159,6 +175,15 @@
             <bean class="edu.harvard.libcomm.pipeline.solr.SolrProcessor"/>
         </property>
     </bean>
+
+    <bean id="solrHoldingsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.solr.SolrHoldingsProcessor">
+                <property name="commitWithinTime" value="30000"/>
+            </bean>
+        </property>
+    </bean>
+
     <bean id="solrDeleteProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.solr.SolrDeleteProcessor"/>
@@ -223,15 +248,22 @@
                     <method bean="marcSplitter" method="split"/>
                     <!--<marshal><custom ref="cloudbody"/></marshal>-->
                     <!--<to uri="aws-sqs://{{librarycloud.sqs.environment}}-split-holdings?amazonSQSClient=#sqsClient" />-->
-                    <to uri="file://{{librarycloud.files.basepath}}/splitholdings?fileName=${header.CamelSplitIndex}" />
+                    <to uri="file://{{librarycloud.files.basepath}}/split-holdings?fileName=${header.CamelSplitIndex}" />
                 </split>
-                <doCatch>
-                    <exception>java.lang.Exception</exception>
-                    <to uri="direct:dead-letter" />
-                </doCatch>
+            <doCatch>
+                <exception>java.lang.Exception</exception>
+                <to uri="direct:dead-letter" />
+            </doCatch>
             </doTry>
         </route>
 
+        <route id="marcholdingstosolr" errorHandlerRef="eh">
+            <!--<from uri="aws-sqs://{{librarycloud.sqs.environment}}-split-holdings?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />-->
+            <from uri="file://{{librarycloud.files.basepath}}/split-holdings"/>
+            <process ref="solrHoldingsProcessor"/>
+            <!--<to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?amazonSQSClient=#sqsClient"/>-->
+            <to uri="file://{{librarycloud.files.basepath}}/done"/>
+        </route>
 
         <!-- ============================== -->
         <!-- Aleph ingest and normalization -->
@@ -292,7 +324,7 @@
                         /record/controlfield[@tag='001']
                     </xpath>
                 </setHeader>                
-                <process ref="filterUnchangedMarcProcessor"/>
+                <!--<process ref="filterUnchangedMarcProcessor"/>-->
                 <choice>
                     <when>
                         <simple>${in.body} != ""</simple>
@@ -417,9 +449,49 @@
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-02" /> -->
         </route>
 
+        <route id="addholdingstomods-seda" errorHandlerRef="eh">
+            <from uri="direct:enrich-01"/>
+            <to uri="seda:enrich-01?size=20&amp;blockWhenFull=true" />
+        </route>
+        <route id="addholdingstomods" errorHandlerRef="eh">
+            <from uri="seda:enrich-01?concurrentConsumers=1"/>
+            <process ref="holdingsProcessor"/>
+            <marshal><custom ref="cloudbody"/></marshal>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02a?amazonSQSClient=#sqsClient" />
+            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-02" /> -->
+        </route>
+
+        <route id="alephmodssplit" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02a?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10"/>
+            <doTry>
+
+                    <!--<tokenize token="mods" xml="true"/>
+                    <setHeader headerName="outerSplitIndex">
+                        <simple>${header.CamelSplitIndex}</simple>
+                    </setHeader>-->
+                    <split streaming="true" parallelProcessing="true">
+                        <method bean="modsMessageSplitter" method="split"/>
+                        <aggregate strategyRef="modsRawAggregator" completionSize="100" completionInterval="10000">
+                            <correlationExpression>
+                                <simple>all</simple>
+                            </correlationExpression>
+                            <completionPredicate>
+                                <simple>${header.messageLength} > 150000</simple>
+                            </completionPredicate>
+                            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02?amazonSQSClient=#sqsClient" />
+                            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.CamelSplitIndex}" /> -->
+                        </aggregate>
+                    </split>
+
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <to uri="direct:dead-letter" />
+                </doCatch>
+            </doTry>
+        </route>
 
         <route id="addstackscoretomods-seda" errorHandlerRef="eh">
-            <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-02" /> -->
+            <!-- <from uri="file://{{librarycloud.files.basepath}}/enrich-02" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <unmarshal><custom ref="cloudbody"/></unmarshal>            
             <to uri="seda:enrich-02?size=20&amp;blockWhenFull=true" />
@@ -535,7 +607,7 @@
         <route id="modstosolr-immediate" errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public-immediate?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
             <process ref="solrLoadProcessorImmediate"/>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?amazonSQSClient=#sqsClient"/>        
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?amazonSQSClient=#sqsClient"/>
         </route>
 
         <!-- Delete handling -->

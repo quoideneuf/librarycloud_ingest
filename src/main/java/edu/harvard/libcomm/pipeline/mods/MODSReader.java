@@ -3,7 +3,6 @@ package edu.harvard.libcomm.pipeline.mods;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
-
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,6 +44,7 @@ public class MODSReader {
     }
 
 	private Document getDocument (InputStream is) throws ParserConfigurationException, SAXException, IOException {
+//System.out.println(IOUtils.toString(is,"UTF-8"));
 	   	Document doc = null;
 		DocumentBuilder builder;
 		try {
@@ -71,7 +71,7 @@ public class MODSReader {
 			
 			xpath.setNamespaceContext(new NamespaceContext() {
 			    public String getNamespaceURI(String prefix) {
-			        return prefix.equals("xlink") ? "http://www.w3.org/TR/xlink"  : null;
+			        return prefix.equals("mods") ? "http://www.loc.gov/mods/v3"  : null;
 			    }
 
 			    public Iterator<?> getPrefixes(String val) {
@@ -86,7 +86,7 @@ public class MODSReader {
 			Object result = null;
 			XPathExpression urns = null;
 			try {
-				urns = xpath.compile("//mods:url[@access='raw object'] and contains(.,'urn-3')");
+				urns = xpath.compile("//mods:url[@access='raw object']"); //and contains(.,'urn-3')");
 				result = urns.evaluate(doc, XPathConstants.NODESET);
 			} catch (XPathExpressionException e) {
 				e.printStackTrace();
