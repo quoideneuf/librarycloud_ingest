@@ -478,7 +478,7 @@
                             <completionPredicate>
                                 <simple>${header.messageLength} > 150000</simple>
                             </completionPredicate>
-                            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02?amazonSQSClient=#sqsClient" />
+                            <to uri="seda:enrich-04a?size=20&amp;blockWhenFull=true" />
                             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.CamelSplitIndex}" /> -->
                         </aggregate>
                     </split>
@@ -513,8 +513,11 @@
             <from uri="seda:enrich-03?concurrentConsumers=1"/>
             <process ref="lccProcessor"/>
             <marshal><custom ref="cloudbody"/></marshal>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-04?amazonSQSClient=#sqsClient" />
-        </route> 
+            <multicast>
+                <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-04?amazonSQSClient=#sqsClient" />
+                <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-2a?amazonSQSClient=#sqsClient" />
+            </multicast>
+        </route>
 
         <route id="addcollectionstomods-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-04" /> -->
