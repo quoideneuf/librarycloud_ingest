@@ -18,6 +18,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import org.apache.commons.io.IOUtils;
+
 public class MODSReader {
 
 	private InputStream is;
@@ -44,7 +46,8 @@ public class MODSReader {
     }
 
 	private Document getDocument (InputStream is) throws ParserConfigurationException, SAXException, IOException {
-//System.out.println(IOUtils.toString(is,"UTF-8"));
+		//InputStream tempIs = is;
+		//System.out.println(IOUtils.toString(tempIs,"UTF-8"));
 	   	Document doc = null;
 		DocumentBuilder builder;
 		try {
@@ -65,10 +68,9 @@ public class MODSReader {
 	}
 	
 	private NodeList getNodeList (Document doc) throws XPathExpressionException {
-
 			XPathFactory factory = XPathFactory.newInstance();
 			XPath xpath = factory.newXPath();
-			
+
 			xpath.setNamespaceContext(new NamespaceContext() {
 			    public String getNamespaceURI(String prefix) {
 			        return prefix.equals("mods") ? "http://www.loc.gov/mods/v3"  : null;
@@ -86,13 +88,13 @@ public class MODSReader {
 			Object result = null;
 			XPathExpression urns = null;
 			try {
-				urns = xpath.compile("//mods:url[@access='raw object']"); //and contains(.,'urn-3')");
+				urns = xpath.compile("//mods:url[@access='raw object' and contains(.,'urn-3')]/text()"); //and contains(.,'urn-3')");
+				//urns = xpath.compile("//*[local-name() = 'url']");
 				result = urns.evaluate(doc, XPathConstants.NODESET);
 			} catch (XPathExpressionException e) {
 				e.printStackTrace();
 				throw e;
 			}
-
 			NodeList nodes = (NodeList) result;
 			return nodes;
 	}

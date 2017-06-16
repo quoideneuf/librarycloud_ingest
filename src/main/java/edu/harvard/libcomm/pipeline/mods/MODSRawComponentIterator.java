@@ -21,7 +21,7 @@ public class MODSRawComponentIterator extends MODSComponentIterator {
 
     public MODSRawComponentIterator(MODSReader reader) throws Exception {
         super(reader);
-		System.out.println("MODRAWSCOMPONENTITERATOR");
+		//System.out.println("MODRAWSCOMPONENTITERATOR");
     }
 
     @Override

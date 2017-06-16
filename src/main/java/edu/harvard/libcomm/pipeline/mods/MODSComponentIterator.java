@@ -56,12 +56,13 @@ public class MODSComponentIterator implements Iterator<String> {
     	while ((nodes != null) && (position < nodes.getLength())) {
 	        String nodeName = nodes.item(position).getNodeName();
 	        String nodeValue = nodes.item(position).getNodeValue();
-System.out.println("nodeValue: " + nodeValue);
+            String nodeValueChopped = nodeValue.substring(nodeValue.indexOf("urn-3"), nodeValue.length()).split("\\?")[0];
+
             position++;
 
             JSONTokener tokener = null;
             try {
-                URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" +nodeValue);
+                URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + nodeValueChopped);
                 tokener = new JSONTokener(uri.toURL().openStream());
                 System.out.println(uri.toString());
             } catch (Exception e) {
@@ -69,21 +70,24 @@ System.out.println("nodeValue: " + nodeValue);
             }
             JSONObject json = new JSONObject(tokener);
             JSONArray jsonArr = json.getJSONArray("extensions");
-            String inDRS = jsonArr.getJSONObject(0).getString("inDRS");
+            boolean inDRS = jsonArr.getJSONObject(0).getBoolean("inDRS");
 
             String fileDeliveryUrl = null;
-            if (inDRS.equals("true"))
-                fileDeliveryUrl = jsonArr.getJSONObject(0).getString("fileDeliveryURL");
-System.out.println("fileDeliveryUrl: " + fileDeliveryUrl);
-			try {
-			    if (fileDeliveryUrl != null)
-				    modsComponentMods += transformMODS(fileDeliveryUrl);
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new NoSuchElementException();
-			}
-            break;
+            if (inDRS) {
+                //fileDeliveryUrl = jsonArr.getJSONObject(0).getString("fileDeliveryURL");
+                //System.out.println("fileDeliveryUrl: " + fileDeliveryUrl);
+                try {
+                    //if (fileDeliveryUrl != null)
+                        modsComponentMods += transformMODS(nodeValue);
+                    System.out.println("modsComponentMods: " + modsComponentMods);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new NoSuchElementException();
+                }
+                break;
+            }
     	}
+    	/*
         LibCommMessage lcmessage = new LibCommMessage();
         Payload payload = new Payload();
         payload.setFormat("MODS");
@@ -96,7 +100,9 @@ System.out.println("fileDeliveryUrl: " + fileDeliveryUrl);
         } catch (JAXBException e) {
             e.printStackTrace();
             return null;
-        }                       
+        }
+        */
+    	return modsComponentMods;
 	}
 
     @Override
@@ -112,7 +118,7 @@ System.out.println("fileDeliveryUrl: " + fileDeliveryUrl);
     }
 
 	protected String transformMODS (String xslParam) throws Exception {		
-       	this.transformer.setParameter("urn", xslParam);
+       	this.transformer.setParameter("url", xslParam);
 		StringWriter writer = new StringWriter();
         StreamResult result = new StreamResult(writer);
         transformer.transform(this.domSource, result);
