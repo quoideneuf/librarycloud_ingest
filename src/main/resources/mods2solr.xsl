@@ -21,6 +21,19 @@
             <xsl:apply-templates select="mods:titleInfo"/>
             <xsl:apply-templates select="mods:name"/>
             <xsl:apply-templates select="mods:typeOfResource"/>
+            <xsl:element name="field">
+                <xsl:attribute name="name">
+                    <xsl:text>inDRS</xsl:text>
+                </xsl:attribute>
+                <xsl:choose>
+                    <xsl:when test=".//HarvardDRS:DRSMetadata">
+                        <xsl:text>true</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text>false</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:element>
             <!-- put the isOnline field here to keep grouped with isCollection and isManuscript -->
             <xsl:element name="field">
                 <xsl:attribute name="name">
@@ -569,6 +582,7 @@
         <xsl:apply-templates/>
     </xsl:template>
     
+    <!--
     <xsl:template match="HarvardDRS:inDRS">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -577,6 +591,8 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
+    -->
+    <xsl:template match="HarvardDRS:inDRS"/>
     
     <xsl:template match="HarvardDRS:accessFlag">
         <xsl:element name="field">

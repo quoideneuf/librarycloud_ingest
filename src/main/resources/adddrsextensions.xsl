@@ -63,7 +63,7 @@
     <xsl:template match="extensions">
         <xsl:element name="extension" namespace="http://www.loc.gov/mods/v3">
             <xsl:element name="HarvardDRS:DRSMetadata" xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">
-                <xsl:apply-templates select="inDRS"/>
+                <!--<xsl:apply-templates select="inDRS"/>-->
                 <xsl:apply-templates select="accessFlag"/>
                 <xsl:apply-templates select="contentModel"/>
                 <xsl:apply-templates select="uriType"/>

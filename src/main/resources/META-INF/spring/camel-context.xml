@@ -390,7 +390,7 @@
             <from uri="direct:via-ingest-file"/>
             <doTry>
                 <split streaming="true">
-                    <tokenize token="viaRecord" xml="true"/>          
+                    <tokenize token="viaRecord" xml="true"/>
                     <setHeader headerName="outerSplitIndex">
                         <simple>${header.CamelSplitIndex}</simple>
                     </setHeader>
@@ -457,18 +457,22 @@
             <from uri="seda:enrich-01?concurrentConsumers=1"/>
             <process ref="holdingsProcessor"/>
             <marshal><custom ref="cloudbody"/></marshal>
-            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02a?amazonSQSClient=#sqsClient" />
-            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-02" /> -->
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02?amazonSQSClient=#sqsClient" />
+            <!--<to uri="file://{{librarycloud.files.basepath}}/enrich-02" />-->
+        </route>
+
+        <route id="alephmodssplit-seda" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02a?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>
+            <to uri="seda:enrich-02a?size=20&amp;blockWhenFull=true" />
         </route>
 
         <route id="alephmodssplit" errorHandlerRef="eh">
-            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02a?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10"/>
+            <!--<from uri="file://{{librarycloud.files.basepath}}//enrich-02a" />-->
+            <from uri="seda:enrich-02a?concurrentConsumers=5"/>
+            <!--<from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02a?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10"/>-->
+            <!--<marshal><custom ref="cloudbody"/></marshal>-->
             <doTry>
-
-                    <!--<tokenize token="mods" xml="true"/>
-                    <setHeader headerName="outerSplitIndex">
-                        <simple>${header.CamelSplitIndex}</simple>
-                    </setHeader>-->
                     <split streaming="true" parallelProcessing="true">
                         <method bean="modsMessageSplitter" method="split"/>
                         <aggregate strategyRef="modsRawAggregator" completionSize="100" completionInterval="10000">
@@ -479,10 +483,9 @@
                                 <simple>${header.messageLength} > 150000</simple>
                             </completionPredicate>
                             <to uri="seda:enrich-04a?size=20&amp;blockWhenFull=true" />
-                            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.CamelSplitIndex}" /> -->
+                            <!--<to uri="file://{{librarycloud.files.basepath}}/enrich-start?fileName=${header.CamelSplitIndex}" /> -->
                         </aggregate>
                     </split>
-
                 <doCatch>
                     <exception>java.lang.Exception</exception>
                     <to uri="direct:dead-letter" />
@@ -513,9 +516,12 @@
             <from uri="seda:enrich-03?concurrentConsumers=1"/>
             <process ref="lccProcessor"/>
             <marshal><custom ref="cloudbody"/></marshal>
+            <!--<to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02a?amazonSQSClient=#sqsClient" />-->
+            <!--<to uri="file://{{librarycloud.files.basepath}}/enrich-02a" />-->
             <multicast>
                 <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-04?amazonSQSClient=#sqsClient" />
-                <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-2a?amazonSQSClient=#sqsClient" />
+                <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02a?amazonSQSClient=#sqsClient" />
+
             </multicast>
         </route>
 

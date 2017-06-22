@@ -51,7 +51,7 @@ public class MODSComponentIterator implements Iterator<String> {
 
     @Override
     public String next() {
-    	log.trace("Processing node " + position + " of " + nodes.getLength());
+    	//log.trace("Processing node " + position + " of " + nodes.getLength());
         String modsComponentMods = "";
     	while ((nodes != null) && (position < nodes.getLength())) {
 	        String nodeName = nodes.item(position).getNodeName();
@@ -79,7 +79,7 @@ public class MODSComponentIterator implements Iterator<String> {
                 try {
                     //if (fileDeliveryUrl != null)
                         modsComponentMods += transformMODS(nodeValue);
-                    System.out.println("modsComponentMods: " + modsComponentMods);
+                    //System.out.println("modsComponentMods: " + modsComponentMods);
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new NoSuchElementException();
@@ -87,8 +87,8 @@ public class MODSComponentIterator implements Iterator<String> {
                 break;
             }
     	}
-    	/*
-        LibCommMessage lcmessage = new LibCommMessage();
+
+        /*LibCommMessage lcmessage = new LibCommMessage();
         Payload payload = new Payload();
         payload.setFormat("MODS");
         payload.setSource("ALEPH");
@@ -100,8 +100,8 @@ public class MODSComponentIterator implements Iterator<String> {
         } catch (JAXBException e) {
             e.printStackTrace();
             return null;
-        }
-        */
+        }*/
+
     	return modsComponentMods;
 	}
 

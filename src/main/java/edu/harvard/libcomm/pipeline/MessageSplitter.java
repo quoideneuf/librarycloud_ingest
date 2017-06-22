@@ -24,11 +24,14 @@ public class MessageSplitter extends Splitter {
 
 	@Override
 	protected InputStream getResourceInputStream(String body) throws FileNotFoundException, IOException, JAXBException  {
-		LibCommMessage libCommMessage = MessageUtils.unmarshalLibCommMessage(new StringReader(body));
+		LibCommMessage libCommMessage = null;
+		libCommMessage = MessageUtils.unmarshalLibCommMessage(new StringReader(body));
+		ByteArrayInputStream bais = null;
 		String resource = null;
 		if ((libCommMessage != null) && (libCommMessage.getPayload() != null)) {
 			resource = libCommMessage.getPayload().getData();
-			return new ByteArrayInputStream(resource.getBytes("UTF-8"));
+			bais = new ByteArrayInputStream(resource.getBytes("UTF-8"));
+			return bais;
 		} else {
 			System.out.println("LOGGING TO DO - Something bad happenned in parsing incoming message");
 			throw new RuntimeException("Error parsing payload");
