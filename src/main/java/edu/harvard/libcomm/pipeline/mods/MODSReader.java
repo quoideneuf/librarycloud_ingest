@@ -24,16 +24,16 @@ public class MODSReader {
 
 	private InputStream is;
 	private NodeList nodes;
-	private DOMSource domSource;	
+	private DOMSource domSource;
 
     public MODSReader(InputStream is) {
-		this.is = is;	        
+		this.is = is;
     }
 
     public NodeList getNodes() throws ParserConfigurationException, XPathExpressionException, ParserConfigurationException, SAXException, IOException {
     	Document doc = getDocument(is);
     	this.domSource = new DOMSource(doc);
-    	NodeList nodes = getNodeList(doc);
+    	NodeList nodes = getNodeList(doc, "//mods:mods");
     	return nodes;
     }
 
@@ -45,7 +45,7 @@ public class MODSReader {
 		return this.domSource;
     }
 
-	private Document getDocument (InputStream is) throws ParserConfigurationException, SAXException, IOException {
+	protected Document getDocument (InputStream is) throws ParserConfigurationException, SAXException, IOException {
 		//InputStream tempIs = is;
 		//System.out.println(IOUtils.toString(tempIs,"UTF-8"));
 	   	Document doc = null;
@@ -67,7 +67,7 @@ public class MODSReader {
 		return doc;
 	}
 	
-	private NodeList getNodeList (Document doc) throws XPathExpressionException {
+	protected NodeList getNodeList (Document doc, String xpathStr) throws XPathExpressionException {
 			XPathFactory factory = XPathFactory.newInstance();
 			XPath xpath = factory.newXPath();
 
@@ -86,11 +86,11 @@ public class MODSReader {
 			});
 			
 			Object result = null;
-			XPathExpression urns = null;
+			XPathExpression xpathExpr = null;
 			try {
-				urns = xpath.compile("//mods:url[@access='raw object' and contains(.,'urn-3')]/text()"); //and contains(.,'urn-3')");
-				//urns = xpath.compile("//*[local-name() = 'url']");
-				result = urns.evaluate(doc, XPathConstants.NODESET);
+				xpathExpr = xpath.compile(xpathStr);
+				//urns = xpath.compile("//mods:url[@access='raw object' and contains(.,'urn-3')]/text()");
+				result = xpathExpr.evaluate(doc, XPathConstants.NODESET);
 			} catch (XPathExpressionException e) {
 				e.printStackTrace();
 				throw e;

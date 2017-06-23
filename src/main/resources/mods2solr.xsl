@@ -21,7 +21,7 @@
             <xsl:apply-templates select="mods:titleInfo"/>
             <xsl:apply-templates select="mods:name"/>
             <xsl:apply-templates select="mods:typeOfResource"/>
-            <xsl:element name="field">
+            <!--<xsl:element name="field">
                 <xsl:attribute name="name">
                     <xsl:text>inDRS</xsl:text>
                 </xsl:attribute>
@@ -33,7 +33,7 @@
                         <xsl:text>false</xsl:text>
                     </xsl:otherwise>
                 </xsl:choose>
-            </xsl:element>
+            </xsl:element>-->
             <!-- put the isOnline field here to keep grouped with isCollection and isManuscript -->
             <xsl:element name="field">
                 <xsl:attribute name="name">

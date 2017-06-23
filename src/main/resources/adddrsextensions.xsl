@@ -41,23 +41,30 @@
     </xsl:template>
     
     <xsl:template match="mods:mods">
-        <xsl:copy>
-            <xsl:apply-templates select="*" />
-            <xsl:variable name="results" select="$param1"/>
-             <!--<xsl:variable name="holdings" select="document('')//xsl:param[@name='param1']//holdings"/>-->
-            <!--<xsl:variable name="urn"><xsl:value-of select="substring-after(.//mods:url[@access='raw object'],'urn-3')"/></xsl:variable>-->
-            <xsl:variable name="urn">
-                <xsl:choose>
-                    <xsl:when test="contains(.//mods:url[@access='raw object'],'?')">
-                        <xsl:value-of select="substring-before(substring-after(.//mods:url[@access='raw object'],'urn-3'),'?')"/>                   
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="substring-after(.//mods:url[@access='raw object'],'urn-3')"/>                   
-                    </xsl:otherwise>
-                </xsl:choose>
-            </xsl:variable>
-            <xsl:apply-templates select="$results//extensions[substring-after(urn,'urn-3')=$urn and inDRS = true()] "/>
-        </xsl:copy>
+        <xsl:choose>
+            <xsl:when test="./mods:typeOfResource/@collection">
+                <xsl:copy-of select="."/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:copy>
+                    <xsl:apply-templates select="*" />
+                    <xsl:variable name="results" select="$param1"/>
+                    <!--<xsl:variable name="holdings" select="document('')//xsl:param[@name='param1']//holdings"/>-->
+                    <!--<xsl:variable name="urn"><xsl:value-of select="substring-after(.//mods:url[@access='raw object'],'urn-3')"/></xsl:variable>-->
+                    <xsl:variable name="urn">
+                        <xsl:choose>
+                            <xsl:when test="contains(.//mods:url[@access='raw object'],'?')">
+                                <xsl:value-of select="substring-before(substring-after(.//mods:url[@access='raw object'],'urn-3'),'?')"/>                   
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="substring-after(.//mods:url[@access='raw object'],'urn-3')"/>                   
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:variable>
+                    <xsl:apply-templates select="$results//extensions[substring-after(urn,'urn-3')=$urn and inDRS = true()] "/>
+                </xsl:copy>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template match="extensions">

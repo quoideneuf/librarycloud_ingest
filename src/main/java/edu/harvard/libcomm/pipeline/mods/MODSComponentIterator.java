@@ -4,11 +4,13 @@ import edu.harvard.libcomm.pipeline.Config;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.net.URI;
+import java.util.ArrayList;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.Transformer;
@@ -16,9 +18,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.TransformerException;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Document;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -33,76 +40,115 @@ public class MODSComponentIterator implements Iterator<String> {
 
 	protected MODSReader modsReader;
 	protected NodeList nodes;
+    protected NodeList modsNodes;
 	protected DOMSource domSource;
 	protected Transformer transformer;
 	protected int position = 0;
+    private ArrayList<String> modsXml;
 
     public MODSComponentIterator(MODSReader reader) throws Exception {
         this.modsReader = reader;
         nodes = reader.getNodes();
-        domSource = reader.getDOMSource();
         transformer = buildTransformer("src/main/resources/mods2modscomponent.xsl");
+        modsXml = nextMods();
     }
 
     @Override
     public boolean hasNext() {
-    	return ((nodes != null) && (position < nodes.getLength()));
+    	return ((modsXml != null) && (position < modsXml.size()));
     }
 
     @Override
     public String next() {
-    	//log.trace("Processing node " + position + " of " + nodes.getLength());
-        String modsComponentMods = "";
-    	while ((nodes != null) && (position < nodes.getLength())) {
-	        String nodeName = nodes.item(position).getNodeName();
-	        String nodeValue = nodes.item(position).getNodeValue();
-            String nodeValueChopped = nodeValue.substring(nodeValue.indexOf("urn-3"), nodeValue.length()).split("\\?")[0];
-
+        String componentizedMods = "";
+        for (String str : modsXml) {
+            componentizedMods += str;
             position++;
+            //System.out.println("position: " + position);
+        }
+        return componentizedMods;
+    }
 
-            JSONTokener tokener = null;
-            try {
-                URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + nodeValueChopped);
-                tokener = new JSONTokener(uri.toURL().openStream());
-                System.out.println(uri.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            JSONObject json = new JSONObject(tokener);
-            JSONArray jsonArr = json.getJSONArray("extensions");
-            boolean inDRS = jsonArr.getJSONObject(0).getBoolean("inDRS");
-
-            String fileDeliveryUrl = null;
-            if (inDRS) {
-                //fileDeliveryUrl = jsonArr.getJSONObject(0).getString("fileDeliveryURL");
-                //System.out.println("fileDeliveryUrl: " + fileDeliveryUrl);
-                try {
-                    //if (fileDeliveryUrl != null)
-                        modsComponentMods += transformMODS(nodeValue);
-                    //System.out.println("modsComponentMods: " + modsComponentMods);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new NoSuchElementException();
-                }
-                break;
-            }
-    	}
-
-        /*LibCommMessage lcmessage = new LibCommMessage();
-        Payload payload = new Payload();
-        payload.setFormat("MODS");
-        payload.setSource("ALEPH");
-        payload.setData(modsComponentMods);
-        lcmessage.setCommand("ENRICH");
-        lcmessage.setPayload(payload);
+    private String nodeToString(Node node) {
+        StringWriter sw = new StringWriter();
         try {
-            return MessageUtils.marshalMessage(lcmessage);
-        } catch (JAXBException e) {
-            e.printStackTrace();
-            return null;
-        }*/
+            Transformer t = TransformerFactory.newInstance().newTransformer();
+            t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            t.transform(new DOMSource(node), new StreamResult(sw));
+        } catch (TransformerException te) {
+            System.out.println("nodeToIS Transformer Exception");
+        }
+        return sw.toString();
+    }
 
-    	return modsComponentMods;
+    private ArrayList<String> nextMods () throws Exception {
+        ArrayList<String> modsComponents = new ArrayList<String>();
+//System.out.println("nodes.getLength(): " + nodes.getLength());
+        for (int i = 0; i < nodes.getLength(); i++) {
+            String xmlStr = nodeToString(nodes.item(i));
+            xmlStr = xmlStr.replace("xmlns=\"\"","");
+//System.out.println("xmlStr: " + xmlStr);
+            InputStream modsIS =  new ByteArrayInputStream(xmlStr.getBytes());
+            Document modsDoc = modsReader.getDocument(modsIS);
+            NodeList urns = modsReader.getNodeList(modsDoc,"//mods:url[@access='raw object' and contains(.,'urn-3')]/text()");
+            if (urns.getLength() == 0)
+                modsComponents.add(xmlStr);
+            else {
+                int pos = 0;
+                ArrayList<String> urnArr = new ArrayList<String>();
+                while ((urns != null) && (pos < urns.getLength())) {
+                    String nodeName = urns.item(pos).getNodeName();
+                    String nodeValue = urns.item(pos).getNodeValue();
+                    String nodeValueChopped = nodeValue.substring(nodeValue.indexOf("urn-3"), nodeValue.length()).split("\\?")[0];
+System.out.println("nodeValue: " + nodeValue);
+                    pos++;
+
+                    JSONTokener tokener = null;
+                    try {
+                        URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + nodeValueChopped);
+                        tokener = new JSONTokener(uri.toURL().openStream());
+                        System.out.println(uri.toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    JSONObject json = new JSONObject(tokener);
+                    JSONArray jsonArr = json.getJSONArray("extensions");
+                    boolean inDRS = jsonArr.getJSONObject(0).getBoolean("inDRS");
+
+                    if (inDRS) {
+                        urnArr.add(nodeValue);
+                    }
+                }
+                if (urnArr.size() == 0)
+                    modsComponents.add(xmlStr);
+                else {
+                    NodeList isCollection = modsReader.getNodeList(modsDoc,"//mods:typeOfResource[@collection='yes']");
+                    if (isCollection.getLength() == 0 && urnArr.size() == 1) {
+                        modsComponents.add(xmlStr);
+                    }
+                    else {
+                        if (isCollection.getLength() == 1 || urnArr.size() > 1) {
+                            domSource = new DOMSource(modsDoc);
+                            modsComponents.add(transformMODS(""));
+                        }
+                        for (String str : urnArr) {
+                            try {
+                                domSource = new DOMSource(modsDoc);
+                                modsComponents.add(transformMODS(str));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                throw new NoSuchElementException();
+                            }
+                            //break;
+                        }
+                    }
+
+                }
+            }
+
+        }
+    	return modsComponents;
+
 	}
 
     @Override
