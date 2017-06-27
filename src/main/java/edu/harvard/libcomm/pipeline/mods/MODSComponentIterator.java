@@ -88,36 +88,42 @@ public class MODSComponentIterator implements Iterator<String> {
             String xmlStr = nodeToString(nodes.item(i));
             xmlStr = xmlStr.replace("xmlns=\"\"","");
 //System.out.println("xmlStr: " + xmlStr);
-            InputStream modsIS =  new ByteArrayInputStream(xmlStr.getBytes());
+            InputStream modsIS =  new ByteArrayInputStream(xmlStr.getBytes("UTF-8"));
             Document modsDoc = modsReader.getDocument(modsIS);
-            NodeList urns = modsReader.getNodeList(modsDoc,"//mods:url[@access='raw object' and contains(.,'urn-3')]/text()");
+            NodeList urns = modsReader.getNodeList(modsDoc,"//mods:url[@access='raw object']/text()"); // doesnt work: and contains(.,'urn-3')
             if (urns.getLength() == 0)
                 modsComponents.add(xmlStr);
             else {
                 int pos = 0;
                 ArrayList<String> urnArr = new ArrayList<String>();
                 while ((urns != null) && (pos < urns.getLength())) {
+                    boolean inDRS = false;
                     String nodeName = urns.item(pos).getNodeName();
                     String nodeValue = urns.item(pos).getNodeValue();
-                    String nodeValueChopped = nodeValue.substring(nodeValue.indexOf("urn-3"), nodeValue.length()).split("\\?")[0];
-System.out.println("nodeValue: " + nodeValue);
+                    System.out.println("nodeValue: " + nodeValue);
+                    if (nodeValue.contains("urn-3")) {
+                        String nodeValueChopped = nodeValue.substring(nodeValue.indexOf("urn-3"), nodeValue.length()).split("\\?")[0];
+                        JSONTokener tokener = null;
+                        try {
+                            URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + nodeValueChopped);
+                            try {
+                                tokener = new JSONTokener(uri.toURL().openStream());
+                                JSONObject json = new JSONObject(tokener);
+                                JSONArray jsonArr = json.getJSONArray("extensions");
+                                inDRS = jsonArr.getJSONObject(0).getBoolean("inDRS");
+                            } catch (Exception e) {
+                                System.out.println(e.getMessage());
+                            }
+                            //System.out.println(uri.toString());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        if (inDRS) {
+                            urnArr.add(nodeValue);
+                        }
+                    }
                     pos++;
-
-                    JSONTokener tokener = null;
-                    try {
-                        URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + nodeValueChopped);
-                        tokener = new JSONTokener(uri.toURL().openStream());
-                        System.out.println(uri.toString());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    JSONObject json = new JSONObject(tokener);
-                    JSONArray jsonArr = json.getJSONArray("extensions");
-                    boolean inDRS = jsonArr.getJSONObject(0).getBoolean("inDRS");
-
-                    if (inDRS) {
-                        urnArr.add(nodeValue);
-                    }
                 }
                 if (urnArr.size() == 0)
                     modsComponents.add(xmlStr);
