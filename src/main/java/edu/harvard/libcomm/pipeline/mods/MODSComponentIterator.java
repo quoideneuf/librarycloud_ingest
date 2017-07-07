@@ -100,9 +100,11 @@ public class MODSComponentIterator implements Iterator<String> {
                     boolean inDRS = false;
                     String nodeName = urns.item(pos).getNodeName();
                     String nodeValue = urns.item(pos).getNodeValue();
-                    System.out.println("nodeValue: " + nodeValue);
+                    //System.out.println("nodeValue: " + nodeValue);
                     if (nodeValue.contains("urn-3")) {
                         String nodeValueChopped = nodeValue.substring(nodeValue.indexOf("urn-3"), nodeValue.length()).split("\\?")[0];
+                        //some urls have prepended text (shouldn't be cataloged this way, but account for it anyway ...
+                        //nodeValueChopped = nodeValue.substring(nodeValue.indexOf("http"), nodeValue.length()).split("\\?")[0];
                         JSONTokener tokener = null;
                         try {
                             URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + nodeValueChopped);
@@ -118,22 +120,25 @@ public class MODSComponentIterator implements Iterator<String> {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-
                         if (inDRS) {
                             urnArr.add(nodeValue);
                         }
                     }
                     pos++;
                 }
-                if (urnArr.size() == 0)
+                if (urnArr.size() == 0) {
+                    //System.out.println("0 URNS");
                     modsComponents.add(xmlStr);
+                }
                 else {
                     NodeList isCollection = modsReader.getNodeList(modsDoc,"//mods:typeOfResource[@collection='yes']");
                     if (isCollection.getLength() == 0 && urnArr.size() == 1) {
+                        //System.out.println("0 COLL, 1 URN");
                         modsComponents.add(xmlStr);
                     }
                     else {
                         if (isCollection.getLength() == 1 || urnArr.size() > 1) {
+                            //System.out.println("1 COLL, or > 1 URN");
                             domSource = new DOMSource(modsDoc);
                             modsComponents.add(transformMODS(""));
                         }
@@ -153,6 +158,7 @@ public class MODSComponentIterator implements Iterator<String> {
             }
 
         }
+        //System.out.println(modsComponents);
     	return modsComponents;
 
 	}

@@ -42,6 +42,9 @@
     
     <xsl:template match="mods:mods">
         <xsl:choose>
+            <xsl:when test="count(.//mods:url[@access='raw object']) > 1">
+                <xsl:copy-of select="."/>
+            </xsl:when>
             <xsl:when test="./mods:typeOfResource/@collection">
                 <xsl:copy-of select="."/>
             </xsl:when>
@@ -67,6 +70,28 @@
         </xsl:choose>
     </xsl:template>
 
+    <!-- append 856 subf 3 (mods:url/@displayLabel, if present, to split titles, so they can be distinguished -->
+   
+    <xsl:template match="mods:titleInfo">
+        <xsl:copy>
+            <xsl:apply-templates/>
+        </xsl:copy>
+    </xsl:template>
+    
+    <xsl:template match="mods:title[@type]">
+        <xsl:copy-of select="."/>
+    </xsl:template>
+    
+    
+    <xsl:template match="mods:title[not(@type)]">
+        <xsl:copy>
+            <xsl:value-of select="."/>
+            <xsl:if test="../../mods:location/mods:url[@access='raw object']/@displayLabel">
+                <xsl:text>, </xsl:text><xsl:value-of select="../../mods:location/mods:url[@access='raw object']/@displayLabel"/> 
+            </xsl:if>
+        </xsl:copy>
+    </xsl:template>
+    
     <xsl:template match="extensions">
         <xsl:element name="extension" namespace="http://www.loc.gov/mods/v3">
             <xsl:element name="HarvardDRS:DRSMetadata" xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">
@@ -74,6 +99,7 @@
                 <xsl:apply-templates select="accessFlag"/>
                 <xsl:apply-templates select="contentModel"/>
                 <xsl:apply-templates select="uriType"/>
+                <xsl:apply-templates select="fileDeliveryURL[not(.='')]"/>
                 <xsl:apply-templates select="ownerCode"/>
                 <xsl:apply-templates select="ownerCodeDisplayName[not(.='')]"/>
                 <xsl:apply-templates select="metsLabel[not(.='')]"/>
@@ -126,7 +152,11 @@
     <xsl:template match="uriType">
         <xsl:element name="uriType" namespace="http://hul.harvard.edu/ois/xml/ns/HarvardDRS"><xsl:value-of select="."/></xsl:element>
     </xsl:template>
-    
+
+    <xsl:template match="fileDeliveryURL">
+        <xsl:element name="fileDeliveryURL" namespace="http://hul.harvard.edu/ois/xml/ns/HarvardDRS"><xsl:value-of select="."/></xsl:element>
+    </xsl:template>
+
     <xsl:template match="contentModel">
         <xsl:element name="contentModel" namespace="http://hul.harvard.edu/ois/xml/ns/HarvardDRS"><xsl:value-of select="."/></xsl:element>
     </xsl:template>

@@ -21,20 +21,7 @@
             <xsl:apply-templates select="mods:titleInfo"/>
             <xsl:apply-templates select="mods:name"/>
             <xsl:apply-templates select="mods:typeOfResource"/>
-            <!--<xsl:element name="field">
-                <xsl:attribute name="name">
-                    <xsl:text>inDRS</xsl:text>
-                </xsl:attribute>
-                <xsl:choose>
-                    <xsl:when test=".//HarvardDRS:DRSMetadata">
-                        <xsl:text>true</xsl:text>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:text>false</xsl:text>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </xsl:element>-->
-            <!-- put the isOnline field here to keep grouped with isCollection and isManuscript -->
+             <!-- put the isOnline field here to keep grouped with isCollection and isManuscript -->
             <xsl:element name="field">
                 <xsl:attribute name="name">
                     <xsl:text>isOnline</xsl:text>
@@ -67,6 +54,12 @@
             <xsl:apply-templates select="mods:extension/collection:collections/collection:collection/collection:identifier"/>
             <xsl:choose>
                 <xsl:when test="mods:extension/HarvardDRS:DRSMetadata">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">
+                            <xsl:text>inDRS</xsl:text>
+                        </xsl:attribute>
+                        <xsl:text>true</xsl:text>
+                    </xsl:element>
                     <xsl:apply-templates select="mods:extension/HarvardDRS:DRSMetadata"/>
                 </xsl:when>
                 <xsl:otherwise>
