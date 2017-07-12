@@ -5,8 +5,8 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema" version="2.0">
     <xsl:output encoding="UTF-8" method="xml" indent="yes" omit-xml-declaration="yes"/>
     <xsl:strip-space elements="*"/>
-    <xsl:param name="componentid">div00579c00002</xsl:param>
-    <!--<xsl:param name="componentid"/>-->
+    <!--<xsl:param name="componentid">div00579c00002</xsl:param>-->
+    <xsl:param name="componentid"/>
 
     <xsl:variable name="cid_legacy_or_new">
         <xsl:choose>
@@ -114,7 +114,7 @@
                         <xsl:value-of select="/ead/eadheader/eadid"/>
                     </xsl:element>
                 </xsl:element>
-                <relatedItem otherType="HOLLLIS record">
+                <relatedItem otherType="HOLLIS record">
                     <location>
                         <url>
                             <xsl:text>http://id.lib.harvard.edu/aleph/</xsl:text>
