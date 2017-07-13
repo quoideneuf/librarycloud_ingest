@@ -40,7 +40,7 @@ public class ExternalServiceProcessor implements IProcessor {
 	}
 
 	protected String getUrns(LibCommMessage libCommMessage) throws Exception {
-		String urns = "0";
+		String urns = "";
 
 		try {
 			urns = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/urns.xsl",null);
@@ -54,18 +54,23 @@ public class ExternalServiceProcessor implements IProcessor {
 	protected void process(LibCommMessage libCommMessage, URI uri, String wrapperToken, String transformXSL) throws Exception {
 		
 		String data = null;
-
-		JSONTokener tokener;
-		try {
-			tokener = new JSONTokener(uri.toURL().openStream());
-			//System.out.println(uri.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
+		String xml = "";
+		if (uri == null) {
+			xml = "";
 		}
+		else {
+			JSONTokener tokener;
+			try {
+				tokener = new JSONTokener(uri.toURL().openStream());
+				//System.out.println(uri.toString());
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw e;
+			}
 
-		JSONObject json = new JSONObject(tokener);
-		String xml = XML.toString(json);
+			JSONObject json = new JSONObject(tokener);
+			xml = XML.toString(json);
+		}
 		xml = "<" + wrapperToken + ">" + xml + "</" + wrapperToken + ">";
 		//System.out.println("EXT XML: " + xml);
 		log.trace("External Service result:" + xml);

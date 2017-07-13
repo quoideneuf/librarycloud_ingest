@@ -22,7 +22,13 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 	
-		URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + getUrns(libCommMessage));
+		URI uri = null;
+		String urns = getUrns(libCommMessage);
+		System.out.println("URNS: " + urns);
+		if (urns.equals("") || urns == null)
+			uri = null;
+		else
+			uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + urns);
 		process(libCommMessage, uri, "results", "src/main/resources/adddrsextensions.xsl");
         
 	}
