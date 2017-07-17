@@ -246,9 +246,9 @@
             <doTry>
                 <split streaming="true" parallelProcessing="true">
                     <method bean="marcSplitter" method="split"/>
-                    <!--<marshal><custom ref="cloudbody"/></marshal>-->
-                    <!--<to uri="aws-sqs://{{librarycloud.sqs.environment}}-split-holdings?amazonSQSClient=#sqsClient" />-->
-                    <to uri="file://{{librarycloud.files.basepath}}/split-holdings?fileName=${header.CamelSplitIndex}" />
+                    <marshal><custom ref="cloudbody"/></marshal>
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-split-holdings?amazonSQSClient=#sqsClient" />
+                    <!--<to uri="file://{{librarycloud.files.basepath}}/split-holdings?fileName=${header.CamelSplitIndex}" />-->
                 </split>
             <doCatch>
                 <exception>java.lang.Exception</exception>
@@ -257,12 +257,20 @@
             </doTry>
         </route>
 
+        <route id="marcholdings-seda" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-split-holdings?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>
+            <to uri="seda:split-holdings?size=20&amp;blockWhenFull=true"/>
+        </route>
+
         <route id="marcholdingstosolr" errorHandlerRef="eh">
+            <from uri="seda:split-holdings?concurrentConsumers=4" />
             <!--<from uri="aws-sqs://{{librarycloud.sqs.environment}}-split-holdings?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />-->
-            <from uri="file://{{librarycloud.files.basepath}}/split-holdings"/>
+            <!--<from uri="file://{{librarycloud.files.basepath}}/split-holdings"/>-->
             <process ref="solrHoldingsProcessor"/>
-            <!--<to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?amazonSQSClient=#sqsClient"/>-->
-            <to uri="file://{{librarycloud.files.basepath}}/done"/>
+            <marshal><custom ref="cloudbody"/></marshal>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?amazonSQSClient=#sqsClient"/>
+            <!--<to uri="file://{{librarycloud.files.basepath}}/done"/>-->
         </route>
 
         <!-- ============================== -->

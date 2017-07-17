@@ -207,6 +207,10 @@ public class RelatedItemType {
      *     {@link String }
      *
      */
+    public void setDisplayLabel(String value) {
+        this.displayLabel = value;
+    }
+
 
     /**
      * Gets the value of the otherType property.
