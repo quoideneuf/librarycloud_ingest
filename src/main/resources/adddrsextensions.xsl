@@ -65,6 +65,25 @@
                         </xsl:choose>
                     </xsl:variable>
                     <xsl:apply-templates select="$results//extensions[substring-after(urn,'urn-3')=$urn and inDRS = true()] "/>
+                    <xsl:if test="mods:recordInfo/mods:recordIdentifier/@source='MH:ALEPH'">
+                        <xsl:element name="relatedItem" namespace="http://www.loc.gov/mods/v3">
+                            <xsl:attribute name="otherType">HOLLIS record</xsl:attribute>
+                            <xsl:element name="location" namespace="http://www.loc.gov/mods/v3">
+                                <xsl:element name="url" namespace="http://www.loc.gov/mods/v3">
+                                    <xsl:text>http://id.lib.harvard.edu/aleph/</xsl:text>
+                                    <xsl:choose>
+                                        <xsl:when test="contains(mods:recordInfo/mods:recordIdentifier,'_')">
+                                            <xsl:value-of select="substring-before(mods:recordInfo/mods:recordIdentifier,'_')"/>
+                                        </xsl:when>
+                                        <xsl:otherwise>
+                                            <xsl:value-of select="mods:recordInfo/mods:recordIdentifier"/>
+                                        </xsl:otherwise>
+                                    </xsl:choose>
+                                    <xsl:text>/catalog</xsl:text>
+                                </xsl:element>
+                            </xsl:element>
+                        </xsl:element>
+                    </xsl:if>
                 </xsl:copy>
             </xsl:otherwise>
         </xsl:choose>

@@ -12,7 +12,7 @@
     </xsl:template>
     
     <xsl:template match="mods:mods">
-        <xsl:if test="mods:typeOfResource[not(@collection='yes')]">
+        <xsl:if test="not(mods:typeOfResource[@collection='yes'])">
             <xsl:apply-templates select=".//mods:url[@access='raw object']"/>
         </xsl:if>
     </xsl:template>

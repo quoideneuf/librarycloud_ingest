@@ -21,6 +21,18 @@
 	<xsl:template match="mods:mods">
 		<xsl:copy>
 			<xsl:apply-templates/>
+			<!--<xsl:if test=".//mods:url[@access='raw object']=$url">
+			<xsl:element name="relatedItem" namespace="http://www.loc.gov/mods/v3">
+				<xsl:attribute name="otherType">HOLLIS record</xsl:attribute>
+				<xsl:element name="location" namespace="http://www.loc.gov/mods/v3">
+					<xsl:element name="url" namespace="http://www.loc.gov/mods/v3">
+						<xsl:text>http://id.lib.harvard.edu/aleph/</xsl:text>
+						<xsl:value-of select="mods:recordInfo/mods:recordIdentifier"/>
+						<xsl:text>/catalog</xsl:text>
+					</xsl:element>
+				</xsl:element>
+			</xsl:element>
+			</xsl:if>-->
 		</xsl:copy>
 	</xsl:template>
 	

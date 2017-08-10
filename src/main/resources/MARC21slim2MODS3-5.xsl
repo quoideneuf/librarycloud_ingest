@@ -129,7 +129,7 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 				<modsCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 					xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-5.xsd">
 					<xsl:for-each select="//marc:collection/marc:record">
-						<mods version="3.5">
+						<mods version="3.6">
 							<xsl:call-template name="marcRecord"/>
 						</mods>
 					</xsl:for-each>
@@ -2768,6 +2768,15 @@ Revision 1.02 - Added Log Comment  2003/03/24 19:37:42  ckeith
 				</languageOfCataloging>
 			</xsl:for-each>
 		</recordInfo>
+		<!--<relatedItem otherTye="HOLLIS record">
+			<location>
+				<url>
+					<xsl:text>http://id.lib.harvard.edu/aleph/</xsl:text>
+					<xsl:value-of select="substring-before(marc:controlfield[@tag=001],'-')"/>
+					<xsl:text>/catalog</xsl:text>
+				</url>
+			</location>
+		</relatedItem>-->
 	</xsl:template>
 
 	<xsl:template name="displayForm">
