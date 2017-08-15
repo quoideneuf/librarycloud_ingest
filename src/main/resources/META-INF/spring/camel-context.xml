@@ -557,7 +557,7 @@
         <route id="addcollectionstomods" errorHandlerRef="eh">
             <from uri="seda:enrich-06?concurrentConsumers=5"/>
             <process ref="collectionsProcessor"/>
-            <marshal><custom ref="cloudbody"/></marshal>            
+            <marshal><custom ref="cloudbody"/></marshal>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-end?amazonSQSClient=#sqsClient" />
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
         </route>
