@@ -82,7 +82,7 @@
 	</xsl:template>
 	
 	
-	<xsl:template match="mods:location[not(mods:url)]">
+	<xsl:template match="mods:location[not(mods:url) and not(mods:physicalLocation/@type='repository')]">
 		<xsl:choose>
 			<xsl:when test="$url=''">
 				<xsl:copy-of select="."/>
@@ -90,7 +90,23 @@
 			<xsl:otherwise/>
 		</xsl:choose>
 	</xsl:template>
-	
+
+	<xsl:template match="mods:location[mods:physicalLocation/@type='repository']">
+		<xsl:choose>
+			<xsl:when test="$url=''">
+				<xsl:copy-of select="."/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:copy>
+					<!-- using matchedurl mode even tho not url, TO DO - change name -->
+					<xsl:apply-templates select="mods:physicalLocation" mode="matchedurl"/>
+					<xsl:apply-templates select="mods:shelfLocator" mode="matchedurl"/>
+				</xsl:copy>
+			</xsl:otherwise>
+
+		</xsl:choose>
+	</xsl:template>
+
 	<xsl:template match="mods:location[mods:url]">
 		<xsl:choose>
 			<xsl:when test="./mods:url=$url">

@@ -46,19 +46,29 @@
  
     <xsl:template match="marc:datafield[@tag='852']">
         <xsl:if test="./marc:subfield[@code='b']">
-            <xsl:element name="physicalLocation" namespace="http://www.loc.gov/mods/v3">
+
                 <xsl:choose>
                     <xsl:when test="./marc:subfield[@code='b']='MMF'"/>
                     <xsl:when test="./marc:subfield[@code='b']='NET'"/>
                     <xsl:otherwise>
+                        <xsl:element name="physicalLocation" namespace="http://www.loc.gov/mods/v3">
                         <xsl:attribute name="type">
                             <xsl:text>repository</xsl:text>
                         </xsl:attribute>
+                        <xsl:choose>
+                            <xsl:when test="./marc:subfield[@code='b']='DIV'">Andover-Harvard Theological Library, Harvard Divinity School, Harvard University</xsl:when>
+                            <xsl:when test="./marc:subfield[@code='b']='BAK'">Baker Library Historical Collections, Harvard Business School, Harvard University</xsl:when>
+                            <xsl:when test="./marc:subfield[@code='b']='HUA'">Harvard University Archives</xsl:when>
+                            <xsl:when test="./marc:subfield[@code='b']='SCH'">Arthur and Elizabeth Schlesinger Library on the History of Women in America, Radcliffe Institute for Advanced Study, Harvard University</xsl:when>
+                            <xsl:when test="./marc:subfield[@code='b']='MED'">Center for the History of Medicine (Francis A. Countway Library of Medicine)</xsl:when>
+                            <xsl:when test="./marc:subfield[@code='b']='LAW'">Harvard Law School Library, Harvard Library, Harvard University</xsl:when>
+                            <xsl:when test="./marc:subfield[@code='b']='HOU'">Houghton Library, Harvard Library, Harvard University</xsl:when>
+                            <xsl:otherwise><xsl:value-of select="./marc:subfield[@code='b']"/></xsl:otherwise>
+                        </xsl:choose>
+                        </xsl:element>
                     </xsl:otherwise>
                 </xsl:choose>
                 <!--<xsl:copy-of select="./str[@name='originalMarc']"></xsl:copy-of>-->
-                <xsl:value-of select="./marc:subfield[@code='b']"/>
-            </xsl:element>
             <xsl:if test="./marc:subfield[@code='h' or @code='i' or @code='j' or @code='k' or @code='l' or @code='m' or @code='t']">
                 <xsl:element name="shelfLocator" namespace="http://www.loc.gov/mods/v3">
                     <xsl:variable name="str">
