@@ -131,6 +131,20 @@
         </property>
     </bean>
 
+    <bean id="drsExtensionsUpdateProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.enrich.DRSExtensionsUpdateProcessor"/>
+        </property>
+    </bean>
+
+    <bean id="solrDrsExtensionsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.solr.SolrDrsExtensionsProcessor">
+                <property name="commitWithinTime" value="30000"/>
+            </bean>
+        </property>
+    </bean>
+
     <bean id="addMarcLocationProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.enrich.AddMarcLocationProcessor">
@@ -192,7 +206,7 @@
 
     <bean id="prepareURI" class="edu.harvard.libcomm.pipeline.PrepareURIForHTTPEndpoint" />
 
-    <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
+    <camelContext id="sqsContext" xmlns="http://camel.apache.org/schema/spring" xmlns:marcxml="http://www.loc.gov/MARC21/slim" trace="true">
         <!-- Environment-specific properties -->
         <propertyPlaceholder id="librarycloud-properties" location="classpath:/librarycloud.env.properties" />
         <!-- Error handling behavior -->
@@ -326,10 +340,10 @@
             <from uri="seda:upload-marc?concurrentConsumers=4" />
             <process ref="extractPayloadProcessor" />
             <split>
-                <tokenize token="record" xml="true" />
+                <tokenize token="marcxml:record" inheritNamespaceTagName="marcxml:collection" xml="true" />
                 <setHeader headerName="recordFileName">
                     <xpath resultType="java.lang.String">
-                        /record/controlfield[@tag='001']
+                        /marcxml:record/marcxml:controlfield[@tag='001']
                     </xpath>
                 </setHeader>                
                 <!--<process ref="filterUnchangedMarcProcessor"/>-->
@@ -641,6 +655,45 @@
             <process ref="solrLoadProcessorImmediate"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?amazonSQSClient=#sqsClient"/>
         </route>
+
+        <!-- DRS Extension Update handling - handles text file of urns, csv separated, line by line -->
+        <route id="extension-update-ingest-split">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-extensions?amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
+            <!-- Try block required for errors thrown out of the splitter -->
+            <doTry>
+                <split streaming="true">
+                    <method bean="updateSplitter" method="split"/>
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-update-extensions?amazonSQSClient=#sqsClient" />
+                </split>
+                <doCatch>
+                    <exception>java.lang.Exception</exception>
+                    <to uri="direct:dead-letter" />
+                </doCatch>
+            </doTry>
+        </route>
+        <route id="updateextensions" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-update-extensions?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <process ref="drsExtensionsUpdateProcessor"/>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-drsextensionstosolr?amazonSQSClient=#sqsClient"/>
+        </route>
+
+        <route id="drsextensionstosolr-seda" errorHandlerRef="eh">
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-drsextensionstosolr?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>
+            <to uri="seda:drsextensionstosolr?size=20&amp;blockWhenFull=true"/>
+        </route>
+
+        <route id="drsextensionstotosolr" errorHandlerRef="eh">
+            <from uri="seda:drsextensionstosolr?concurrentConsumers=4" />
+            <!--<from uri="aws-sqs://{{librarycloud.sqs.environment}}-split-holdings?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />-->
+            <!--<from uri="file://{{librarycloud.files.basepath}}/split-holdings"/>-->
+            <process ref="solrDrsExtensionsProcessor"/>
+            <marshal><custom ref="cloudbody"/></marshal>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-done?amazonSQSClient=#sqsClient"/>
+            <!--<to uri="file://{{librarycloud.files.basepath}}/done"/>-->
+        </route>
+
+
 
         <!-- Delete handling -->
          <route id="aleph-delete-ingest-split">
