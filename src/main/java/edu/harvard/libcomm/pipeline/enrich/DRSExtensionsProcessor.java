@@ -24,11 +24,13 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 	
 		URI uri = null;
 		String urns = getUrns(libCommMessage);
-		System.out.println("URNS: " + urns);
-		if (urns.equals("") || urns == null)
+		//urns = urns.startsWith("OR") ? urns.substring(2) : urns;
+		urns = urns.endsWith(" OR ") ? urns.substring(0, urns.length() - 4) : urns;
+		if (urns.equals("") || urns == null || urns.contains("ebook"))
 			uri = null;
 		else
-			uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + urns);
+			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns);
+		//System.out.println(uri.toString());
 		process(libCommMessage, uri, "results", "src/main/resources/adddrsextensions.xsl");
         
 	}

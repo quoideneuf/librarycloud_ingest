@@ -23,7 +23,7 @@ public class HoldingsProcessor extends ExternalXMLServiceProcessor implements IP
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 	
 		//URI uri = new URI(Config.getInstance().HOLDINGS_URL + "?filter=MarcLKRB:(" + getRecordIds(libCommMessage) + ")&fields=MarcLKRB,Marc852B,Marc856U,DisplayCallNumber&limit=250");
-		URI uri = new URI(Config.getInstance().SOLR_HOLDINGS_URL + "/select?q=004:(" + getRecordIds(libCommMessage) + ")&rows=250");
+		URI uri = new URI(Config.getInstance().SOLR_HOLDINGS_URL + "/select?q=004:(" + getRecordIds(libCommMessage) + ")&rows=250&wt=xml");
 
 		process(libCommMessage, uri, "holdings", "src/main/resources/addholdings.xsl");
 

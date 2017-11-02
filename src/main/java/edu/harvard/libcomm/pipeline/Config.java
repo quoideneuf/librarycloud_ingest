@@ -41,9 +41,11 @@ public class Config {
 	public String SOLR_URL;
 	public String HOLDINGS_URL;
 	public String SOLR_HOLDINGS_URL;
+	public String SOLR_EXTENSIONS_URL;
 	public String ITEM_URL;
 	public String COLLECTIONS_URL;
 	public String DRSEXTENSIONS_URL;
+	public String DRS2_RAW_URL;
 	
 	private static Config conf;
 	
@@ -62,11 +64,12 @@ public class Config {
 		
 		SOLR_URL = props.getProperty("solr_url");
 		SOLR_HOLDINGS_URL = props.getProperty("solr_holdings_url");
+		SOLR_EXTENSIONS_URL = props.getProperty("solr_extensions_url");
 		HOLDINGS_URL = props.getProperty("holdings_url");
 		ITEM_URL = props.getProperty("item_url");
 		COLLECTIONS_URL = props.getProperty("collections_url");
 		DRSEXTENSIONS_URL = props.getProperty("drsextensions_url");
-	
+		DRS2_RAW_URL = props.getProperty("drs2_raw_url");
 	}
 	
 	public static synchronized Config getInstance() {

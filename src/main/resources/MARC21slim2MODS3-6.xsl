@@ -1268,7 +1268,7 @@
 						</xsl:for-each>
 						<extent>
 							<xsl:for-each select="marc:subfield">
-								<xsl:if test="@code='a' or @code='3' or @code='b' or @code='c'">
+								<xsl:if test="@code='a' or @code='3' or @code='b' or @code='c' or @code='f'">
 									<xsl:value-of select="."/>
 									<xsl:text> </xsl:text>
 								</xsl:if>
@@ -1806,15 +1806,15 @@
 
 			<xsl:for-each select="marc:datafield[@tag=300]">
 				<extent>
-					<xsl:if test="marc:subfield[@code='f']">
+					<!--<xsl:if test="marc:subfield[@code='f']">
 						<xsl:attribute name="unit">
 							<xsl:call-template name="subfieldSelect">
 								<xsl:with-param name="codes">f</xsl:with-param>
 							</xsl:call-template>
 						</xsl:attribute>
-					</xsl:if>
+					</xsl:if>-->
 					<xsl:call-template name="subfieldSelect">
-						<xsl:with-param name="codes">abce3g</xsl:with-param>
+						<xsl:with-param name="codes">abce3fg</xsl:with-param>
 					</xsl:call-template>
 				</extent>
 			</xsl:for-each>
