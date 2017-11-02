@@ -59,13 +59,6 @@
         </property>
     </bean>
 
-    <bean id="updateSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
-        <property name="splitter">
-            <bean class="edu.harvard.libcomm.pipeline.update.UpdateFileSplitter"/>
-        </property>
-    </bean>
-
-
     <bean id="eadSplitter" class="edu.harvard.libcomm.pipeline.Splitter">
         <property name="splitter">
             <bean class="edu.harvard.libcomm.pipeline.ead.EADSplitter"/>
