@@ -670,7 +670,7 @@
                 <split streaming="true" parallelProcessing="true">
                     <method bean="updateSplitter" method="split"/>
                     <marshal><custom ref="cloudbody"/></marshal>
-                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-update-extensions?amazonSQSClient=#sqsClient" />-->
+                    <to uri="aws-sqs://{{librarycloud.sqs.environment}}-update-extensions?amazonSQSClient=#sqsClient" />
                     <!--<to uri="seda:update-extensions?size=20&amp;blockWhenFull=true" />-->
                 </split>
                 <doCatch>
