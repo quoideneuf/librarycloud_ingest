@@ -482,7 +482,7 @@
         <route id="addstackscoretomods-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}/enrich-02" /> -->
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-02?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
-            <unmarshal><custom ref="cloudbody"/></unmarshal>            
+            <unmarshal><custom ref="cloudbody"/></unmarshal>
             <to uri="seda:enrich-02?size=20&amp;blockWhenFull=true" />
         </route>
         <route id="addstackscoretomods" errorHandlerRef="eh">
@@ -667,9 +667,11 @@
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-ingest-extensions?amazonSQSClient=#sqsClient&amp;visibilityTimeout=1800" />
             <!-- Try block required for errors thrown out of the splitter -->
             <doTry>
-                <split streaming="true">
+                <split streaming="true" parallelProcessing="true">
                     <method bean="updateSplitter" method="split"/>
+                    <marshal><custom ref="cloudbody"/></marshal>
                     <to uri="aws-sqs://{{librarycloud.sqs.environment}}-update-extensions?amazonSQSClient=#sqsClient" />
+                    <!--<to uri="seda:update-extensions?size=20&amp;blockWhenFull=true" />-->
                 </split>
                 <doCatch>
                     <exception>java.lang.Exception</exception>
@@ -677,9 +679,18 @@
                 </doCatch>
             </doTry>
         </route>
-        <route id="updateextensions" errorHandlerRef="eh">
+
+        <route id="updateextensions-seda" errorHandlerRef="eh">
             <from uri="aws-sqs://{{librarycloud.sqs.environment}}-update-extensions?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>
+            <to uri="seda:update-extensions?size=20&amp;blockWhenFull=true"/>
+        </route>
+
+        <route id="updateextensions" errorHandlerRef="eh">
+            <!--<from uri="aws-sqs://{{librarycloud.sqs.environment}}-update-extensions?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />-->
+            <from uri="seda:update-extensions"/>
             <process ref="drsExtensionsUpdateProcessor"/>
+            <marshal><custom ref="cloudbody"/></marshal>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-drsextensionstosolr?amazonSQSClient=#sqsClient"/>
         </route>
 
