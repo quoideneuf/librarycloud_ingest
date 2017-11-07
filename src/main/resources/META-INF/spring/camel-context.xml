@@ -143,6 +143,12 @@
         </property>
     </bean>
 
+    <bean id="drsExtensionsNewUpdateProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.enrich.DRSExtensionsNewUpdateProcessor"/>
+        </property>
+    </bean>
+
     <bean id="solrDrsExtensionsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.solr.SolrDrsExtensionsProcessor">
@@ -688,8 +694,8 @@
 
         <route id="updateextensions" errorHandlerRef="eh">
             <!--<from uri="aws-sqs://{{librarycloud.sqs.environment}}-update-extensions?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />-->
-            <from uri="seda:update-extensions?concurrentConsumers=4"/>
-            <process ref="drsExtensionsUpdateProcessor"/>
+            <from uri="seda:update-extensions?concurrentConsumers=500"/>
+            <process ref="drsExtensionsNewUpdateProcessor"/>
             <to uri="aws-sqs://{{librarycloud.sqs.environment}}-drsextensionstosolr?amazonSQSClient=#sqsClient"/>
         </route>
 

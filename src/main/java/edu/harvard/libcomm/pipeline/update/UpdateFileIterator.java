@@ -16,6 +16,7 @@ public class UpdateFileIterator {
 	protected Logger log = Logger.getLogger(UpdateFileIterator.class);
 	
     public Iterator<String> getUpdateUrns(InputStream is) throws Exception {
+		System.out.println("SPLITTER");
     	BufferedReader br = new BufferedReader(new InputStreamReader(is));
     	List<String> urnList = new ArrayList<String>();
     	String urns = null;

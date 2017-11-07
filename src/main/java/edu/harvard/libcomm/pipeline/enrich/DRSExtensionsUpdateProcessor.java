@@ -30,7 +30,7 @@ public class DRSExtensionsUpdateProcessor implements IProcessor {
 		String urns = libCommMessage.getPayload().getData();
 			uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + urns);
 		process(libCommMessage, uri, "results");
-        
+
 	}
 
 	protected void process(LibCommMessage libCommMessage, URI uri, String wrapperToken) throws Exception {
