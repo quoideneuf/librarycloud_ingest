@@ -16,7 +16,7 @@ public class UpdateFileIterator {
 	protected Logger log = Logger.getLogger(UpdateFileIterator.class);
 	
     public Iterator<String> getUpdateUrns(InputStream is) throws Exception {
-    	BufferedReader br = new BufferedReader(new InputStreamReader(is));
+    	BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
     	List<String> urnList = new ArrayList<String>();
     	String urns = null;
     	while((urns = br.readLine()) != null){
