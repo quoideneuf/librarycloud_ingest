@@ -26,6 +26,7 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 		String urns = getUrns(libCommMessage);
 		//urns = urns.startsWith("OR") ? urns.substring(2) : urns;
 		urns = urns.endsWith(" OR ") ? urns.substring(0, urns.length() - 4) : urns;
+		urns = "(" + urns.replace(" ","+") + ")";
 		if (urns.equals("") || urns == null || urns.contains("ebook"))
 			uri = null;
 		else
