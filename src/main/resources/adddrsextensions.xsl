@@ -143,7 +143,7 @@
             <xsl:choose>
                 <xsl:when test="not(mods:url[@access = 'preview'])">
                     <xsl:apply-templates
-                        select="$results//extensions[substring-after(urn, 'urn-3') = $urn]/thumbnailURL[not(. = '') and not(. = 'null')]"
+                        select="$results//docs[substring-after(urn, 'urn-3') = $urn]/thumbnailURL[not(. = '') and not(. = 'null')]"
                     />
                 </xsl:when>
                 <xsl:otherwise/>
