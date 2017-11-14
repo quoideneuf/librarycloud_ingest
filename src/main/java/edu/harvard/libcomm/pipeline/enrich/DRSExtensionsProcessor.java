@@ -27,11 +27,13 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 		//urns = urns.startsWith("OR") ? urns.substring(2) : urns;
 		urns = urns.endsWith(" OR ") ? urns.substring(0, urns.length() - 4) : urns;
 		urns = "(" + urns.replace(" ","+") + ")";
+		//Why are we getting this condition? TO DO - catch upstream
+		urns = urns.replace("OR  OR ", "OR ");
 		if (urns.equals("") || urns == null || urns.contains("ebook"))
 			uri = null;
 		else
 			//System.out.println("EXT URL: " + Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns);
-			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns);
+			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns + "rows=250");
 		//System.out.println(uri.toString());
 		process(libCommMessage, uri, "results", "src/main/resources/adddrsextensions.xsl");
         
