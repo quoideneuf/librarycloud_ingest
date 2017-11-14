@@ -33,7 +33,7 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 			uri = null;
 		else
 			//System.out.println("EXT URL: " + Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns);
-			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns + "rows=250");
+			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns + "&rows=250");
 		//System.out.println(uri.toString());
 		process(libCommMessage, uri, "results", "src/main/resources/adddrsextensions.xsl");
         
