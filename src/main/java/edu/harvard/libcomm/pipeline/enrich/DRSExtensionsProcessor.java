@@ -25,13 +25,18 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 		URI uri = null;
 		String urns = getUrns(libCommMessage);
 		//urns = urns.startsWith("OR") ? urns.substring(2) : urns;
+		//can't throw out all urns bc one has ebook, only looking for recs with no urns at all
+		//if (urns.equals("")  || urns == null || urns.contains("ebook"))
+		if (urns.equals("")  || urns == null)
+			uri = null;
+		else {
 		urns = urns.endsWith(" OR ") ? urns.substring(0, urns.length() - 4) : urns;
 		urns = "(" + urns.replace(" ","+") + ")";
-		if (urns.equals("") || urns == null || urns.contains("ebook"))
-			uri = null;
-		else
-			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns);
-		//System.out.println(uri.toString());
+			//Why are we getting this condition? TO DO - catch upstream
+			urns = urns.replace("OR  OR ", "OR ");
+			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns + "&rows=250");
+		}
+		//System.out.println("URI: " + uri.toString());
 		process(libCommMessage, uri, "results", "src/main/resources/adddrsextensions.xsl");
         
 	}

@@ -18,8 +18,8 @@ import java.io.*;
  * and Solr documentation examples
  */
 public class QueryUrnsFromSolr {
-    private static final int MAX_ROWS=200;
-    private static final String URL= Config.getInstance().DRSEXTENSIONS_URL;
+    private static final int MAX_ROWS=1000;
+    private static final String URL= Config.getInstance().DRS2_RAW_URL;
     private static final String UNIQUE_ID_FIELD="uid";
     //private static final String SOLR_QUERY="NOT targetField:[* TO *]";
     private static String type = null;
@@ -28,7 +28,7 @@ public class QueryUrnsFromSolr {
 
     public static void main (String[] args) {
 
-        if (args.length != 1) {
+        if (args.length != 2) {
             System.out.println("java QueryUrnsFromSolr <object|file> <filepath>");
         }
         type = args[0];

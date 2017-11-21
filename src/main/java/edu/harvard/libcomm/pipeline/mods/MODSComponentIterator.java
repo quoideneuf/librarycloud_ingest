@@ -107,12 +107,18 @@ public class MODSComponentIterator implements Iterator<String> {
                         //nodeValueChopped = nodeValue.substring(nodeValue.indexOf("http"), nodeValue.length()).split("\\?")[0];
                         JSONTokener tokener = null;
                         try {
-                            URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + nodeValueChopped);
+                            //URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + nodeValueChopped);
+                            URI uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:%22" + nodeValueChopped + "%22");
                             try {
                                 tokener = new JSONTokener(uri.toURL().openStream());
                                 JSONObject json = new JSONObject(tokener);
-                                JSONArray jsonArr = json.getJSONArray("extensions");
-                                inDRS = jsonArr.getJSONObject(0).getBoolean("inDRS");
+                                int numFound = json.getJSONObject("response").getInt("numFound");
+                                inDRS = numFound == 0 ? false:true;
+                                //System.out.println("########numFound\n" + numFound + "\nnumFound##########" );
+                                //since using internal extension solr, check numFound (above)
+                                //JSONArray jsonArr = json.getJSONArray("docs");
+                                //inDRS = jsonArr.getJSONObject(0).getBoolean("inDRS");
+                                //System.out.println("########INDRS\n" + inDRS + "\nINDRS##########" );
                             } catch (Exception e) {
                                 System.out.println(e.getMessage());
                             }

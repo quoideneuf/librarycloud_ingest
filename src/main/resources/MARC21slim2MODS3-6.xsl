@@ -2921,7 +2921,14 @@
 					<xsl:attribute name="source">
 						<xsl:text>MH:ALEPH</xsl:text>
 					</xsl:attribute>					 
+					<xsl:choose>
+						<xsl:when test="contains(.,'-')">
 					<xsl:value-of select="substring-before(.,'-')"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="."/>
+						</xsl:otherwise>
+					</xsl:choose>
 				</recordIdentifier>
 			</xsl:for-each>
 

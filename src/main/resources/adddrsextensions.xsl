@@ -83,6 +83,7 @@
 
     <xsl:template match="mods:titleInfo">
         <xsl:copy>
+        <xsl:copy-of select="@*"/>
             <xsl:apply-templates/>
         </xsl:copy>
     </xsl:template>
@@ -95,7 +96,7 @@
     <xsl:template match="mods:title[not(@type)]">
         <xsl:copy>
             <xsl:value-of select="."/>
-            <xsl:if test="../../mods:location/mods:url[@access = 'raw object']/@displayLabel">
+            <xsl:if test="../../mods:location/mods:url[@access = 'raw object']/@displayLabel[not(.='Full Image')]">
                 <xsl:text>, </xsl:text>
                 <xsl:value-of
                     select="../../mods:location/mods:url[@access = 'raw object']/@displayLabel"/>
