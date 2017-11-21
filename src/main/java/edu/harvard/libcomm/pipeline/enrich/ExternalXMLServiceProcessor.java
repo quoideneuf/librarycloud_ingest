@@ -66,19 +66,19 @@ public class ExternalXMLServiceProcessor implements IProcessor {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		xml = xml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>","");
-		xml = xml.replace("&lt;record","<record");
-		xml = xml.replace("record&gt;","record>");
-		xml = xml.replace("&lt;leader","<leader");
-		xml = xml.replace("leader&gt;","leader>");
-		xml = xml.replace("&lt;controlfield","<controlfield");
-		xml = xml.replace("controlfield&gt;","controlfield>");
-		xml = xml.replace("&lt;datafield","<datafield");
-		xml = xml.replace("datafield&gt;","datafield>");
-		xml = xml.replace("&lt;subfield","<subfield");
-		xml = xml.replace("subfield&gt;","subfield>");
-		xml = xml.replace("&lt;/","</");
-		xml = xml.replace("\"&gt;","\">");
+			xml = xml.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "");
+			xml = xml.replace("&lt;record", "<record");
+			xml = xml.replace("record&gt;", "record>");
+			xml = xml.replace("&lt;leader", "<leader");
+			xml = xml.replace("leader&gt;", "leader>");
+			xml = xml.replace("&lt;controlfield", "<controlfield");
+			xml = xml.replace("controlfield&gt;", "controlfield>");
+			xml = xml.replace("&lt;datafield", "<datafield");
+			xml = xml.replace("datafield&gt;", "datafield>");
+			xml = xml.replace("&lt;subfield", "<subfield");
+			xml = xml.replace("subfield&gt;", "subfield>");
+			xml = xml.replace("&lt;/", "</");
+			xml = xml.replace("\"&gt;", "\">");
 
 		xml = "<" + wrapperToken + ">" + xml + "</" + wrapperToken + ">";
 		//System.out.println("EXT XML: " + xml);

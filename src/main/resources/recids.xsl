@@ -7,7 +7,7 @@
     
     <xsl:template match="mods:modsCollection">
         <xsl:element name="add">
-            <xsl:apply-templates select="mods:mods/mods:recordInfo/mods:recordIdentifier"/>
+            <xsl:apply-templates select="mods:mods/mods:recordInfo/mods:recordIdentifier[not(.='')]"/>
         </xsl:element>
     </xsl:template>
     

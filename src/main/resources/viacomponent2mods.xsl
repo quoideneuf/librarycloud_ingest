@@ -11,8 +11,10 @@
  -->
 
 <xsl:output method="xml" omit-xml-declaration="yes" version="1.0" encoding="UTF-8" indent="yes"/>
-	<!--<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:1154698</xsl:param>-->
-	<xsl:param name="urn"></xsl:param>
+
+<!--<xsl:param name="urn">http://nrs.harvard.edu/urn-3:FHCL:1154698</xsl:param>-->
+<xsl:param name="urn"></xsl:param>
+
 <xsl:template match="/viaRecord">
 	<mods xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd">
 	<xsl:if test="@numberOfSubworks='0'">
@@ -21,6 +23,30 @@
 	<xsl:if test="(@numberOfSubworks > 0 or @numberOfSurrogates > 0)">
 		<xsl:apply-templates select="group"/>
 	</xsl:if>
+	<xsl:variable name="urnsuffix">
+		<xsl:choose>
+			<xsl:when test="work/surrogate/image[contains(@href,$urn)]">
+				<xsl:value-of select="work/surrogate/image[contains(@href,$urn)]/../@componentID"/>
+			</xsl:when>
+			<xsl:when test="work/surrogate/image[contains(@xlink:href,$urn)]">
+				<xsl:value-of select="work/surrogate/image[contains(@xlink:href,$urn)]/../@componentID"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="substring-after($urn,'edu/')"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<relatedItem otherType="HOLLIS Images record">
+		<location>
+			<url>
+				<xsl:text>http://id.lib.harvard.edu/images/</xsl:text>
+				<xsl:value-of select="recordId"/>
+				<xsl:text>/</xsl:text>
+				<xsl:value-of select="$urnsuffix"/>
+				<xsl:text>/catalog</xsl:text>
+			</url>
+		</location>
+	</relatedItem>
 	<recordInfo>
 		<recordContentSource authority="marcorg">MH</recordContentSource>
 		<recordContentSource authority="marcorg">MH-VIA</recordContentSource>
@@ -45,19 +71,7 @@
 					<xsl:value-of select="recordId"/>
 				</xsl:otherwise>
 			</xsl:choose>
-
-			<xsl:text>_</xsl:text>
-			<xsl:choose>
-				<xsl:when test="work/surrogate/image[contains(@href,$urn)]">
-					<xsl:value-of select="work/surrogate/image[contains(@href,$urn)]/../@componentID"/>
-				</xsl:when>
-				<xsl:when test="work/surrogate/image[contains(@xlink:href,$urn)]">
-					<xsl:value-of select="work/surrogate/image[contains(@xlink:href,$urn)]/../@componentID"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="substring-after($urn,'edu/')"/>
-				</xsl:otherwise>
-			</xsl:choose>
+			<xsl:text>_</xsl:text><xsl:value-of select="$urnsuffix"/>
 		</recordIdentifier>
 		<languageOfCataloging>
 			<languageTerm>eng</languageTerm>
@@ -159,7 +173,7 @@
 </xsl:template>
 
 <xsl:template match="title">
-	<titleInfo>
+	<xsl:element name="titleInfo">
 		<xsl:choose>
 			<xsl:when test="(./type='Abbreviated Title')">
 				<xsl:attribute name="type">
@@ -177,17 +191,17 @@
 				</xsl:attribute>
 			</xsl:when-->
 			<xsl:otherwise>
-			    <xsl:if test="type">
+			    <xsl:if test="./type">
 				<xsl:attribute name="type">
 					<xsl:value-of select="'alternative'"/>
 				</xsl:attribute>
 			    </xsl:if>
 			</xsl:otherwise>	
 		</xsl:choose>
-		<title>
+		<xsl:element name="title">
 			<xsl:value-of select="normalize-space(textElement)"/>
-		</title>
-	</titleInfo>
+		</xsl:element>
+	</xsl:element>
 </xsl:template>	
 
 <xsl:template match="creator">
@@ -447,7 +461,7 @@
 		</titleInfo>
 		<location>
 			<url>
-				<xsl:value-of select="@href"/>
+				<xsl:value-of select="attribute::node()[local-name()='href']"/>
 			</url>
 		</location>
 	</relatedItem>
@@ -483,7 +497,14 @@
 						<xsl:value-of select="./@href"/>
 					</url>
 					<url displayLabel="Thumbnail" access="preview">
-						<xsl:value-of select="thumbnail/@href"/>
+						<xsl:choose>
+							<xsl:when test="contains(thumbnail/@href,'width=')">
+								<xsl:value-of select="thumbnail/@href"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of select="thumbnail/@href"/><xsl:text>?width=150&amp;height=150&amp;usethumb=y</xsl:text>
+							</xsl:otherwise>
+						</xsl:choose>
 					</url>
 				</location>
 			</relatedItem>			
@@ -502,7 +523,14 @@
 					<xsl:value-of select="./@href"/>
 				</url>
 				<url displayLabel="Thumbnail" access="preview">
-					<xsl:value-of select="thumbnail/@href"/>
+					<xsl:choose>
+						<xsl:when test="contains(thumbnail/@href,'width=')">
+							<xsl:value-of select="thumbnail/@href"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="thumbnail/@href"/><xsl:text>?width=150&amp;height=150&amp;usethumb=y</xsl:text>
+						</xsl:otherwise>
+					</xsl:choose>
 				</url>
 			</location>
 		</xsl:otherwise>
@@ -528,7 +556,14 @@
 							<xsl:value-of select="./@xlink:href"/>
 						</url>
 						<url displayLabel="Thumbnail" access="preview">
-							<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
+							<xsl:choose>
+								<xsl:when test="contains(thumbnail/attribute::node()[local-name()='href'],'width=')">
+									<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/><xsl:text>?width=150&amp;height=150&amp;usethumb=y</xsl:text>
+								</xsl:otherwise>
+							</xsl:choose>
 						</url>
 					</location>
 				</relatedItem>			
@@ -547,7 +582,14 @@
 						<xsl:value-of select="./@xlink:href"/>
 					</url>
 					<url displayLabel="Thumbnail" access="preview">
-						<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
+						<xsl:choose>
+							<xsl:when test="contains(thumbnail/attribute::node()[local-name()='href'],'width=')">
+								<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of select="thumbnail/attribute::node()[local-name()='href']"/><xsl:text>?width=150&amp;height=150&amp;usethumb=y</xsl:text>
+							</xsl:otherwise>
+						</xsl:choose>
 					</url>
 				</location>
 			</xsl:otherwise>
