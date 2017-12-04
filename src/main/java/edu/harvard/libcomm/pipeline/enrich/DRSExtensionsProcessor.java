@@ -32,11 +32,11 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 		if (!urns.contains("urn-3"))
 			uri = null;
 		else {
-		urns = urns.endsWith(" OR ") ? urns.substring(0, urns.length() - 4) : urns;
-		urns = "(" + urns.replace(" ","+") + ")";
+			urns = urns.endsWith(" OR ") ? urns.substring(0, urns.length() - 4) : urns;
+			urns = "(" + urns.replace(" ","+") + ")";
 			//Why are we getting this condition? TO DO - catch upstream
 			urns = urns.replace("OR  OR ", "OR ");
-			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:" + urns + "&rows=250");
+			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn_keyword:" + urns + "&rows=250");
 		}
 		//System.out.println("URI: " + uri.toString());
 		process(libCommMessage, uri, "results", "src/main/resources/adddrsextensions.xsl");

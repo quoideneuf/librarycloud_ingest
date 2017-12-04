@@ -50,7 +50,7 @@
                         </xsl:choose>
                     </xsl:variable>
                     <xsl:apply-templates
-                        select="$results//docs[substring-after(urn, 'urn-3') = $urn]"/>
+                        select="$results//docs[lower-case(substring-after(urn, 'urn-3')) = lower-case($urn)]"/>
                     <xsl:if test="mods:recordInfo/mods:recordIdentifier/@source = 'MH:ALEPH'">
                         <xsl:element name="relatedItem" namespace="http://www.loc.gov/mods/v3">
                             <xsl:attribute name="otherType">HOLLIS record</xsl:attribute>
@@ -109,6 +109,9 @@
             <xsl:element name="HarvardDRS:DRSMetadata"
                 xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">
                 <!--<xsl:apply-templates select="inDRS"/>-->
+                <xsl:element name="inDRS" namespace="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">
+                    <xsl:text>true</xsl:text>
+                </xsl:element>
                 <xsl:apply-templates select="accessFlag"/>
                 <xsl:apply-templates select="contentModel"/>
                 <xsl:apply-templates select="uriType"/>

@@ -438,6 +438,19 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:element>
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>urn_lc</xsl:text>
+            </xsl:attribute>
+            <xsl:choose>
+                <xsl:when test="contains(.,'?')">
+                    <xsl:value-of select="substring-before(substring-after(.,'http://nrs.harvard.edu/'),'?')"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="substring-after(.,'http://nrs.harvard.edu/')"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="mods:recordInfo">
