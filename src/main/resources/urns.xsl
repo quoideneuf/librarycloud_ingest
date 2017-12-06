@@ -18,7 +18,7 @@
     </xsl:template>
     
     <xsl:template match="mods:url[@access='raw object']">
-        <xsl:if test="contains(.,'urn-3') and not(contains(.,'HUL.FIG') and not(contains(.,'ebookbatch') and not(contains(.,'ejournals')">
+        <xsl:if test="contains(.,'urn-3') and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))">
             <xsl:text>%22</xsl:text>
             <xsl:choose>
                 <xsl:when test="contains(.,'?')">
