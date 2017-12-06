@@ -33,9 +33,11 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 			uri = null;
 		else {
 			urns = urns.endsWith(" OR ") ? urns.substring(0, urns.length() - 4) : urns;
-			urns = "(" + urns.replace(" ","+") + ")";
 			//Why are we getting this condition? TO DO - catch upstream
+			//found problem, in xsl adding " OR " outside if statement; leaving next line temporarily anyway
 			urns = urns.replace("OR  OR ", "OR ");
+			urns = "(" + urns.replace(" ","+") + ")";
+
 			uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn_keyword:" + urns + "&rows=250");
 		}
 		//System.out.println("URI: " + uri.toString());
