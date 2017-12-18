@@ -31,7 +31,7 @@ public class PublishProcessor implements IProcessor {
 			data = "";
 		}
 
-		libCommMessage.getPayload().setData(data);		
+		libCommMessage.getPayload().setData(data);
 	}
 
 

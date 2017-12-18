@@ -82,7 +82,7 @@ public class ExternalServiceProcessor implements IProcessor {
 			throw e;
 		}
 		//System.out.println("DATA: " + data);
-		libCommMessage.getPayload().setData(data);		
+		libCommMessage.getPayload().setData(new String(data.getBytes("UTF-8")));
 	}
 
 }

@@ -8,7 +8,7 @@
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     >
 
-    <xsl:output indent="yes"/>
+    <xsl:output indent="yes" encoding="UTF-8"/>
 
     <xsl:template match="mods:modsCollection">
         <xsl:element name="add">
@@ -428,19 +428,6 @@
         <xsl:element name="field">
             <xsl:attribute name="name">
                 <xsl:text>urn</xsl:text>
-            </xsl:attribute>
-            <xsl:choose>
-                <xsl:when test="contains(.,'?')">
-                    <xsl:value-of select="substring-before(substring-after(.,'http://nrs.harvard.edu/'),'?')"/>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="substring-after(.,'http://nrs.harvard.edu/')"/>
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:element>
-        <xsl:element name="field">
-            <xsl:attribute name="name">
-                <xsl:text>urn_lc</xsl:text>
             </xsl:attribute>
             <xsl:choose>
                 <xsl:when test="contains(.,'?')">

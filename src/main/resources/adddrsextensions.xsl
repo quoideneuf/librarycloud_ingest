@@ -5,11 +5,10 @@
     xmlns:urlinfo="http://lib.harvard.edu/urlinfo"
     xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS" version="2.0">
 
-    <xsl:output indent="yes"/>
+    <xsl:output encoding="UTF-8" indent="yes"/>
     <xsl:strip-space elements="*"/>
 
     <xsl:param name="param1"><results/></xsl:param>
-
 
     <xsl:template match="@* | node()">
         <xsl:copy-of select="."/>
@@ -83,7 +82,7 @@
 
     <xsl:template match="mods:titleInfo">
         <xsl:copy>
-        <xsl:copy-of select="@*"/>
+            <xsl:copy-of select="@*"/>
             <xsl:apply-templates/>
         </xsl:copy>
     </xsl:template>
@@ -96,7 +95,8 @@
     <xsl:template match="mods:title[not(@type)]">
         <xsl:copy>
             <xsl:value-of select="."/>
-            <xsl:if test="../../mods:location/mods:url[@access = 'raw object']/@displayLabel[not(.='Full Image')]">
+            <xsl:if
+                test="../../mods:location/mods:url[@access = 'raw object']/@displayLabel[not(. = 'Full Image')]">
                 <xsl:text>, </xsl:text>
                 <xsl:value-of
                     select="../../mods:location/mods:url[@access = 'raw object']/@displayLabel"/>
@@ -147,7 +147,7 @@
             <xsl:choose>
                 <xsl:when test="not(mods:url[@access = 'preview'])">
                     <xsl:apply-templates
-                        select="$results//docs[substring-after(urn, 'urn-3') = $urn]/thumbnailURL[not(. = '') and not(. = 'null')]"
+                        select="$results//docs[lower-case(substring-after(urn, 'urn-3')) = lower-case($urn)]/thumbnailURL[not(. = '') and not(. = 'null')]"
                     />
                 </xsl:when>
                 <xsl:otherwise/>

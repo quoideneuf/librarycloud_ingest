@@ -160,10 +160,9 @@ public class MessageUtils {
 
 	static synchronized public String transformPayloadData (LibCommMessage libCommMessage, String xslFilePath, String xslParam) throws Exception {
 		String data = libCommMessage.getPayload().getData();
-		// System.out.println("DATA: " + data);
+		//System.out.println("DATA: " + data);
 		StringReader dataReader = new StringReader(data);
-//System.out.println("data: " + data);
-//System.out.println("xslParam: " + xslParam);
+		//System.out.println("xslParam: " + xslParam);
 		StringWriter writer = new StringWriter();
 		final InputStream xsl = new FileInputStream(xslFilePath);
 
@@ -175,7 +174,7 @@ public class MessageUtils {
         if (xslParam == null)
         	System.out.println();
         else
-        	transformer.setParameter("param1", new StreamSource(new StringReader(xslParam)));
+			transformer.setParameter("param1", new StreamSource(new StringReader(xslParam)));
 
         StreamSource xmlSource = new StreamSource(dataReader);
         StreamResult result = new StreamResult(writer);

@@ -5,7 +5,7 @@
     xmlns:usage="http://lib.harvard.edu/usagedata" version="1.0"
     >
     
-    <xsl:output indent="no"/>
+    <xsl:output indent="no" encoding="UTF-8"/>
     <xsl:strip-space elements="*"/>
  
     <xsl:param name="param1"/>

@@ -20,8 +20,7 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 
 	protected Logger log = Logger.getLogger(DRSExtensionsProcessor.class);
 
-	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
-	
+	public void processMessage(LibCommMessage libCommMessage) throws Exception {
 		URI uri = null;
 		String urns = getUrns(libCommMessage);
 		//urns = urns.startsWith("OR") ? urns.substring(2) : urns;
