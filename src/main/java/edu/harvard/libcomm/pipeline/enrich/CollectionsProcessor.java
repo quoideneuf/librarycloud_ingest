@@ -60,6 +60,7 @@ public class CollectionsProcessor implements IProcessor {
 			throw e;
 		}
 		
+		libCommMessage.getPayload().setData(data);
 		libCommMessage.getPayload().setData(new String(data.getBytes("UTF-8")));
 	}
 }
