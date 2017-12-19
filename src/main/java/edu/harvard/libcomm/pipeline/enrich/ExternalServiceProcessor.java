@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -52,7 +53,7 @@ public class ExternalServiceProcessor implements IProcessor {
 	}
 
 	protected void process(LibCommMessage libCommMessage, URI uri, String wrapperToken, String transformXSL) throws Exception {
-		
+
 		String data = null;
 		String xml = "";
 		if (uri == null) {
@@ -61,8 +62,9 @@ public class ExternalServiceProcessor implements IProcessor {
 		else {
 			JSONTokener tokener;
 			try {
-				tokener = new JSONTokener(uri.toURL().openStream());
-				System.out.println(uri.toString());
+				//tokener = new JSONTokener(uri.toURL().openStream());
+				tokener = new JSONTokener(IOUtils.toString(uri.toURL().openStream(), "UTF-8"));
+				//System.out.println(uri.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw e;
