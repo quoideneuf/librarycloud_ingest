@@ -4,7 +4,7 @@
     version="2.0"
     xmlns:marc="http://www.loc.gov/MARC21/slim">
     
-    <xsl:output indent="yes"/>
+    <xsl:output indent="yes" encoding="UTF-8"/>
     
     <xsl:template match="marc:collection">
         <xsl:element name="add">

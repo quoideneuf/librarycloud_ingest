@@ -29,8 +29,8 @@
                 </xsl:otherwise>
             </xsl:choose>
             <xsl:text>%22</xsl:text>
+            <xsl:text> OR </xsl:text>
         </xsl:if>
-        <xsl:text> OR </xsl:text>
         <!--<xsl:if test="not(position()=last())"><xsl:text>,</xsl:text></xsl:if>-->
     </xsl:template>
     

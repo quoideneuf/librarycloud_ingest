@@ -8,7 +8,7 @@
     xmlns:lc="http://hul.harvard.edu/ois/xml/ns/libraryCloud"
     version="1.0">
     
-    <xsl:output indent="yes"/>
+    <xsl:output encoding="UTF-8" indent="yes"/>
     <xsl:strip-space elements="*"/>
  
     <xsl:param name="param1"/>

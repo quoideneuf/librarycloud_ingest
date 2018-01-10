@@ -5,7 +5,7 @@
     xmlns:urlinfo="http://lib.harvard.edu/urlinfo"
     xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS" version="2.0">
 
-    <xsl:output indent="yes"/>
+    <xsl:output encoding="UTF-8" indent="yes"/>
     <xsl:strip-space elements="*"/>
 
     <xsl:param name="param1"><results/></xsl:param>
@@ -50,7 +50,7 @@
                         </xsl:choose>
                     </xsl:variable>
                     <xsl:apply-templates
-                        select="$results//docs[substring-after(urn, 'urn-3') = $urn]"/>
+                        select="$results//docs[lower-case(substring-after(urn, 'urn-3')) = lower-case($urn)]"/>
                     <xsl:if test="mods:recordInfo/mods:recordIdentifier/@source = 'MH:ALEPH'">
                         <xsl:element name="relatedItem" namespace="http://www.loc.gov/mods/v3">
                             <xsl:attribute name="otherType">HOLLIS record</xsl:attribute>
@@ -109,6 +109,9 @@
             <xsl:element name="HarvardDRS:DRSMetadata"
                 xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">
                 <!--<xsl:apply-templates select="inDRS"/>-->
+                <xsl:element name="inDRS" namespace="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">
+                    <xsl:text>true</xsl:text>
+                </xsl:element>
                 <xsl:apply-templates select="accessFlag"/>
                 <xsl:apply-templates select="contentModel"/>
                 <xsl:apply-templates select="uriType"/>
@@ -144,7 +147,7 @@
             <xsl:choose>
                 <xsl:when test="not(mods:url[@access = 'preview'])">
                     <xsl:apply-templates
-                        select="$results//docs[substring-after(urn, 'urn-3') = $urn]/thumbnailURL[not(. = '') and not(. = 'null')]"
+                        select="$results//docs[lower-case(substring-after(urn, 'urn-3')) = lower-case($urn)]/thumbnailURL[not(. = '') and not(. = 'null')]"
                     />
                 </xsl:when>
                 <xsl:otherwise/>

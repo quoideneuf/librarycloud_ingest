@@ -108,7 +108,7 @@ public class MODSComponentIterator implements Iterator<String> {
                         JSONTokener tokener = null;
                         try {
                             //URI uri = new URI(Config.getInstance().DRSEXTENSIONS_URL + "?urns=" + nodeValueChopped);
-                            URI uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn:%22" + nodeValueChopped + "%22");
+                            URI uri = new URI(Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn_keyword:%22" + nodeValueChopped + "%22");
                             try {
                                 tokener = new JSONTokener(uri.toURL().openStream());
                                 JSONObject json = new JSONObject(tokener);

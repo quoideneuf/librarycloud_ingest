@@ -8,7 +8,7 @@
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     >
 
-    <xsl:output indent="yes"/>
+    <xsl:output indent="yes" encoding="UTF-8"/>
 
     <xsl:template match="mods:modsCollection">
         <xsl:element name="add">

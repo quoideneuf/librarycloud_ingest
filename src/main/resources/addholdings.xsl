@@ -7,7 +7,7 @@
     xmlns:urlinfo="http://lib.harvard.edu/urlinfo" version="2.0"
     >
     
-    <xsl:output indent="no" omit-xml-declaration="yes"/>
+    <xsl:output indent="no" omit-xml-declaration="yes" encoding="UTF-8"/>
     <xsl:strip-space elements="*"/>
  
     <xsl:param name="param1"><holdings/></xsl:param> 

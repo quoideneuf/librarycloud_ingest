@@ -4,7 +4,7 @@
     xmlns:mods="http://www.loc.gov/mods/v3"
     exclude-result-prefixes="xs"
     version="2.0">
-    
+    <xsl:output method="xml" encoding="UTF-8"/>
     <xsl:template match="mods:modsCollection">
         <xsl:copy>
             <xsl:apply-templates/>

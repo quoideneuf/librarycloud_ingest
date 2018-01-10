@@ -4,7 +4,7 @@
     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3"
     xmlns:usage="http://lib.harvard.edu/usagedata" version="2.0">
 
-    <xsl:output indent="no"/>
+    <xsl:output indent="no" encoding="UTF-8"/>
     <xsl:strip-space elements="*"/>
 
     <xsl:param name="param1"><lcc/></xsl:param>

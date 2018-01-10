@@ -91,6 +91,7 @@ public class MarcFileIterator implements Iterator<String> {
     	content = content.replace("<collection>", "<collection " + "xmlns=\"http://www.loc.gov/MARC21/slim\"" + ">");
     	content = content.replace("&#x2;","");
     	content = content.replace("&#x1f;","");
+        content = content.replace("&#x14;","");
         return content.replaceAll("[^\\u0009\\u000a\\u000d\\u0020-\\uD7FF\\uE000-\\uFFFD]", "");
     }
 }
