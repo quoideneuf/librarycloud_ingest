@@ -64,7 +64,6 @@ public class ExternalServiceProcessor implements IProcessor {
 			try {
 				//tokener = new JSONTokener(uri.toURL().openStream());
 				tokener = new JSONTokener(IOUtils.toString(uri.toURL().openStream(), "UTF-8"));
-				//System.out.println(uri.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw e;

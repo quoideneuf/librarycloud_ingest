@@ -101,7 +101,7 @@ public class MODSComponentIterator implements Iterator<String> {
                     String nodeName = urns.item(pos).getNodeName();
                     String nodeValue = urns.item(pos).getNodeValue();
                     //System.out.println("nodeValue: " + nodeValue);
-                    if (nodeValue.contains("urn-3")) {
+                    if (nodeValue.contains("urn-3") && !nodeValue.contains("FIG")) {
                         String nodeValueChopped = nodeValue.substring(nodeValue.indexOf("urn-3"), nodeValue.length()).split("\\?")[0];
                         //some urls have prepended text (shouldn't be cataloged this way, but account for it anyway ...
                         //nodeValueChopped = nodeValue.substring(nodeValue.indexOf("http"), nodeValue.length()).split("\\?")[0];
@@ -114,6 +114,7 @@ public class MODSComponentIterator implements Iterator<String> {
                                 JSONObject json = new JSONObject(tokener);
                                 int numFound = json.getJSONObject("response").getInt("numFound");
                                 inDRS = numFound == 0 ? false:true;
+
                                 //System.out.println("########numFound\n" + numFound + "\nnumFound##########" );
                                 //since using internal extension solr, check numFound (above)
                                 //JSONArray jsonArr = json.getJSONArray("docs");
