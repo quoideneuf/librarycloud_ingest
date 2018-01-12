@@ -23,7 +23,7 @@
 
     <xsl:template match="mods:mods">
         <xsl:choose>
-            <xsl:when test="count(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG'))]) > 1">
+            <xsl:when test="count(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))]) > 1">
                 <xsl:copy-of select="."/>
             </xsl:when>
             <xsl:when test="./mods:typeOfResource/@collection">
@@ -37,14 +37,14 @@
                     <!--<xsl:variable name="urn"><xsl:value-of select="substring-after(.//mods:url[@access='raw object'],'urn-3')"/></xsl:variable>-->
                     <xsl:variable name="urn">
                         <xsl:choose>
-                            <xsl:when test="contains(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG'))], '?')">
+                            <xsl:when test="contains(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))], '?')">
                                 <xsl:value-of
                                     select="substring-before(substring-after(.//mods:url[@access = 'raw object'], 'urn-3'), '?')"
                                 />
                             </xsl:when>
                             <xsl:otherwise>
                                 <xsl:value-of
-                                    select="substring-after(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG'))], 'urn-3')"
+                                    select="substring-after(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))], 'urn-3')"
                                 />
                             </xsl:otherwise>
                         </xsl:choose>
