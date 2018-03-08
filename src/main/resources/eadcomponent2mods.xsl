@@ -5,9 +5,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-4.xsd"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     version="2.0">
-    <xsl:output encoding="UTF-8" method="xml" indent="yes" omit-xml-declaration="yes"></xsl:output>
+    <xsl:output encoding="UTF-8" method="xml" indent="yes" omit-xml-declaration="yes"/>
     <xsl:strip-space elements="*"/>
-    <!--<xsl:param name="componentid">sch01290c00002</xsl:param>-->
+    <!--<xsl:param name="componentid">div00579c00002</xsl:param>-->
     <xsl:param name="componentid"/>
 
     <xsl:variable name="cid_legacy_or_new">
@@ -27,8 +27,8 @@
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]" mode="siblingcount"/>
         </xsl:variable>
         <mods xmlns:xlink="http://www.w3.org/1999/xlink">
-            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did/unittitle"/>
-            <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]/did//unitdate"/>
+            <xsl:apply-templates select="//c[@id = $cid_legacy_or_new]/did/unittitle[not(. = '')]"/>
+            <xsl:apply-templates select="//c[@id = $cid_legacy_or_new]/did//unitdate[not(. = '')]"/>
             <xsl:apply-templates select="did//origination"/>
             <!--<xsl:apply-templates select="//c[@id=$componentid]/did//persname"/>
             <xsl:apply-templates select="//c[@id=$componentid]/did//famname"/>
@@ -109,6 +109,24 @@
                             <xsl:value-of select="/ead/eadheader/eadid"/>
                         </xsl:element>
                     </xsl:element>
+                <relatedItem otherType="HOLLIS record">
+                    <location>
+                        <url>
+                            <xsl:text>http://id.lib.harvard.edu/aleph/</xsl:text>
+                            <xsl:value-of select="/ead/eadheader/eadid/@identifier"/>
+                            <xsl:text>/catalog</xsl:text>
+                        </url>
+                    </location>
+                </relatedItem>
+                <relatedItem otherType="Finding Aid">
+                    <location>
+                        <url>
+                            <xsl:text>http://id.lib.harvard.edu/ead/</xsl:text>
+                            <xsl:value-of select="/ead/eadheader/eadid"/>
+                            <xsl:text>/catalog</xsl:text>
+                        </url>
+                    </location>
+                </relatedItem>
             </xsl:if>
         </relatedItem>
     </xsl:template>
@@ -123,13 +141,13 @@
     
     <xsl:template match="unitdate">
         <xsl:element name="originInfo">
-            <xsl:if test='@startYear'>
+            <xsl:if test="@startYear">
                 <xsl:element name="dateCreated">
                     <xsl:attribute name="point">start</xsl:attribute>
                     <xsl:value-of select="@startYear"/>
                 </xsl:element>               
             </xsl:if>
-            <xsl:if test='@endYear'>
+            <xsl:if test="@endYear">
                 <xsl:element name="dateCreated">
                     <xsl:attribute name="point">end</xsl:attribute>
                     <xsl:value-of select="@endYear"/>
@@ -154,7 +172,12 @@
                 <xsl:value-of select="normalize-space(.)"/>
             </xsl:element>
             <xsl:element name="role">
-                <xsl:element name="roleTerm"><xsl:text>originator</xsl:text></xsl:element>
+                <xsl:element name="roleTerm">
+                    <xsl:text>originator</xsl:text>
+                </xsl:element>
+                <xsl:element name="roleTerm">
+                    <xsl:text>creator</xsl:text>
+                </xsl:element>
             </xsl:element>
         </xsl:element>
     </xsl:template> 
@@ -247,8 +270,8 @@
     <xsl:template match="dao">
         <xsl:element name="location">
             <xsl:element name="url">
-                <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
-                <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
+                <xsl:attribute name="access">raw object</xsl:attribute>
+                <xsl:value-of select="@*[local-name() = 'href']"/>
             </xsl:element>
         </xsl:element>
     </xsl:template>
@@ -267,6 +290,7 @@
     
     <xsl:template match="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='embed']]">
         <xsl:element name="url">
+            <xsl:attribute name="access">preview</xsl:attribute>
             <xsl:attribute name="displayLabel">Thumbnail</xsl:attribute>
             <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
             <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
@@ -274,6 +298,7 @@
     </xsl:template>
     <xsl:template match="daoloc[@xlink:label=../arc/@xlink:to[../@xlink:show='new']]">
         <xsl:element name="url">
+            <xsl:attribute name="access">raw object</xsl:attribute>
             <xsl:attribute name="displayLabel">Full Image</xsl:attribute>
             <xsl:if test="@href"><xsl:value-of select="@href"/></xsl:if>
             <xsl:if test="@xlink:href"><xsl:value-of select="@xlink:href"/></xsl:if>
