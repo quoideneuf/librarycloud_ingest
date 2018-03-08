@@ -16,14 +16,16 @@ import edu.harvard.libcomm.pipeline.IProcessor;
 import edu.harvard.libcomm.pipeline.MessageUtils;
 
 /* Add Holdings data (physicalLocation, shelfLocator, url) to MODS records, retrieved from lilCloud API */
-public class HoldingsProcessor extends ExternalServiceProcessor implements IProcessor {
+public class HoldingsProcessor extends ExternalXMLServiceProcessor implements IProcessor {
 
 	protected Logger log = Logger.getLogger(HoldingsProcessor.class); 	
 
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {	
 	
-		URI uri = new URI(Config.getInstance().HOLDINGS_URL + "?filter=MarcLKRB:(" + getRecordIds(libCommMessage) + ")&fields=MarcLKRB,Marc852B,Marc856U,DisplayCallNumber&limit=250");
+		//URI uri = new URI(Config.getInstance().HOLDINGS_URL + "?filter=MarcLKRB:(" + getRecordIds(libCommMessage) + ")&fields=MarcLKRB,Marc852B,Marc856U,DisplayCallNumber&limit=250");
+		URI uri = new URI(Config.getInstance().SOLR_HOLDINGS_URL + "/select?q=004:(" + getRecordIds(libCommMessage) + ")&rows=250&wt=xml");
+
 		process(libCommMessage, uri, "holdings", "src/main/resources/addholdings.xsl");
-        
+
 	}
 }

@@ -22,7 +22,7 @@ import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.pipeline.IProcessor;
 import edu.harvard.libcomm.pipeline.MessageUtils;
 
-public class SolrProcessor implements IProcessor {
+public class SolrDrsExtensionsProcessor implements IProcessor {
 	protected Logger log = Logger.getLogger(SolrProcessor.class); 	
 
 	private Integer commitWithinTime = -1;
@@ -30,7 +30,8 @@ public class SolrProcessor implements IProcessor {
 	@Override
 	public void processMessage(LibCommMessage libCommMessage) throws Exception {
 		try {
-			String solrXml = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/mods2solr.xsl",null);
+			String solrXml = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/extensions2solr.xsl",null);
+			//System.out.println("solrXml: " + solrXml);
 			populateIndex(solrXml);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -42,7 +43,7 @@ public class SolrProcessor implements IProcessor {
 
 	    HttpSolrServer server = null;
 		Date start = new Date();
-	    server = SolrServer.getSolrConnection();
+	    server = SolrDrsExtensionsServer.getSolrConnection();
 		UpdateRequest update = new UpdateRequest();
 		update.add(getSolrInputDocumentList(solrXml));
 		if (commitWithinTime > 0) {

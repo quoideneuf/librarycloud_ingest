@@ -14,7 +14,7 @@ public class ModsProcessor implements IProcessor {
 		String modsCollection = null;
 		libCommMessage.setCommand("ENRICH");
 		try {
-			modsCollection = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/MARC21slim2MODS3-5.xsl", null);	
+			modsCollection = MessageUtils.transformPayloadData(libCommMessage,"src/main/resources/MARC21slim2MODS3-6.xsl", null);
 		} catch (Exception e) {
 			log.error("Could not transform record from MARC to MODS");
 			throw e;

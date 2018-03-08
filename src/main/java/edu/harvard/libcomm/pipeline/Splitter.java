@@ -29,7 +29,6 @@ public class Splitter  {
 	}
 
 	protected InputStream getResourceInputStream(String body) throws FileNotFoundException, IOException, JAXBException  {
-
 		LibCommMessage libCommMessage = MessageUtils.unmarshalLibCommMessage(new StringReader(body));
 
 		if ((libCommMessage != null) && (libCommMessage.getPayload() != null)) {

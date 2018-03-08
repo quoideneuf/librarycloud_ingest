@@ -51,7 +51,6 @@ public class CollectionsProcessor implements IProcessor {
 			e.printStackTrace();
 			throw e;
 		}
-		
 		log.trace("CollectionsProcessor result:" + collectionsXml);
 		
 		try {
