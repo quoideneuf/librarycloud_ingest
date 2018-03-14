@@ -49,6 +49,7 @@ public class DRSExtensionsProcessor extends ExternalServiceProcessor implements 
 		process(libCommMessage, uri, "results", "src/main/resources/adddrsextensions.xsl");
 	}
 
+	//need to refactor to own enrichment step
     protected void processWithThumbCheck(LibCommMessage libCommMessage, URI uri, String wrapperToken, String transformXSL) throws Exception {
 
         String data = null;
