@@ -157,6 +157,12 @@
         </property>
     </bean>
 
+    <bean id="thumbsProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+        <property name="processor">
+            <bean class="edu.harvard.libcomm.pipeline.enrich.PDSThumbsProcessor"/>
+        </property>
+    </bean>
+
     <bean id="addMarcLocationProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.enrich.AddMarcLocationProcessor">
@@ -562,9 +568,25 @@
             <!--<from uri="file://{{librarycloud.files.basepath}}//enrich-05" />-->
             <from uri="seda:enrich-05?concurrentConsumers=1"/>
             <doTry>
-            <process ref="drsExtensionsProcessor"/>
-            <marshal><custom ref="cloudbody"/></marshal>
-                <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-06?amazonSQSClient=#sqsClient" />
+                <process ref="drsExtensionsProcessor"/>
+                <marshal><custom ref="cloudbody"/></marshal>
+                <choice>
+                    <when>
+                        <xpath>//source = 'via'</xpath>
+                        <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-06?amazonSQSClient=#sqsClient" />
+                    </when>
+                    <when>
+                        <xpath>//source = 'VIA'</xpath>
+                        <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-06?amazonSQSClient=#sqsClient" />
+                    </when>
+                    <otherwise>
+                        <!-- Skip Holdings, Stackscore, and LCCSH steps for non-aleph records -->
+                        <!--<to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-05?amazonSQSClient=#sqsClient" />-->
+                        <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-05B?amazonSQSClient=#sqsClient" />
+                        <!--<to uri="file://{{librarycloud.files.basepath}}//enrich-05" />-->
+                    </otherwise>
+                </choice>
+                <!--<to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-06?amazonSQSClient=#sqsClient" />-->
             <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-02" /> -->
                 <doCatch>
                     <exception>java.lang.Exception</exception>
@@ -573,6 +595,21 @@
                 </doCatch>
             </doTry>
         </route>
+
+        <route id="addthumbstomods-seda" errorHandlerRef="eh">
+            <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-06" /> -->
+            <from uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-05B?amazonSQSClient=#sqsClient&amp;maxMessagesPerPoll=10" />
+            <unmarshal><custom ref="cloudbody"/></unmarshal>
+            <to uri="seda:enrich-05B?size=20&amp;blockWhenFull=true" />
+        </route>
+        <route id="addthumbstomods" errorHandlerRef="eh">
+            <from uri="seda:enrich-05B?concurrentConsumers=5"/>
+            <process ref="thumbsProcessor"/>
+            <marshal><custom ref="cloudbody"/></marshal>
+            <to uri="aws-sqs://{{librarycloud.sqs.environment}}-enrich-06?amazonSQSClient=#sqsClient" />
+            <!-- <to uri="file://{{librarycloud.files.basepath}}/enrich-end" /> -->
+        </route>
+
 
         <route id="addcollectionstomods-seda" errorHandlerRef="eh">
             <!-- <from uri="file://{{librarycloud.files.basepath}}//enrich-06" /> -->

@@ -160,8 +160,14 @@ public class MessageUtils {
 
 	static synchronized public String transformPayloadData (LibCommMessage libCommMessage, String xslFilePath, String xslParam) throws Exception {
 		String data = libCommMessage.getPayload().getData();
+		String s = transformPayloadData(data, xslFilePath, xslParam);
+		return s;
+	}
+
+	static synchronized public String transformPayloadData (String s, String xslFilePath, String xslParam) throws Exception {
+
 		// System.out.println("DATA: " + data);
-		StringReader dataReader = new StringReader(data);
+		StringReader dataReader = new StringReader(s);
 //System.out.println("data: " + data);
 //System.out.println("xslParam: " + xslParam);
 		StringWriter writer = new StringWriter();
@@ -184,5 +190,6 @@ public class MessageUtils {
         //System.out.println(writer.toString());
         return writer.toString();
 	}
-	
+
+
 }
