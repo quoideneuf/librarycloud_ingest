@@ -27,7 +27,7 @@
                     <xsl:text>isOnline</xsl:text>
                 </xsl:attribute>
                 <xsl:choose>
-                    <xsl:when test=".//mods:location/mods:url">
+                    <xsl:when test=".//mods:location/mods:url[@access='raw object']">
                         <xsl:text>true</xsl:text>
                     </xsl:when>
                     <xsl:otherwise>
