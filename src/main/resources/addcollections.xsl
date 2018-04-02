@@ -22,7 +22,7 @@
     </xsl:template>
 
     <!-- Remove existing collections -->
-    <xsl:template match="mods:extension[lc:collections]"/>
+    <xsl:template match="mods:extension[lc:sets]"/>
 
     <xsl:template match="mods:mods">
         <xsl:copy>
@@ -68,6 +68,10 @@
                             <xsl:element name="thumbnailUrn"
                                 namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
                               <xsl:value-of select="col:thumbnailUrn"/>
+                            </xsl:element>
+                            <xsl:element name="baseUrl"
+                                namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
+                              <xsl:value-of select="col:baseUrl"/>
                             </xsl:element>
                             <xsl:element name="created"
                                 namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
