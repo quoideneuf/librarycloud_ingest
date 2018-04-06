@@ -26,13 +26,13 @@ public class Config {
 
     private String awsRegion = "us-east-1";
 
-    @Value( "${aws.sqs.endpoint}" )
+    @Value( "${aws.sqs.endpoint:#{null}}" )
     private String awsSqsEndpoint;
 
-    @Value( "${aws.sns.endpoint}" )
+    @Value( "${aws.sns.endpoint:#{null}}" )
     private String awsSnsEndpoint;
 
-    @Value( "${aws.s3.endpoint}" )
+    @Value( "${aws.s3.endpoint:#{null}}" )
     private String awsS3Endpoint;
 
     private AWSStaticCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider( new BasicAWSCredentials("${aws.access.key}", "${aws.secret.key}") );

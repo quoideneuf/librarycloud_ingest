@@ -647,8 +647,7 @@
                     <multicast>
                         <!-- Publishing to Solr doesn't yet go through the SNS publishing, so put it on its own queue -->
                         <to uri="aws-sqs://{{librarycloud.sqs.environment}}-publish-public-delta-solr?amazonSQSClient=#sqsClient" />
-                        <!-- <to uri="aws-sns://harvard-librarycloud-publish-delta-{{librarycloud.sqs.environment}}?amazonSNSClient=#snsClient" /> -->
-                        <!-- <to uri="aws-sns://{{librarycloud.sns.environment}}-publish-delta?amazonSNSClient=#snsClient" /> -->
+                        <to uri="aws-sns://harvard-librarycloud-publish-delta-{{librarycloud.sqs.environment}}?amazonSNSClient=#snsClient" />
                     </multicast>
                 </otherwise>
             </choice>
