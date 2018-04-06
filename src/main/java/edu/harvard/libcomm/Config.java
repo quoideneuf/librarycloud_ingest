@@ -4,6 +4,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 
@@ -35,10 +36,18 @@ public class Config {
     @Value( "${aws.s3.endpoint:#{null}}" )
     private String awsS3Endpoint;
 
-    private AWSStaticCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider( new BasicAWSCredentials("${aws.access.key}", "${aws.secret.key}") );
+    @Value( "${aws.access.key}" )
+    private String awsAccessKey;
+
+    @Value( "${aws.secret.key}" )
+    private String awsSecretKey;
+
+
 
     @Bean
     public AmazonSQSAsync sqsClient() {
+        AWSStaticCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider( new BasicAWSCredentials(awsAccessKey, awsSecretKey) );
+        AWSCredentials aw = awsCredentialsProvider.getCredentials();
 
         AmazonSQSAsyncClientBuilder	sqsClientBuilder = AmazonSQSAsyncClientBuilder.standard().withCredentials(awsCredentialsProvider);
 
@@ -54,6 +63,7 @@ public class Config {
 
     @Bean
     public AmazonSNSAsync snsClient() {
+        AWSStaticCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider( new BasicAWSCredentials(awsAccessKey, awsSecretKey) );
         AmazonSNSAsyncClientBuilder	snsClientBuilder = AmazonSNSAsyncClientBuilder.standard().withCredentials(awsCredentialsProvider);
 
         if (awsSnsEndpoint != null) {
@@ -67,6 +77,7 @@ public class Config {
 
     @Bean
     public AmazonS3 s3Client() {
+        AWSStaticCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider( new BasicAWSCredentials(awsAccessKey, awsSecretKey) );
         AmazonS3ClientBuilder	s3ClientBuilder = AmazonS3ClientBuilder.standard().withCredentials(awsCredentialsProvider).withPathStyleAccessEnabled(true);
 
         if (awsS3Endpoint != null) {
