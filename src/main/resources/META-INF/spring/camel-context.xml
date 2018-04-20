@@ -15,11 +15,11 @@
     <!-- bootstrap the java config -->
     <bean class="edu.harvard.libcomm.config.Config" />
 
-    <!-- Custom S3 marshaller to place body on S3 -->
-    <bean id="cloudbody" class="edu.harvard.libcomm.pipeline.MessageBodyS3Marshaller">
-        <constructor-arg value="20000" /> <!-- If message size in bytes is greater than this, save body to S3 -->
-        <constructor-arg value="${librarycloud.s3.cache_bucket}.${librarycloud.sqs.environment}" />
-    </bean>
+    <!-- <!-\- Custom S3 marshaller to place body on S3 -\-> -->
+    <!-- <bean id="cloudbody" class="edu.harvard.libcomm.pipeline.MessageBodyS3Marshaller"> -->
+    <!--     <constructor-arg value="20000" /> <!-\- If message size in bytes is greater than this, save body to S3 -\-> -->
+    <!--     <constructor-arg value="${librarycloud.s3.cache_bucket}.${librarycloud.sqs.environment}" /> -->
+    <!-- </bean> -->
 
     <!-- Set a shorter timeout for shutdown, primarily for testing purposes. Default is 300. -->
     <bean id="shutdown" class="org.apache.camel.impl.DefaultShutdownStrategy">
@@ -150,13 +150,13 @@
         </property>
     </bean>
 
-    <bean id="addMarcLocationProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
-        <property name="processor">
-            <bean class="edu.harvard.libcomm.pipeline.enrich.AddMarcLocationProcessor">
-                <property name="marcBaseUrl" value="https://s3.amazonaws.com/${librarycloud.s3.marc_bucket}.${librarycloud.sqs.environment}/" />
-            </bean>
-        </property>
-    </bean>
+    <!-- <bean id="addMarcLocationProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor"> -->
+    <!--     <property name="processor"> -->
+    <!--         <bean class="edu.harvard.libcomm.pipeline.enrich.AddMarcLocationProcessor"> -->
+    <!--             <property name="marcBaseUrl" value="https://s3.amazonaws.com/${librarycloud.s3.marc_bucket}.${librarycloud.sqs.environment}/" /> -->
+    <!--         </bean> -->
+    <!--     </property> -->
+    <!-- </bean> -->
     <bean id="stackscoreProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.enrich.StackScoreProcessor"/>

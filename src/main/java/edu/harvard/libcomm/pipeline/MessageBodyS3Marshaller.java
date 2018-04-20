@@ -22,17 +22,21 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 
+import org.apache.log4j.Logger;
+
 import edu.harvard.libcomm.message.LibCommMessage;
 import edu.harvard.libcomm.message.LibCommMessage.Payload;
 
 public class MessageBodyS3Marshaller implements DataFormat {
+
+  protected Logger log = Logger.getLogger(MessageBodyS3Marshaller.class);
+
 
     @Autowired
     private AmazonS3 s3Client;
 
     private int maxData;
     private String bucket;
-    private String S3_PREFIX = "https://s3.amazonaws.com/";
 
     public MessageBodyS3Marshaller(int maxData, String bucket) {
         this.maxData = maxData;
@@ -46,27 +50,28 @@ public class MessageBodyS3Marshaller implements DataFormat {
 
     Message message = exchange.getIn();
     InputStream messageIS = MessageUtils.readMessageBody(message);
-        LibCommMessage libCommMessage = MessageUtils.unmarshalLibCommMessage(messageIS);
+    LibCommMessage libCommMessage = MessageUtils.unmarshalLibCommMessage(messageIS);
 
-        if ((libCommMessage.getPayload() != null) && (libCommMessage.getPayload().getData() != null)) {
-            byte[] bytes = libCommMessage.getPayload().getData().getBytes(StandardCharsets.UTF_8);
+    if ((libCommMessage.getPayload() != null) && (libCommMessage.getPayload().getData() != null)) {
+        byte[] bytes = libCommMessage.getPayload().getData().getBytes(StandardCharsets.UTF_8);
         if (bytes.length > this.maxData) {
 
-                /* Upload to bucket with random key. We assume the bucket exists */
-                String key = UUID.randomUUID().toString();
+            /* Upload to bucket with random key. We assume the bucket exists */
+            String key = UUID.randomUUID().toString();
 
-                ObjectMetadata objectMetadata = new ObjectMetadata();
-                objectMetadata.setContentLength(bytes.length);
-                PutObjectRequest putRequest = new PutObjectRequest(this.bucket, key, new ByteArrayInputStream(bytes), objectMetadata);
-                PutObjectResult putResult = s3Client.putObject(putRequest);
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentLength(bytes.length);
+            PutObjectRequest putRequest = new PutObjectRequest(this.bucket, key, new ByteArrayInputStream(bytes), objectMetadata);
+            log.debug("BUCKET " + this.bucket);
+            PutObjectResult putResult = s3Client.putObject(putRequest);
 
-                /* Replace filepath with key to the object in s3 */
-                libCommMessage.getPayload().setFilepath(S3_PREFIX + this.bucket + "/" + key);
+            /* Replace filepath with key to the object in s3 */
+            libCommMessage.getPayload().setFilepath(this.bucket + "/" + key);
 
-                /* Empty body */
-                libCommMessage.getPayload().setData("");
-            }
+            /* Empty body */
+            libCommMessage.getPayload().setData("");
         }
+    }
 
     String messageString = MessageUtils.marshalMessage(libCommMessage);
         stream.write(messageString.getBytes());
@@ -81,24 +86,19 @@ public class MessageBodyS3Marshaller implements DataFormat {
             ((libCommMessage.getPayload().getData() == null) || libCommMessage.getPayload().getData().isEmpty()) &&
             ((libCommMessage.getPayload().getFilepath() != null) && !libCommMessage.getPayload().getFilepath().isEmpty())) {
 
-            String filepath = libCommMessage.getPayload().getFilepath();
-            if (filepath.startsWith(this.S3_PREFIX)) {
-                filepath = filepath.replace(this.S3_PREFIX,"");
-                String[] parts = filepath.split("/");
-                if (parts.length == 2) {
-                    String bucket = parts[0];
-                    String key = parts[1];
-                    S3Object getResult = null;
-                    try {
-                        getResult = s3Client.getObject(bucket, key);
-                        String body = IOUtils.toString(getResult.getObjectContent(), StandardCharsets.UTF_8);
-                        libCommMessage.getPayload().setData(body);
-                        libCommMessage.getPayload().setFilepath("");
-                    } finally {
-                        if (getResult != null) {
-                            getResult.close();
-                        }
-                    }
+            String filepath = libCommMessage.getPayload().getFilepath().replace("aws-s3://", "");
+            String[] parts = filepath.split("/");
+            String bucket = parts[0];
+            String key = parts[1];
+            S3Object getResult = null;
+            try {
+                getResult = s3Client.getObject(bucket, key);
+                String body = IOUtils.toString(getResult.getObjectContent(), StandardCharsets.UTF_8);
+                libCommMessage.getPayload().setData(body);
+                libCommMessage.getPayload().setFilepath("");
+            } finally {
+                if (getResult != null) {
+                    getResult.close();
                 }
             }
         }
