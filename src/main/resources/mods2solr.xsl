@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="xs"
-    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3" 
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mods="http://www.loc.gov/mods/v3"
     xmlns:usage="http://lib.harvard.edu/usagedata" version="1.0"
-    xmlns:collection="http://hul.harvard.edu/ois/xml/ns/libraryCloud"
+    xmlns:set="http://hul.harvard.edu/ois/xml/ns/libraryCloud"
     xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     >
@@ -50,8 +50,8 @@
             <xsl:apply-templates select="mods:recordInfo"/>
             <xsl:apply-templates select="mods:relatedItem[@type='series']"/>
             <xsl:apply-templates select="mods:extension/usage:usageData/usage:stackScore"/>
-            <xsl:apply-templates select="mods:extension/collection:collections/collection:collection/collection:title"/>
-            <xsl:apply-templates select="mods:extension/collection:collections/collection:collection/collection:identifier"/>
+            <xsl:apply-templates select="mods:extension/set:sets/set:set/set:setName"/>
+            <xsl:apply-templates select="mods:extension/set:sets/set:set/set:systemId"/>
             <xsl:choose>
                 <xsl:when test="mods:extension/HarvardDRS:DRSMetadata">
                     <xsl:element name="field">
@@ -75,7 +75,7 @@
             <xsl:apply-templates select="//mods:relatedItem[@displayLabel='collection']"/>
             <xsl:apply-templates select="mods:relatedItem[@type='constituent']"/>
             -->
-            
+
             <xsl:element name="field">
                 <xsl:attribute name="name">
                     <xsl:text>originalMods</xsl:text>
@@ -88,7 +88,7 @@
                     ]]&gt;
                 </xsl:text>
             </xsl:element>
-            
+
         </xsl:element>
     </xsl:template>
 
@@ -96,24 +96,24 @@
       <xsl:if test="not(@type)">
         <xsl:element name="field">
             <xsl:attribute name="name">
-               <xsl:text>title</xsl:text>                        
+               <xsl:text>title</xsl:text>
                 <!--
                 <xsl:choose>
                     <xsl:when test="@type">
-                        <xsl:text>title</xsl:text> 
+                        <xsl:text>title</xsl:text>
                     </xsl:when>
                     <xsl:otherwise>
-                        <xsl:text>title</xsl:text>                        
+                        <xsl:text>title</xsl:text>
                     </xsl:otherwise>
                 </xsl:choose>
                 -->
             </xsl:attribute>
             <xsl:apply-templates/>
         </xsl:element>
-      </xsl:if>      
+      </xsl:if>
     </xsl:template>
 
- 
+
     <xsl:template match="mods:name">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -130,7 +130,7 @@
                 <xsl:text>role</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="."/>
-        </xsl:element>     
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="mods:typeOfResource">
@@ -167,7 +167,7 @@
             </xsl:choose>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="mods:genre">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -307,7 +307,7 @@
     <xsl:template match="*" mode="subject">
         <xsl:choose>
             <xsl:when test="local-name()='geographicCode' or local-name()='hierarchicalGeographic'">
-            </xsl:when> 
+            </xsl:when>
             <xsl:otherwise>
                 <xsl:element name="field">
                     <xsl:attribute name="name">
@@ -315,8 +315,8 @@
                     </xsl:attribute>
                     <xsl:apply-templates/>
                 </xsl:element>
-            </xsl:otherwise> 
-        </xsl:choose>        
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template match="*" mode="narrowersubjects">
@@ -326,7 +326,7 @@
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
-    </xsl:template>    
+    </xsl:template>
 
     <xsl:template match="*" mode="subjecttitle">
         <xsl:element name="field">
@@ -336,7 +336,7 @@
             <xsl:apply-templates select="mods:title|mods:partName"/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="*" mode="subjectname">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -345,7 +345,7 @@
             <xsl:apply-templates select="mods:namePart"/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="mods:hierarchicalGeographic">
         <!--<xsl:element name="field">
             <xsl:attribute name="name">
@@ -354,7 +354,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>-->
         <xsl:apply-templates mode="hierarchicalGeographic"/>
-    </xsl:template>   
+    </xsl:template>
 
 <!--     <xsl:template match="*" mode="hierarchicalGeographic">
             <xsl:apply-templates/>
@@ -374,7 +374,7 @@
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
-    </xsl:template>   
+    </xsl:template>
  -->
     <xsl:template match="mods:classification">
         <xsl:element name="field">
@@ -453,7 +453,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="@source">
         <xsl:element name="field">
             <xsl:attribute name="name">source</xsl:attribute>
@@ -474,7 +474,7 @@
     </xsl:template>
 
     <xsl:template match="mods:relatedItem[@type='constituent']">
-        
+
         <xsl:apply-templates select="mods:titleInfo" mode="relatedItemConstituent"/>
         <!--
         <xsl:apply-templates select="mods:name" mode="relatedItemConstituent"/>
@@ -490,7 +490,7 @@
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
- 
+
     <xsl:template match="mods:name" mode="relatedItemHost">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -499,11 +499,11 @@
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
- 
+
     <xsl:template match="mods:recordInfo" mode="relatedItemHost">
         <xsl:apply-templates select="mods:recordIdentifier" mode="relatedItemHost"/>
     </xsl:template>
-    
+
     <xsl:template match="mods:recordIdentifier" mode="relatedItemHost">
          <xsl:element name="field">
             <xsl:attribute name="name">
@@ -512,7 +512,7 @@
              <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="mods:titleInfo" mode="relatedItemConstituent">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -521,7 +521,7 @@
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="mods:name" mode="relatedItemConstituent">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -530,11 +530,11 @@
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="mods:recordInfo" mode="relatedConstituent">
         <xsl:apply-templates select="mods:recordIdentifier" mode="relatedItemConstituent"/>
     </xsl:template>
-    
+
     <xsl:template match="mods:recordIdentifier" mode="relatedItemConstituent">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -543,38 +543,50 @@
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
- 
+
     <xsl:template match="usage:stackScore">
         <xsl:element name="field">
             <xsl:attribute name="name">
                 <xsl:text>stackscore</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
-        </xsl:element>        
+        </xsl:element>
     </xsl:template>
- 
-    <xsl:template match="collection:title">
+
+    <xsl:template match="set:setName">
         <xsl:element name="field">
             <xsl:attribute name="name">
-                <xsl:text>collectionTitle</xsl:text>
+                <xsl:text>setName</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
-        </xsl:element>        
-    </xsl:template>
- 
-    <xsl:template match="collection:identifier">
+        </xsl:element>
         <xsl:element name="field">
-            <xsl:attribute name="name">
-                <xsl:text>collectionId</xsl:text>
-            </xsl:attribute>
-            <xsl:value-of select="normalize-space(.)"/>
-        </xsl:element>        
+          <xsl:attribute name="name">
+            <xsl:text>collectionTitle</xsl:text>
+          </xsl:attribute>
+          <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
     </xsl:template>
- 
+
+    <xsl:template match="set:systemId">
+      <xsl:element name="field">
+        <xsl:attribute name="name">
+          <xsl:text>setSystemId</xsl:text>
+        </xsl:attribute>
+        <xsl:value-of select="normalize-space(.)"/>
+      </xsl:element>
+      <xsl:element name="field">
+        <xsl:attribute name="name">
+          <xsl:text>collectionId</xsl:text>
+        </xsl:attribute>
+        <xsl:value-of select="normalize-space(.)"/>
+      </xsl:element>
+    </xsl:template>
+
     <xsl:template match="HarvardDRS:DRSMetadata">
         <xsl:apply-templates/>
     </xsl:template>
-    
+
     <!--
     <xsl:template match="HarvardDRS:inDRS">
         <xsl:element name="field">
@@ -586,7 +598,7 @@
     </xsl:template>
     -->
     <xsl:template match="HarvardDRS:inDRS"/>
-    
+
     <xsl:template match="HarvardDRS:accessFlag">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -595,7 +607,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="HarvardDRS:contentModel">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -604,7 +616,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="HarvardDRS:uriType">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -613,7 +625,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="HarvardDRS:ownerCode">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -622,7 +634,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="HarvardDRS:ownerCodeDisplayName">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -631,7 +643,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
-    
+
     <xsl:template match="HarvardDRS:metsLabel">
         <xsl:element name="field">
             <xsl:attribute name="name">
@@ -649,64 +661,64 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
-    
+
 
     <!-- will add space for sibs except for the last -->
     <xsl:template match="*">
         <xsl:value-of select="."/><xsl:if test="not(position()=last())"><xsl:text> </xsl:text></xsl:if>
     </xsl:template>
- 
-    <!--  
+
+    <!--
         ? = not yet implemented
     <field name="resourceType" type="string" indexed="true" stored="true"/>
     <field name="publisher" type="string" indexed="true" stored="true"  multiValued="true"/>
-	?<field name="originDate" type="string" indexed="true" stored="true"/> - concatenation of other date types
-	<field name="edition" type="string" indexed="true" stored="true"/>
-	<field name="physicalDescription" type="string" indexed="true" stored="true"/>
-	<field name="source" type="string" indexed="true" stored="true"/>
-	<field name="recordIdentifier" type="string" indexed="true" stored="true"/>
-	<field name="originalMods" type="string" indexed="false" stored="true"/>
-	<field name="isCollection" type="string" indexed="true" stored="true"/>
-	<field name="isManuscript" type="string" indexed="true" stored="true"/>
+  ?<field name="originDate" type="string" indexed="true" stored="true"/> - concatenation of other date types
+  <field name="edition" type="string" indexed="true" stored="true"/>
+  <field name="physicalDescription" type="string" indexed="true" stored="true"/>
+  <field name="source" type="string" indexed="true" stored="true"/>
+  <field name="recordIdentifier" type="string" indexed="true" stored="true"/>
+  <field name="originalMods" type="string" indexed="false" stored="true"/>
+  <field name="isCollection" type="string" indexed="true" stored="true"/>
+  <field name="isManuscript" type="string" indexed="true" stored="true"/>
 
     <field name="genre" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="title" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="abstractTOC" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="languageCode" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="name" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="role" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="originPlace" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="dateIssued" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="dateCreated" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="dateCaptured" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="copyrightDate" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="classification" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="identifier" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="physicalLocation" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="shelfLocator" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="url" type="string" indexed="true" stored="true" multiValued="true"/> - waiting for holdings
-	<field name="issuance" type="string" indexed="true" stored="true" multiValued="true"/>
-	?<field name="relatedItem" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.topic" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.geographic" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.temporal" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.titleInfo" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.name" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.genre" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.country" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.continent" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.province" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.region" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.state" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.territory" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.county" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.city" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.citySection" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.island" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.area" type="string" indexed="true" stored="true" multiValued="true"/>
-	<field name="subject.hierarchicalGeographic.extraterrestrialArea" type="string" indexed="true" stored="true" multiValued="true"/>#
+  <field name="title" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="abstractTOC" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="languageCode" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="name" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="role" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="originPlace" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="dateIssued" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="dateCreated" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="dateCaptured" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="copyrightDate" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="classification" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="identifier" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="physicalLocation" type="string" indexed="true" stored="true" multiValued="true"/>
+  ?<field name="shelfLocator" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="url" type="string" indexed="true" stored="true" multiValued="true"/> - waiting for holdings
+  <field name="issuance" type="string" indexed="true" stored="true" multiValued="true"/>
+  ?<field name="relatedItem" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.topic" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.geographic" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.temporal" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.titleInfo" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.name" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.genre" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.country" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.continent" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.province" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.region" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.state" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.territory" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.county" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.city" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.citySection" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.island" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.area" type="string" indexed="true" stored="true" multiValued="true"/>
+  <field name="subject.hierarchicalGeographic.extraterrestrialArea" type="string" indexed="true" stored="true" multiValued="true"/>#
 -->
 
 </xsl:stylesheet>
