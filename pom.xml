@@ -135,6 +135,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.2.0</version>
+    </dependency>
+
     <!-- camel streaming -->
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -239,6 +245,23 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-maven-plugin</artifactId>
         <version>${camel.version}</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.21.0</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-surefire-provider</artifactId>
+            <version>1.2.0</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <additionalClasspathElements>
+            <additionalClasspathElement>src/test/resources</additionalClasspathElement>
+          </additionalClasspathElements>
+        </configuration>
       </plugin>
     </plugins>
   </build>
