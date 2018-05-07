@@ -4,6 +4,7 @@
   <xsl:output encoding="UTF-8" indent="yes" method="xml"  omit-xml-declaration="yes"/>
   <xsl:strip-space elements="*"/>
   <xsl:param name="marc-countries-file" select="'src/main/resources/countries.xml'" />
+  <xsl:param name="iso639-2-file" select="'src/main/resources/iso639-2.xml'" />
 
 
   <!-- Harvard modifications
@@ -1346,9 +1347,13 @@
     <!-- language 041 -->
     <xsl:variable name="controlField008-35-37" select="normalize-space(translate(substring($controlField008,36,3),'|#',''))"/>
     <xsl:if test="$controlField008-35-37">
+      <xsl:variable name="languageText" select="normalize-space(document($iso639-2-file)//entry[code=$controlField008-35-37]/text/text())" />
       <language>
         <languageTerm authority="iso639-2b" type="code">
           <xsl:value-of select="substring($controlField008,36,3)"/>
+        </languageTerm>
+        <languageTerm authority="iso639-2b" type="text">
+          <xsl:value-of select="$languageText"/>
         </languageTerm>
       </language>
     </xsl:if>

@@ -8,6 +8,9 @@ import org.xml.sax.InputSource;
 import org.apache.commons.io.IOUtils;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -22,10 +25,15 @@ import org.w3c.dom.Document;
 
 import edu.harvard.libcomm.message.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ModsProcessorTests {
 
-    @Test
-    void processMessage() throws Exception {
+    private Document mods;
+    private XPath xPath;
+
+
+    @BeforeAll
+    void buildMods() throws Exception {
         ModsProcessor mp = new ModsProcessor();
 
         LibCommMessage lcm = new LibCommMessage();
@@ -50,12 +58,13 @@ class ModsProcessorTests {
         builderFactory.setValidating(false);
         builderFactory.setNamespaceAware(false);
         DocumentBuilder builder = builderFactory.newDocumentBuilder();
-        Document mods = builder.parse(modsIS);
-        XPath xPath = XPathFactory.newInstance().newXPath();
+        mods = builder.parse(modsIS);
+        xPath = XPathFactory.newInstance().newXPath();
+    }
 
-        String typeOfResource = (String) xPath.compile("/*//*[local-name() = 'typeOfResource']").evaluate(mods, XPathConstants.STRING);
 
-        assertEquals("text", typeOfResource, "transforms typeOfResource");
+    @Test //LTSCLOUD-393
+    void buildModsPlaceTerm() throws Exception {
 
         String originCode = (String) xPath.compile("/*//*[local-name()='place'][1]/*[local-name() = 'placeTerm'][@type='code'][@authority='marccountry']").evaluate(mods, XPathConstants.STRING);
 
@@ -64,5 +73,19 @@ class ModsProcessorTests {
         String originText = (String) xPath.compile("/*//*[local-name()='place'][1]/*[local-name() = 'placeTerm'][@type='text'][@authority='marccountry']").evaluate(mods, XPathConstants.STRING);
 
         assertEquals("New York (State)", originText, "transforms controlfield 008 origin as text");
+    }
+
+
+    @Test //LTSCLOUD-390
+    void buildModsLanguage() throws Exception {
+
+        String languageCode = (String) xPath.compile("/*//*[local-name()='language'][1]/*[local-name() = 'languageTerm'][@type='code'][@authority='iso639-2b']").evaluate(mods, XPathConstants.STRING);
+
+        assertEquals("eng", languageCode);
+
+        String languageText = (String) xPath.compile("/*//*[local-name()='language'][1]/*[local-name() = 'languageTerm'][@type='text'][@authority='iso639-2b']").evaluate(mods, XPathConstants.STRING);
+
+        assertEquals("English", languageText);
+
     }
 }
