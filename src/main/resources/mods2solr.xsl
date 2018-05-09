@@ -261,13 +261,25 @@
     </xsl:template>
 
     <xsl:template match="mods:language">
-        <xsl:element name="field">
+      <xsl:apply-templates/>
+    </xsl:template>
+
+    <xsl:template match="mods:languageTerm">
+      <xsl:element name="field">
             <xsl:attribute name="name">
-                <xsl:text>languageCode</xsl:text>
+              <xsl:choose>
+                <xsl:when test="@type = 'code'">
+                  <xsl:text>languageCode</xsl:text>
+                </xsl:when>
+                <xsl:when test="@type = 'text'">
+                  <xsl:text>language</xsl:text>
+                </xsl:when>
+              </xsl:choose>
             </xsl:attribute>
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
+
 
     <xsl:template match="mods:physicalDescription">
         <xsl:element name="field">
