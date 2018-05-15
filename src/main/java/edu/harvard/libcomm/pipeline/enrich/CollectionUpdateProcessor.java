@@ -1,8 +1,9 @@
 package edu.harvard.libcomm.pipeline.enrich;
 
+import java.io.IOException;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -60,7 +61,7 @@ public class CollectionUpdateProcessor implements IProcessor {
 
         SolrDocumentList docs;
         SolrDocument doc = null;
-        HttpSolrServer server = null;
+        HttpSolrClient server = null;
         try {
             server = SolrServer.getSolrConnection();
 
@@ -74,9 +75,13 @@ public class CollectionUpdateProcessor implements IProcessor {
 
             }
         }
-        catch (SolrServerException  se) {
+        catch (SolrServerException se) {
             se.printStackTrace();
             log.error(se.getMessage());
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
         }
 
         return (doc == null) ? null : doc.getFieldValue("originalMods").toString();

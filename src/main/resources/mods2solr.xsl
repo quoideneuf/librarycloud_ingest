@@ -6,6 +6,7 @@
     xmlns:set="http://hul.harvard.edu/ois/xml/ns/libraryCloud"
     xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:ext="http://exslt.org/common"
     >
 
     <xsl:output indent="yes" encoding="UTF-8"/>
@@ -89,6 +90,18 @@
                 </xsl:text>
             </xsl:element>
 
+            <xsl:variable name="dateRange">
+              <xsl:call-template name="buildDateRange" />
+            </xsl:variable>
+
+            <xsl:if test="not(contains($dateRange, '100000'))">
+              <xsl:element name="field">
+                <xsl:attribute name="name">
+                  <xsl:text>dateRange</xsl:text>
+                </xsl:attribute>
+                <xsl:value-of select="$dateRange" />
+              </xsl:element>
+            </xsl:if>
         </xsl:element>
     </xsl:template>
 
@@ -678,6 +691,295 @@
     <!-- will add space for sibs except for the last -->
     <xsl:template match="*">
         <xsl:value-of select="."/><xsl:if test="not(position()=last())"><xsl:text> </xsl:text></xsl:if>
+    </xsl:template>
+
+    <xsl:template name="buildDateRange">
+      <xsl:param name="lowDate" select="100000"/>
+      <xsl:param name="highDate" select="-100000"/>
+      <xsl:param name="dateNodes" select="descendant::*[local-name()='dateIssued' or local-name()='dateCreated']" />
+      <xsl:param name="position" select="1" />
+
+      <xsl:choose>
+        <xsl:when test="count($dateNodes[number($position)]) &gt; 0">
+          <xsl:variable name="currentDateNode" select="$dateNodes[number($position)]" />
+
+          <!-- collect all dates and build 4 digit dates separated by '_'
+               e.g, '1910_1920_1930_' -->
+
+          <xsl:variable name="dateString">
+            <xsl:call-template name="normalizeDate">
+              <xsl:with-param name="dateStringInput" select="$currentDateNode" />
+            </xsl:call-template>
+          </xsl:variable>
+
+          <xsl:call-template name="buildDateRange">
+            <xsl:with-param name="lowDate">
+              <xsl:call-template name="findLowDate">
+                <xsl:with-param name="dateString" select="$dateString" />
+                <xsl:with-param name="lowDate" select="$lowDate" />
+              </xsl:call-template>
+            </xsl:with-param>
+
+            <xsl:with-param name="highDate">
+              <xsl:call-template name="findHighDate">
+                <xsl:with-param name="dateString" select="$dateString" />
+                <xsl:with-param name="highDate" select="$highDate" />
+              </xsl:call-template>
+            </xsl:with-param>
+
+            <xsl:with-param name="dateNodes" select="$dateNodes" />
+            <xsl:with-param name="position">
+              <xsl:value-of select="$position+1" />
+            </xsl:with-param>
+          </xsl:call-template>
+
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="formatDateRange">
+            <xsl:with-param name="lowDate" select="$lowDate" />
+            <xsl:with-param name="highDate" select="$highDate" />
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="formatDateRange">
+      <xsl:param name="lowDate" />
+      <xsl:param name="highDate" />
+
+      <xsl:choose>
+        <xsl:when test="starts-with($lowDate, '0')">
+          <xsl:call-template name="formatDateRange">
+            <xsl:with-param name="lowDate" select="substring($lowDate, 2)" />
+            <xsl:with-param name="highDate" select="$highDate" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="starts-with($highDate, '0')">
+          <xsl:call-template name="formatDateRange">
+            <xsl:with-param name="lowDate" select="$lowDate" />
+            <xsl:with-param name="highDate" select="substring($highDate, 2)" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat('[', string($lowDate), ' TO ', string($highDate), ']')" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="normalizeDate">
+      <xsl:param name="dateStringInput"/>
+      <xsl:param name="dateStringOutput"/>
+      <xsl:param name="step" select="1" />
+
+      <xsl:choose>
+        <xsl:when test="$step = 1 and string-length($dateStringInput) > 0">
+          <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="dateStringInput">
+              <xsl:value-of select="substring($dateStringInput, 2)" />
+            </xsl:with-param>
+            <xsl:with-param name="dateStringOutput">
+              <xsl:choose>
+                <xsl:when test="contains('0123456789?-/', substring($dateStringInput, 1, 1))">
+                  <xsl:value-of select="concat($dateStringOutput, substring($dateStringInput, 1, 1))" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="concat($dateStringOutput, ' ')" />
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="$step = 1 and contains($dateStringOutput, '  ')">
+          <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="dateStringOutput" select="concat(substring-before($dateStringOutput, '  '), ' ', substring-after($dateStringOutput, '  '))" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="$step =1 and starts-with($dateStringOutput, ' ')">
+          <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="dateStringOutput" select="substring($dateStringOutput, 2)" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="$step =1 and substring($dateStringOutput, string-length($dateStringOutput) - 1, 1) = ' '">
+          <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="dateStringOutput" select="substring($dateStringOutput, 1, string-length($dateStringOutput) -1)" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="$step = 1 and not(substring($dateStringOutput, string-length($dateStringOutput)) = ' ')">
+          <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="dateStringInput" select="concat($dateStringOutput, ' ')" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="$step = 1">
+          <xsl:message>Result Step 1: <xsl:value-of select="translate($dateStringOutput, ' ', '_')" /></xsl:message>
+          <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="dateStringInput" select="translate($dateStringOutput, ' ', '_')" />
+            <xsl:with-param name="step" select="2" />
+          </xsl:call-template>
+        </xsl:when>
+        <!-- now make each part 4 digits-->
+        <xsl:when test="$step=2">
+          <xsl:choose>
+            <xsl:when test="contains($dateStringInput, '_')">
+              <xsl:variable name="normalizedFrag">
+                <xsl:call-template name="padDateString">
+                  <xsl:with-param name="dateString">
+                    <xsl:call-template name="normalizeDateFrag">
+                      <xsl:with-param name="dateStringInput" select="substring-before($dateStringInput, '_')" />
+                    </xsl:call-template>
+                  </xsl:with-param>
+                </xsl:call-template>
+              </xsl:variable>
+              <xsl:call-template name="normalizeDate">
+                <xsl:with-param name="dateStringInput" select="substring-after($dateStringInput, '_')" />
+                <xsl:with-param name="dateStringOutput">
+                  <xsl:choose>
+                    <xsl:when test="string-length($dateStringOutput) > 0">
+                      <xsl:value-of select="concat($dateStringOutput, '_', $normalizedFrag)" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:value-of select="$normalizedFrag" />
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:with-param>
+                <xsl:with-param name="step" select="2" />
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+              <!--DONE -->
+              <xsl:value-of select="translate($dateStringOutput, '-', '_')" />
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="normalizeDateFrag">
+      <xsl:param name="dateStringInput"/>
+      <xsl:param name="dateStringOutput"/>
+      <xsl:choose>
+        <xsl:when test="string-length($dateStringInput) = 5 and substring($dateStringInput, 4, 2) = '-?'">
+          <xsl:call-template name="normalizeDateFrag">
+            <xsl:with-param name="dateStringInput" select="translate($dateStringInput, '-?', '0')" />
+            <xsl:with-param name="dateStringOutput" select="$dateStringOutput" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="string-length($dateStringInput) = 4 and substring($dateStringInput, 4, 1) = '?'">
+          <xsl:call-template name="normalizeDateFrag">
+            <xsl:with-param name="dateStringInput" select="translate($dateStringInput, '?', '')" />
+            <xsl:with-param name="dateStringOutput" select="$dateStringOutput" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="string-length($dateStringInput) = 7 and substring($dateStringInput, 5, 1) = '/'">
+          <xsl:call-template name="normalizeDateFrag">
+            <xsl:with-param name="dateStringInput" select="concat(substring($dateStringInput, 1, 4), '-', substring($dateStringInput, 1, 2), substring($dateStringInput, 6, 2))" />
+            <xsl:with-param name="dateStringOutput" select="$dateStringOutput" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="string-length($dateStringInput) = 8 and substring($dateStringInput, 5, 1) = '/' and substring($dateStringInput, 8, 1) = '?'">
+          <xsl:call-template name="normalizeDateFrag">
+            <xsl:with-param name="dateStringInput" select="concat(substring($dateStringInput, 1, 4), '-', substring($dateStringInput, 1, 2), substring($dateStringInput, 6, 2))" />
+            <xsl:with-param name="dateStringOutput" select="$dateStringOutput" />
+          </xsl:call-template>
+        </xsl:when>
+
+        <xsl:when test="starts-with($dateStringInput, '[') and (substring($dateStringInput, string-length($dateStringInput), 1) = ']')">
+          <xsl:call-template name="normalizeDateFrag">
+            <xsl:with-param name="dateStringInput" select="substring($dateStringInput, 2, string-length($dateStringInput) - 2)" />
+            <xsl:with-param name="dateStringOutput" select="$dateStringOutput" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="string-length($dateStringInput) &gt; 0">
+          <xsl:call-template name="normalizeDateFrag">
+            <xsl:with-param name="dateStringInput" select="substring($dateStringInput, 2)" />
+            <xsl:with-param name="dateStringOutput">
+              <xsl:choose>
+                <xsl:when test="contains('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[]', substring($dateStringInput, 1, 1))">
+                  <xsl:value-of select="$dateStringOutput" />
+                </xsl:when>
+                <xsl:when test="contains('?', substring($dateStringInput, 1, 1))">
+                  <xsl:value-of select="concat($dateStringOutput, '0')" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="concat($dateStringOutput, substring($dateStringInput, 1, 1))" />
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:when>
+
+        <xsl:otherwise>
+          <xsl:value-of select="$dateStringOutput" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="padDateString">
+      <xsl:param name="dateString" />
+            <xsl:message><xsl:value-of select="$dateString" /></xsl:message>
+      <xsl:choose>
+        <xsl:when test="string-length($dateString) &lt; 4">
+          <xsl:call-template name="padDateString">
+            <xsl:with-param name="dateString" select="concat('0', $dateString)" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$dateString" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
+
+    <xsl:template name="findLowDate">
+      <xsl:param name="dateString" />
+      <xsl:param name="lowDate" select="100000"/>
+
+      <xsl:choose>
+      <xsl:when test="string-length($dateString) &gt; 0">
+        <xsl:call-template name="findLowDate">
+          <xsl:with-param name="dateString" select="substring-after($dateString, '_')" />
+          <xsl:with-param name="lowDate">
+            <xsl:choose>
+              <xsl:when test="number(substring($dateString, 1, 4)) &lt; number($lowDate)">
+                <xsl:value-of select="substring($dateString, 1, 4)" />
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="$lowDate" />
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$lowDate" />
+      </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
+
+
+
+    <xsl:template name="findHighDate">
+      <xsl:param name="dateString" />
+      <xsl:param name="highDate" select="-100000"/>
+
+      <xsl:choose>
+      <xsl:when test="string-length($dateString) &gt; 0">
+        <xsl:call-template name="findHighDate">
+          <xsl:with-param name="dateString" select="substring-after($dateString, '_')" />
+          <xsl:with-param name="highDate">
+            <xsl:choose>
+              <xsl:when test="number(substring($dateString, 1, 4)) &gt; number($highDate)">
+                <xsl:value-of select="substring($dateString, 1, 4)" />
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="$highDate" />
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$highDate" />
+      </xsl:otherwise>
+      </xsl:choose>
     </xsl:template>
 
     <!--
