@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.Disabled;
 
 
 import javax.xml.namespace.NamespaceContext;
@@ -62,7 +63,6 @@ class ModsProcessorTests {
         xPath = XPathFactory.newInstance().newXPath();
     }
 
-
     @Test //LTSCLOUD-393
     void buildModsPlaceTerm() throws Exception {
 
@@ -74,7 +74,6 @@ class ModsProcessorTests {
 
         assertEquals("New York (State)", originText, "transforms controlfield 008 origin as text");
     }
-
 
     @Test //LTSCLOUD-390
     void buildModsLanguage() throws Exception {

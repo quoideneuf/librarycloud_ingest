@@ -52,6 +52,7 @@ class SolrProcessorTests {
 
         String result = MessageUtils.transformPayloadData(lcm, "src/main/resources/mods2solr.xsl", null);
 
+        System.out.println(result);
         InputStream solrIS = IOUtils.toInputStream(result, "UTF-8");
 
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -71,5 +72,34 @@ class SolrProcessorTests {
 
         String language = (String) xPath.compile("//field[@name='language']").evaluate(solrDoc, XPathConstants.STRING);
         assertEquals("English", language);
+    }
+
+    @Test
+    void buildSolrDateRangeFields() throws Exception {
+        String date1 = (String) xPath.compile("(//field[@name='dateRange'])[1]").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("[1967 TO 1967]", date1);
+
+        String date2 = (String) xPath.compile("(//field[@name='dateRange'])[2]").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("[1962 TO 1962]", date2);
+
+        String date3 = (String) xPath.compile("(//field[@name='dateRange'])[3]").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("[1932 TO 1933]", date3);
+
+        String date6 = (String) xPath.compile("(//field[@name='dateRange'])[6]").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("[1960 TO 1967]", date6);
+
+        String date7 = (String) xPath.compile("(//field[@name='dateRange'])[7]").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("[1943 TO 1944]", date7);
+
+        String date8 = (String) xPath.compile("(//field[@name='dateRange'])[8]").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("[1942 TO 1943]", date8);
+
+        // String date9 = (String) xPath.compile("(//field[@name='dateRange'])[9]").evaluate(solrDoc, XPathConstants.STRING);
+        // assertEquals("", date9);
+
+        String date10 = (String) xPath.compile("(//field[@name='dateRange'])[10]").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("[741 TO 1981]", date10);
+
+
     }
 }

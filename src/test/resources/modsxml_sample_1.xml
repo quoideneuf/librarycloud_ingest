@@ -7,5 +7,43 @@
          <languageTerm authority="iso639-2b" type="code">eng</languageTerm>
          <languageTerm authority="iso639-2b" type="text">English</languageTerm>
       </language>
+      <originInfo>
+        <dateIssued>1967</dateIssued>
+      </originInfo>
    </mods>
+   <mods version="3.6">
+     <originInfo>
+       <dateIssued>[1962?]</dateIssued>
+     </originInfo>
+   </mods>
+   <mods version="3.6">
+     <originInfo>
+       <dateIssued>[1932 or 1933]</dateIssued>
+     </originInfo>
+   </mods>
+   <mods version="3.6">
+     <originInfo>
+       <dateIssued>[1929/30]</dateIssued>
+     </originInfo>
+   </mods>
+   <mods version="3.6">
+     <originInfo>
+       <dateIssued>[193-?]</dateIssued>
+     </originInfo>
+   </mods>
+   <mods version="3.6">
+     <originInfo>
+       <dateIssued encoding="marc" point="start">1961</dateIssued>
+       <dateIssued encoding="marc" point="end">1967</dateIssued>
+     </originInfo>
+     <originInfo>
+       <dateCreated point="start">1960</dateCreated>
+       <dateCreated point="end">1966</dateCreated>
+       <dateCreated>1966</dateCreated>
+     </originInfo>
+   </mods>
+   <mods><originInfo><dateIssued>1943 or 1944]</dateIssued></originInfo></mods>
+   <mods><originInfo><dateIssued>[1942/43?]</dateIssued></originInfo></mods>
+   <mods><originInfo><dateIssued>abc123dsdfdsf</dateIssued></originInfo></mods>
+      <mods><originInfo><dateIssued>[741, 1980 or 1981]</dateIssued></originInfo></mods>
 </modsCollection>
