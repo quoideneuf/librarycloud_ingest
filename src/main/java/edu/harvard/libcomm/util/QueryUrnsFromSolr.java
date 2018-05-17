@@ -48,7 +48,8 @@ public class QueryUrnsFromSolr {
     }
 
     private void queryForUrns() throws Exception {
-        HttpSolrClient server = new HttpSolrClient.Builder(URL).build();
+        // HttpSolrClient server = new HttpSolrClient.Builder(URL).build();
+        HttpSolrClient server = new HttpSolrClient(URL);
         String currentStatus = type + "_huldrsadmin_status_string:current";
         String queryStr = "doc_type_string:" + type + " AND " + currentStatus + " AND " + field + ":[* TO *]";
         if (type.equals("object"))

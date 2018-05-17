@@ -42,7 +42,9 @@ public class SolrHoldingsServer {
 	
 	public static HttpSolrClient getSolrConnection() {
 		try {
-      server = new HttpSolrClient.Builder(Config.getInstance().SOLR_HOLDINGS_URL).build();
+      // server = new HttpSolrClient.Builder(Config.getInstance().SOLR_HOLDINGS_URL).build();
+        server = new HttpSolrClient(Config.getInstance().SOLR_HOLDINGS_URL);
+
 		} catch (Exception e) {
 			// TO DO - error handling
 			System.out.println( e);
