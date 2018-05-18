@@ -53,6 +53,10 @@
                                 namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
                                 <xsl:value-of select="col:setName"/>
                             </xsl:element>
+                            <xsl:element name="setSpec"
+                                namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
+                                <xsl:value-of select="col:setSpec"/>
+                            </xsl:element>
                             <xsl:element name="dcp"
                                 namespace="http://hul.harvard.edu/ois/xml/ns/libraryCloud">
                               <xsl:value-of select="col:dcp"/>

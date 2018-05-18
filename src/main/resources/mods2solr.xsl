@@ -52,6 +52,7 @@
             <xsl:apply-templates select="mods:relatedItem[@type='series']"/>
             <xsl:apply-templates select="mods:extension/usage:usageData/usage:stackScore"/>
             <xsl:apply-templates select="mods:extension/set:sets/set:set/set:setName"/>
+            <xsl:apply-templates select="mods:extension/set:sets/set:set/set:setSpec"/>
             <xsl:apply-templates select="mods:extension/set:sets/set:set/set:systemId"/>
             <xsl:choose>
                 <xsl:when test="mods:extension/HarvardDRS:DRSMetadata">
@@ -582,6 +583,21 @@
         <xsl:element name="field">
             <xsl:attribute name="name">
                 <xsl:text>setName</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+        <xsl:element name="field">
+          <xsl:attribute name="name">
+            <xsl:text>collectionTitle</xsl:text>
+          </xsl:attribute>
+          <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="set:setSpec">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>setSpec</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
