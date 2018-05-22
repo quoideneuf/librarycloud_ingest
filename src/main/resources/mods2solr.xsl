@@ -786,8 +786,13 @@
       <xsl:param name="dateStringInput"/>
       <xsl:param name="dateStringOutput"/>
       <xsl:param name="step" select="1" />
+      <xsl:param name="brake" select="0" />
 
       <xsl:choose>
+        <xsl:when test="$brake &gt; 1000">
+          <xsl:message>breaking out of loop: normalizeDate</xsl:message>
+        </xsl:when>
+        <xsl:when test="string-length($dateStringInput) = 0 and string-length($dateStringOutput) = 0"></xsl:when>
         <xsl:when test="$step = 1 and string-length($dateStringInput) > 0">
           <xsl:call-template name="normalizeDate">
             <xsl:with-param name="dateStringInput">
@@ -803,36 +808,42 @@
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:with-param>
+            <xsl:with-param name="brake" select="$brake+1" />
           </xsl:call-template>
         </xsl:when>
         <xsl:when test="$step = 1 and contains($dateStringOutput, '  ')">
           <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="brake" select="$brake+1" />
             <xsl:with-param name="dateStringOutput" select="concat(substring-before($dateStringOutput, '  '), ' ', substring-after($dateStringOutput, '  '))" />
           </xsl:call-template>
         </xsl:when>
-        <xsl:when test="$step =1 and starts-with($dateStringOutput, ' ')">
+        <xsl:when test="$step = 1 and starts-with($dateStringOutput, ' ')">
           <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="brake" select="$brake+1" />
             <xsl:with-param name="dateStringOutput" select="substring($dateStringOutput, 2)" />
           </xsl:call-template>
         </xsl:when>
-        <xsl:when test="$step =1 and substring($dateStringOutput, string-length($dateStringOutput) - 1, 1) = ' '">
+        <xsl:when test="$step = 1 and substring($dateStringOutput, string-length($dateStringOutput) - 1, 1) = ' '">
           <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="brake" select="$brake+1" />
             <xsl:with-param name="dateStringOutput" select="substring($dateStringOutput, 1, string-length($dateStringOutput) -1)" />
           </xsl:call-template>
         </xsl:when>
         <xsl:when test="$step = 1 and not(substring($dateStringOutput, string-length($dateStringOutput)) = ' ')">
           <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="brake" select="$brake+1" />
             <xsl:with-param name="dateStringInput" select="concat($dateStringOutput, ' ')" />
           </xsl:call-template>
         </xsl:when>
         <xsl:when test="$step = 1">
           <xsl:call-template name="normalizeDate">
+            <xsl:with-param name="brake" select="$brake+1" />
             <xsl:with-param name="dateStringInput" select="translate($dateStringOutput, ' ', '_')" />
             <xsl:with-param name="step" select="2" />
           </xsl:call-template>
         </xsl:when>
         <!-- now make each part 4 digits-->
-        <xsl:when test="$step=2">
+        <xsl:when test="$step = 2">
           <xsl:choose>
             <xsl:when test="contains($dateStringInput, '_')">
               <xsl:variable name="normalizedFrag">
@@ -845,6 +856,7 @@
                 </xsl:call-template>
               </xsl:variable>
               <xsl:call-template name="normalizeDate">
+                <xsl:with-param name="brake" select="$brake+1" />
                 <xsl:with-param name="dateStringInput" select="substring-after($dateStringInput, '_')" />
                 <xsl:with-param name="dateStringOutput">
                   <xsl:choose>
