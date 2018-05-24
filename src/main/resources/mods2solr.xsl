@@ -95,7 +95,7 @@
               <xsl:call-template name="buildDateRange" />
             </xsl:variable>
 
-            <xsl:if test="not(contains($dateRange, '100000'))">
+            <xsl:if test="string-length($dateRange) > 0 and (not(contains($dateRange, '100000')))">
               <xsl:element name="field">
                 <xsl:attribute name="name">
                   <xsl:text>dateRange</xsl:text>
@@ -712,8 +712,18 @@
     <xsl:template name="buildDateRange">
       <xsl:param name="lowDate" select="100000"/>
       <xsl:param name="highDate" select="-100000"/>
+      <xsl:param name="startFound" select="0" />
+      <xsl:param name="endFound" select="0" />
       <xsl:param name="dateNodes" select="descendant::*[local-name()='dateIssued' or local-name()='dateCreated']" />
       <xsl:param name="position" select="1" />
+
+      <!-- <xsl:message>buildDateRangeParams: -->
+      <!-- <xsl:value-of select="$lowDate"/> -\-\- -->
+      <!-- <xsl:value-of select="$highDate"/> -\-\- -->
+      <!-- <xsl:value-of select="$startFound"/> -\-\- -->
+      <!-- <xsl:value-of select="$endFound" /> -\-\- -->
+      <!-- <xsl:value-of select="$position" /> -\-\- -->
+      <!-- </xsl:message> -->
 
       <xsl:choose>
         <xsl:when test="count($dateNodes[number($position)]) &gt; 0">
@@ -730,23 +740,72 @@
 
           <xsl:call-template name="buildDateRange">
             <xsl:with-param name="lowDate">
-              <xsl:call-template name="findLowDate">
-                <xsl:with-param name="dateString" select="$dateString" />
-                <xsl:with-param name="lowDate" select="$lowDate" />
-              </xsl:call-template>
+              <xsl:choose>
+                <xsl:when test="$currentDateNode/@point = 'start' and string-length($dateString) = 4 and number($dateString) &gt; -10000 and $startFound = 0">
+                  <xsl:value-of select="number($dateString)" />
+                </xsl:when>
+                <xsl:when test="$currentDateNode/@point = 'start' and string-length($dateString) = 4 and number($dateString) &lt; $lowDate">
+                  <xsl:value-of select="number($dateString)" />
+                </xsl:when>
+                <xsl:when test="$startFound = 0"><!--only look at nodes missing @point if one hasn't been found yet -->
+                  <xsl:call-template name="findLowDate">
+                    <xsl:with-param name="dateString" select="$dateString" />
+                    <xsl:with-param name="lowDate" select="$lowDate" />
+                  </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="$lowDate" />
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:with-param>
 
             <xsl:with-param name="highDate">
-              <xsl:call-template name="findHighDate">
-                <xsl:with-param name="dateString" select="$dateString" />
-                <xsl:with-param name="highDate" select="$highDate" />
-              </xsl:call-template>
+              <xsl:choose>
+                <xsl:when test="$currentDateNode/@point = 'end' and string-length($dateString) = 4 and number($dateString) &gt; -10000 and $endFound = 0">
+                  <xsl:value-of select="number($dateString)" />
+                </xsl:when>
+                <xsl:when test="$currentDateNode/@point = 'end' and string-length($dateString) = 4 and number($dateString) &gt; $highDate">
+                  <xsl:value-of select="number($dateString)" />
+                </xsl:when>
+                <xsl:when test="$endFound = 0"><!--only look at nodes missing @point if one hasn't been found yet -->
+                  <xsl:call-template name="findHighDate">
+                    <xsl:with-param name="dateString" select="$dateString" />
+                    <xsl:with-param name="highDate" select="$highDate" />
+                  </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="$highDate" />
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:with-param>
 
             <xsl:with-param name="dateNodes" select="$dateNodes" />
             <xsl:with-param name="position">
               <xsl:value-of select="$position+1" />
             </xsl:with-param>
+
+            <xsl:with-param name="startFound">
+              <xsl:choose>
+                <xsl:when test="$currentDateNode/@point = 'start'">
+                  <xsl:value-of select="1" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="$startFound" />
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:with-param>
+
+            <xsl:with-param name="endFound">
+              <xsl:choose>
+                <xsl:when test="$currentDateNode/@point = 'end'">
+                  <xsl:value-of select="1" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="$endFound" />
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:with-param>
+
           </xsl:call-template>
 
         </xsl:when>
@@ -776,9 +835,9 @@
             <xsl:with-param name="highDate" select="substring($highDate, 2)" />
           </xsl:call-template>
         </xsl:when>
-        <xsl:otherwise>
+        <xsl:when test="string-length($lowDate) > 0 and string-length($highDate) > 0">
           <xsl:value-of select="concat('[', string($lowDate), ' TO ', string($highDate), ']')" />
-        </xsl:otherwise>
+        </xsl:when>
       </xsl:choose>
     </xsl:template>
 

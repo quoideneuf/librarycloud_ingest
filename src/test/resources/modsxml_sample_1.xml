@@ -45,5 +45,12 @@
    <mods><originInfo><dateIssued>1943 or 1944]</dateIssued></originInfo></mods>
    <mods><originInfo><dateIssued>[1942/43?]</dateIssued></originInfo></mods>
    <mods><originInfo><dateIssued>abc123dsdfdsf</dateIssued></originInfo></mods>
-      <mods><originInfo><dateIssued>[741, 1980 or 1981]</dateIssued></originInfo></mods>
+   <mods><originInfo><dateIssued>[741, 1980 or 1981]</dateIssued></originInfo></mods>
+   <mods>
+     <originInfo>
+       <dateIssued>[175- ?]</dateIssued>
+       <dateIssued encoding="marc" qualifier="questionable" point="start">1750</dateIssued>
+       <dateIssued encoding="marc" qualifier="questionable" point="end">1759</dateIssued>
+     </originInfo>
+   </mods>
 </modsCollection>
