@@ -735,8 +735,11 @@
           <xsl:variable name="dateString">
             <xsl:call-template name="normalizeDate">
               <xsl:with-param name="dateStringInput" select="$currentDateNode" />
+              <xsl:with-param name="point" select="$currentDateNode/@point" />
             </xsl:call-template>
           </xsl:variable>
+
+          <!-- <xsl:message><xsl:value-of select="$dateString"/></xsl:message> -->
 
           <xsl:call-template name="buildDateRange">
             <xsl:with-param name="lowDate">
@@ -846,10 +849,25 @@
       <xsl:param name="dateStringOutput"/>
       <xsl:param name="step" select="1" />
       <xsl:param name="brake" select="0" />
+      <xsl:param name="point" />
 
       <xsl:choose>
         <xsl:when test="$brake &gt; 1000">
           <xsl:message>breaking out of loop: normalizeDate</xsl:message>
+        </xsl:when>
+        <xsl:when test='string-length($dateStringOutput) = 0 and matches($dateStringInput, "\d?u{3}u?") and string-length($dateStringInput) = 4'>
+        </xsl:when>
+        <xsl:when test='string-length($dateStringOutput) = 0 and matches($dateStringInput, "\d{2}u{2}") and $point = "start"'>
+          <xsl:value-of select="translate($dateStringInput, 'u', '0')" />
+        </xsl:when>
+        <xsl:when test='string-length($dateStringOutput) = 0 and matches($dateStringInput, "\d{2}u{2}") and $point = "end"'>
+          <xsl:value-of select="translate($dateStringInput, 'u', '9')" />
+        </xsl:when>
+        <xsl:when test='string-length($dateStringOutput) = 0 and matches($dateStringInput, "\d+\s\[\d+\]")'>
+          <xsl:value-of select='substring-before(substring-after($dateStringInput, "["), "]")' />
+        </xsl:when>
+        <xsl:when test='string-length($dateStringOutput) = 0 and matches($dateStringInput, "\d+\s[\d+]")'>
+          <xsl:value-of select='substring-before(substring-after($dateStringInput, "["), "]")' />
         </xsl:when>
         <xsl:when test="string-length($dateStringInput) = 0 and string-length($dateStringOutput) = 0"></xsl:when>
         <xsl:when test="$step = 1 and string-length($dateStringInput) > 0">
