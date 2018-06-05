@@ -29,6 +29,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.bind.JAXBException;
 
 import org.w3c.dom.Document;
 
@@ -46,35 +47,37 @@ import org.junit.jupiter.api.Disabled;
 
 import static org.mockito.Mockito.*;
 
-import edu.harvard.libcomm.test.*;
+import edu.harvard.libcomm.test.TestHelpers;
+import edu.harvard.libcomm.test.TestMessageUtils;
+
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ExternalServiceProcessorTests {
+class ExternalXMLServiceProcessorTests {
 
-    class MyExternalServiceProcessor extends ExternalServiceProcessor {
+    class MyExternalXMLServiceProcessor extends ExternalXMLServiceProcessor {
 
         public String getUrns(LibCommMessage libCommMessage) throws Exception {
             return super.getUrns(libCommMessage);
+        }
+
+
+        public String getRecordIds(LibCommMessage libCommMessage) throws Exception {
+            return super.getRecordIds(libCommMessage);
         }
     }
 
 
     @Test
-    void extractUrns() throws Exception {
+    void testGetRecordIds() throws Exception {
 
-        MyExternalServiceProcessor p = new MyExternalServiceProcessor();
+        MyExternalXMLServiceProcessor p = new MyExternalXMLServiceProcessor();
 
-        LibCommMessage lcm = new LibCommMessage();
-        LibCommMessage.Payload pl = new LibCommMessage.Payload();
+        String cloudbody = TestHelpers.readFile("001763319.cloudbody.xml");
+        LibCommMessage lcm = TestMessageUtils.unmarshalLibCommMessage(IOUtils.toInputStream(cloudbody, "UTF-8"));
+        // System.out.println(lcm.getPayload().getData());
 
-        String xml = TestHelpers.readFile("urns-xsl-test.xml");
+        String ids = p.getRecordIds(lcm);
 
-        pl.setFormat("mods");
-        pl.setData(xml);
-        lcm.setPayload(pl);
-
-        String urns = p.getUrns(lcm);
-
-         assertEquals("%22urn-3:fhcl.loeb:123%22 OR %22urn-3:fhcl.loeb:456%22 OR %22urn-3:fhcl.loeb:789%22", urns);
+         assertEquals("001763319", ids);
     }
 }

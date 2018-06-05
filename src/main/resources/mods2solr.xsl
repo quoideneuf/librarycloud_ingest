@@ -739,7 +739,7 @@
             </xsl:call-template>
           </xsl:variable>
 
-         <!-- <xsl:message><xsl:value-of select="$dateString"/></xsl:message> -->
+          <!-- <xsl:message><xsl:value-of select="$dateString"/></xsl:message> -->
 
           <xsl:call-template name="buildDateRange">
             <xsl:with-param name="lowDate">
@@ -864,6 +864,9 @@
           <xsl:value-of select="translate($dateStringInput, 'u', '9')" />
         </xsl:when>
         <xsl:when test='string-length($dateStringOutput) = 0 and matches($dateStringInput, "\d+\s\[\d+\]")'>
+          <xsl:value-of select='substring-before(substring-after($dateStringInput, "["), "]")' />
+        </xsl:when>
+        <xsl:when test='string-length($dateStringOutput) = 0 and matches($dateStringInput, "\d+\s[\d+]")'>
           <xsl:value-of select='substring-before(substring-after($dateStringInput, "["), "]")' />
         </xsl:when>
         <xsl:when test="string-length($dateStringInput) = 0 and string-length($dateStringOutput) = 0"></xsl:when>
