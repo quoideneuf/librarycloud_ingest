@@ -59,19 +59,9 @@
      <originInfo><dateIssued>1384 [2005]</dateIssued></originInfo>
    </mods>
    <mods>
-     <identifier>13</identifier>
      <originInfo><dateIssued encoding="marc" point="start">18uu</dateIssued><dateIssued encoding="marc" point="end">19uu</dateIssued></originInfo>
    </mods>
    <mods>
-     <identifier>14</identifier>
      <originInfo><dateIssued encoding="marc" point="start">1uuu</dateIssued><dateIssued encoding="marc" point="end">1uuu</dateIssued></originInfo>
-   </mods>
-   <!--8001007218_22348616-->
-   <mods>
-     <identifier>15</identifier>
-     <originInfo><dateOther keyDate="yes">ca. 1570</dateOther>
-     <dateCreated point="start">1560 1560</dateCreated><dateCreated point="end">1580 1580</dateCreated>
-     <dateCreated>ca. 1570</dateCreated>
-     </originInfo>
    </mods>
 </modsCollection>

@@ -99,14 +99,11 @@ class SolrProcessorTests {
         String date12 = (String) xPath.compile("(//field[@name='dateRange'])[12]").evaluate(solrDoc, XPathConstants.STRING);
         assertEquals("[2005 TO 2005]", date12);
 
-        String date13 = (String) xPath.compile("(//doc[field[@name='identifier']/text()='13']/field[@name='dateRange']/text())").evaluate(solrDoc, XPathConstants.STRING);
+        String date13 = (String) xPath.compile("(//field[@name='dateRange'])[13]").evaluate(solrDoc, XPathConstants.STRING);
         assertEquals("[1800 TO 1999]", date13);
 
-        String date14 = (String) xPath.compile("(//doc[field[@name='identifier']/text()='14']/field[@name='dateRange']/text())").evaluate(solrDoc, XPathConstants.STRING);
+        String date14 = (String) xPath.compile("(//field[@name='dateRange'])[14]").evaluate(solrDoc, XPathConstants.STRING);
         assertEquals("", date14);
-
-        String date15 = (String) xPath.compile("(//doc[field[@name='identifier']/text()='15']/field[@name='dateRange']/text())").evaluate(solrDoc, XPathConstants.STRING);
-        assertEquals("[1560 TO 1580]", date15);
 
     }
 }
