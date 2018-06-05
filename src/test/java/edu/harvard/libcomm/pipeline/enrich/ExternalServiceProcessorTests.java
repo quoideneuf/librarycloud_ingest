@@ -46,7 +46,9 @@ import org.junit.jupiter.api.Disabled;
 
 import static org.mockito.Mockito.*;
 
-import edu.harvard.libcomm.test.*;
+import edu.harvard.libcomm.test.TestHelpers;
+import edu.harvard.libcomm.test.HttpUrlStreamHandler;
+
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ExternalServiceProcessorTests {
