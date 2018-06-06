@@ -6,7 +6,9 @@
     <xsl:output indent="yes" method="text"/>
 
     <xsl:template match="mods:modsCollection">
-      <xsl:apply-templates select="mods:mods" />
+        <xsl:element name="add">
+            <xsl:apply-templates select="mods:mods/mods:recordInfo/mods:recordIdentifier"/>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="mods:mods">
