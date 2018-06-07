@@ -23,12 +23,25 @@
             <xsl:apply-templates select="mods:url[@access='raw object']"/>
             <xsl:variable name="rawobj"><xsl:value-of select="mods:url[@access = 'raw object']"/></xsl:variable>
             <xsl:variable name="results" select="$param1"/>
-            <xsl:element name="url" namespace="http://www.loc.gov/mods/v3">
-                <xsl:attribute name="access">
+            <!-- Assumes that PDS thumbnails should NOT
+                 overwrite or replace or be appended to existing
+                 thumbnails -->
+            <xsl:choose>
+              <xsl:when test="string-length(mods:url[@access='preview']) &gt; 0">
+                <xsl:apply-templates select="mods:url[@access='preview']" />
+              </xsl:when>
+              <xsl:when test="string-length($results//image[url = $rawobj]/thumb) &gt; 0">
+                <xsl:element name="url" namespace="http://www.loc.gov/mods/v3">
+                  <xsl:attribute name="access">
                     <xsl:text>preview</xsl:text>
-                </xsl:attribute>
-                <xsl:value-of select="$results//image[url = $rawobj]/thumb"/>
-            </xsl:element>
+                  </xsl:attribute>
+                  <xsl:value-of select="$results//image[url = $rawobj]/thumb"/>
+                </xsl:element>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:comment>PDSThumbsProcessor was unable to find a thumbnail for this resource</xsl:comment>
+              </xsl:otherwise>
+            </xsl:choose>
         </xsl:copy>
     </xsl:template>
 

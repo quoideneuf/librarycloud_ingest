@@ -48,6 +48,8 @@ import static org.mockito.Mockito.*;
 
 import edu.harvard.libcomm.test.TestHelpers;
 import edu.harvard.libcomm.test.HttpUrlStreamHandler;
+import edu.harvard.libcomm.test.TestMessageUtils;
+
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DRSExtensionsProcessorTests {
@@ -129,7 +131,57 @@ class DRSExtensionsProcessorTests {
         String thumb4Url = (String) xPath.compile("//*[local-name()='mods'][4]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/421568540?width=150&height=150&usethumb=y", thumb4Url);
+    }
 
+
+    @Test
+    void test001763319() throws Exception {
+        DRSExtensionsProcessor p = new DRSExtensionsProcessor();
+
+        String cloudbody = TestHelpers.readFile("001763319.enrich-05.cloudbody.xml");
+        LibCommMessage lcm = TestMessageUtils.unmarshalLibCommMessage(IOUtils.toInputStream(cloudbody, "UTF-8"));
+        System.out.println(lcm.getPayload().getData());
+
+        String urns = MessageUtils.transformPayloadData(lcm,"src/main/resources/urns.xsl",null).replace(" ", "+");
+
+        System.out.println(urns);
+
+        String solrResponse = TestHelpers.readFile("001763319.drsextensions.json");
+
+        String href = Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn_keyword:("+urns+")&rows=250";
+
+        System.out.println(href);
+        URLConnection urlConnection = mock(URLConnection.class);
+        httpUrlStreamHandler.addConnection(new URL(href), urlConnection);
+
+        InputStream stream = new ByteArrayInputStream(solrResponse.getBytes(StandardCharsets.UTF_8));
+        when(urlConnection.getInputStream()).thenReturn(stream);
+        String input = lcm.getPayload().getData();
+
+        p.processMessage(lcm);
+
+        String result = lcm.getPayload().getData();
+
+        byte[] xmlBytes = input.getBytes();
+        Path p1 = Paths.get("./tmp/extensions_input.xml");
+        Files.write(p1, xmlBytes);
+
+        byte[] resultBytes = result.getBytes();
+        Path p2 = Paths.get("./tmp/extensions_output.xml");
+        Files.write(p2, resultBytes);
+
+        InputStream modsIS = IOUtils.toInputStream(result, "UTF-8");
+
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        builderFactory.setValidating(false);
+        builderFactory.setNamespaceAware(false);
+        DocumentBuilder builder = builderFactory.newDocumentBuilder();
+        Document mods = builder.parse(modsIS);
+        XPath xPath = XPathFactory.newInstance().newXPath();
+
+        String thumb1Url = (String) xPath.compile("//*[local-name()='mods'][2]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
+
+        assertEquals("http://ids.lib.harvard.edu/ids/view/45562415?width=150&height=150&usethumb=y", thumb1Url);
 
 
     }
