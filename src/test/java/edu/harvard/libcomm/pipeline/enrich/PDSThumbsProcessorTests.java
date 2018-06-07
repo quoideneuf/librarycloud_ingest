@@ -39,50 +39,26 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.Disabled;
 
+import edu.harvard.libcomm.pipeline.MessageUtils;
+import edu.harvard.libcomm.test.TestHelpers;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PDSThumbsProcessorTests {
 
     @Test
-    @Disabled
-    void testTest() throws Exception {
-        String id = "008154415";
-        //String id = "001490591";
-        PDSThumbsProcessor p = new PDSThumbsProcessor();
+    void extractPdsUrns() throws Exception {
 
         LibCommMessage lcm = new LibCommMessage();
         LibCommMessage.Payload pl = new LibCommMessage.Payload();
 
-        InputStream is = new FileInputStream(this.getClass().getResource("/"+id).getFile());
-
-        String xml = IOUtils.toString(is);
-        //        System.out.println(xml);
+        String xml = TestHelpers.readFile("001763319.PDSThumbsProcessor.xml");
 
         pl.setFormat("mods");
         pl.setData(xml);
         lcm.setPayload(pl);
 
-        p.processMessage(lcm);
+        String urns = MessageUtils.transformPayloadData(lcm,"src/main/resources/pds_urns.xsl",null);
 
-        String result = lcm.getPayload().getData();
-        //        System.out.println(result);
-
-        byte[] xmlBytes = xml.getBytes();
-        Path p1 = Paths.get("./tmp/thumbs_input.xml");
-        Files.write(p1, xmlBytes);
-
-        byte[] resultBytes = result.getBytes();
-        Path p2 = Paths.get("./tmp/thumbs_output.xml");
-        Files.write(p2, resultBytes);
-
-
-        InputStream modsIS = IOUtils.toInputStream(result, "UTF-8");
-
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setValidating(false);
-        builderFactory.setNamespaceAware(false);
-        DocumentBuilder builder = builderFactory.newDocumentBuilder();
-        Document mods = builder.parse(modsIS);
-        XPath xPath = XPathFactory.newInstance().newXPath();
+        assertEquals("http://nrs.harvard.edu/urn-3:fhcl.loeb:10356603,http://nrs.harvard.edu/urn-3:fhcl.loeb:9961581,", urns);
     }
 }
