@@ -105,4 +105,12 @@ class SolrProcessorTests {
         assertEquals("", date14);
 
     }
+
+    @Test
+    void buildSolrRepositoryFields() throws Exception {
+
+        String languageCode = (String) xPath.compile("//field[@name='repository']").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("Music Repository", languageCode);
+    }
+
 }
