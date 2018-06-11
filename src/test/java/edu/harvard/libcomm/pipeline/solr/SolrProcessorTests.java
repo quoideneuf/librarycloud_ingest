@@ -102,7 +102,7 @@ class SolrProcessorTests {
         assertEquals("[1800 TO 1999]", date13);
 
         String date14 = (String) xPath.compile("(//field[@name='dateRange'])[14]").evaluate(solrDoc, XPathConstants.STRING);
-        assertEquals("", date14);
+        assertEquals("[1965 TO 1966]", date14);
 
     }
 }

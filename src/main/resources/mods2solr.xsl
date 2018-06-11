@@ -812,6 +812,16 @@
           </xsl:call-template>
 
         </xsl:when>
+        <xsl:when test="$lowDate &gt; $highDate">
+          <xsl:call-template name="buildDateRange">
+            <xsl:with-param name="lowDate" select="$highDate"/>
+            <xsl:with-param name="highDate" select="$lowDate"/>
+            <xsl:with-param name="startFound" select="$startFound" />
+            <xsl:with-param name="endFound" select="$endFound" />
+            <xsl:with-param name="dateNodes" select="$dateNodes" />
+            <xsl:with-param name="position" select="$position" />
+          </xsl:call-template>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="formatDateRange">
             <xsl:with-param name="lowDate" select="$lowDate" />
