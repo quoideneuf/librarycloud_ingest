@@ -41,32 +41,25 @@ import org.junit.jupiter.api.Disabled;
 
 import edu.harvard.libcomm.pipeline.MessageUtils;
 import edu.harvard.libcomm.test.TestHelpers;
+import edu.harvard.libcomm.test.TestMessageUtils;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PDSThumbsProcessorTests {
+class PublishProcessorTests {
 
     @Test
-    void dontObliterateExistingThumbnails() throws Exception {
-        PDSThumbsProcessor p = new PDSThumbsProcessor();
-
-        LibCommMessage lcm = new LibCommMessage();
-        LibCommMessage.Payload pl = new LibCommMessage.Payload();
-
-        String xml = TestHelpers.readFile("001763319.PDSThumbsProcessor.xml");
-        pl.setFormat("mods");
-        pl.setData(xml);
-        lcm.setPayload(pl);
+    void expandRepositoryCodes() throws Exception {
+        PublishProcessor p = new PublishProcessor();
+        LibCommMessage lcm = TestHelpers.buildLibCommMessage("mods", "publish-processor-tests-sample-1.xml");
 
         p.processMessage(lcm);
-
         String result = lcm.getPayload().getData();
 
         // byte[] xmlBytes = xml.getBytes();
-        // Path p1 = Paths.get("./tmp/pdsthumbs_input.xml");
+        // Path p1 = Paths.get("./tmp/publishprocessor_input.xml");
         // Files.write(p1, xmlBytes);
 
         // byte[] resultBytes = result.getBytes();
-        // Path p2 = Paths.get("./tmp/pdsthumbs_output.xml");
+        // Path p2 = Paths.get("./tmp/publishprocessor_output.xml");
         // Files.write(p2, resultBytes);
 
         InputStream modsIS = IOUtils.toInputStream(result, "UTF-8");
@@ -78,9 +71,17 @@ class PDSThumbsProcessorTests {
         Document mods = builder.parse(modsIS);
         XPath xPath = XPathFactory.newInstance().newXPath();
 
-        String thumb1Url = (String) xPath.compile("//*[local-name()='mods'][2]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
+        String repositoryTextChanged = (String) xPath.compile("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']").evaluate(mods, XPathConstants.STRING);
+        String displayLabelAdded = (String) xPath.compile("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']/@displayLabel").evaluate(mods, XPathConstants.STRING);
+        String extensionValue = (String) xPath.compile("//*[local-name()='HarvardRepositories']/*[local-name()='HarvardRepository']/text()").evaluate(mods, XPathConstants.STRING);
 
-        assertEquals("http://ids.lib.harvard.edu/ids/view/45562415?width=150&height=150&usethumb=y", thumb1Url);
+        assertEquals("African and African American Studies Reading Room, Harvard University", repositoryTextChanged);
+        assertEquals("Harvard repository", displayLabelAdded);
+        assertEquals("Afro-American Studies", extensionValue);
+
+
+        String repositoryTextUnchanged = (String) xPath.compile("//*[local-name()='location'][2]/*[local-name()='physicalLocation'][@type = 'repository']").evaluate(mods, XPathConstants.STRING);
+        assertEquals("xxx", repositoryTextUnchanged);
 
 
     }

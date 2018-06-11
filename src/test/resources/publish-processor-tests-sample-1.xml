@@ -1,0 +1,15 @@
+<modsCollection xmlns:countries="info:lc/xmlns/codelist-v1"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns="http://www.loc.gov/mods/v3"
+                xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd">
+   <mods version="3.6">
+     <location>
+       <physicalLocation type="repository">AFR</physicalLocation>
+       <shelfLocator>Mus 645.5.717</shelfLocator>
+     </location>
+     <location>
+       <physicalLocation type="repository">xxx</physicalLocation>
+       <shelfLocator>Mus 645.5.717</shelfLocator>
+     </location>
+   </mods>
+</modsCollection>

@@ -433,6 +433,16 @@
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
+
+        <xsl:if test="@type = 'repository'">
+          <xsl:element name="field">
+            <xsl:attribute name="name">
+              <xsl:text>repository</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+          </xsl:element>
+        </xsl:if>
+
     </xsl:template>
 
     <xsl:template match="mods:shelfLocator">

@@ -10,11 +10,26 @@ import org.apache.commons.io.IOUtils;
 import edu.harvard.libcomm.test.HttpUrlStreamHandler;
 import static org.mockito.Mockito.*;
 
+import edu.harvard.libcomm.message.LibCommMessage;
+import edu.harvard.libcomm.message.LibCommMessage.Payload;
 
 public class TestHelpers {
     private static InputStream is;
     private static boolean setupDone = false;
     private static HttpUrlStreamHandler httpUrlStreamHandler;
+
+    public static LibCommMessage buildLibCommMessage(String format, String filePath) throws IOException {
+        LibCommMessage lcm = new LibCommMessage();
+        LibCommMessage.Payload pl = new LibCommMessage.Payload();
+
+        String xml = readFile(filePath);
+        pl.setFormat(format);
+        pl.setData(xml);
+        lcm.setPayload(pl);
+
+        return lcm;
+
+    }
 
     public static String readFile(String resourceName) throws IOException {
         is = new FileInputStream(TestHelpers.class.getResource("/"+resourceName).getFile());
