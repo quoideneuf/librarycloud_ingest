@@ -78,6 +78,7 @@ public class ExternalXMLServiceProcessor implements IProcessor {
 		xml = xml.replace("subfield&gt;","subfield>");
 		xml = xml.replace("&lt;/","</");
 		xml = xml.replace("\"&gt;","\">");
+		xml = xml.replace("/&gt;","/>");
 
 		xml = "<" + wrapperToken + ">" + xml + "</" + wrapperToken + ">";
 		//System.out.println("EXT XML: " + xml);
