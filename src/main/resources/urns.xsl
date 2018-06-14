@@ -7,8 +7,7 @@
 
     <xsl:template match="mods:modsCollection">
         <xsl:element name="add">
-          <xsl:for-each select="//mods:url[@access='raw object']">
-            <xsl:if test="contains(.,'urn-3') and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))">
+          <xsl:for-each select="//mods:url[@access='raw object' and contains(.,'urn-3') and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))]">
               <xsl:text>%22</xsl:text>
               <xsl:choose>
                 <xsl:when test="contains(.,'?')">
@@ -22,7 +21,6 @@
               <xsl:if test="position() != last()">
                 <xsl:text> OR </xsl:text>
               </xsl:if>
-            </xsl:if>
           </xsl:for-each>
         </xsl:element>
     </xsl:template>
