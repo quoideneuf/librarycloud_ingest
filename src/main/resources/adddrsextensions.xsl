@@ -40,7 +40,7 @@
                         <xsl:choose>
                             <xsl:when test="contains(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))], '?')">
                                 <xsl:value-of
-                                    select="substring-before(substring-after(.//mods:url[@access = 'raw object'], 'urn-3'), '?')"
+                                    select="substring-before(substring-after(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))], 'urn-3'), '?')"
                                 />
                             </xsl:when>
                             <xsl:otherwise>
