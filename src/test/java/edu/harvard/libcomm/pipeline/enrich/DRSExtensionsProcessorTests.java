@@ -131,6 +131,11 @@ class DRSExtensionsProcessorTests {
         String thumb4Url = (String) xPath.compile("//*[local-name()='mods'][4]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/421568540?width=150&height=150&usethumb=y", thumb4Url);
+
+        // Test case 2 <url> elements
+        String thumb5Url = (String) xPath.compile("//*[local-name()='mods'][5]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
+
+        assertEquals("http://ids.lib.harvard.edu/ids/view/421568540?width=150&height=150&usethumb=y", thumb5Url);
     }
 
 
@@ -140,7 +145,6 @@ class DRSExtensionsProcessorTests {
 
         String cloudbody = TestHelpers.readFile("001763319.enrich-05.cloudbody.xml");
         LibCommMessage lcm = TestMessageUtils.unmarshalLibCommMessage(IOUtils.toInputStream(cloudbody, "UTF-8"));
-        System.out.println(lcm.getPayload().getData());
 
         String urns = MessageUtils.transformPayloadData(lcm,"src/main/resources/urns.xsl",null).replace(" ", "+");
 

@@ -23,8 +23,9 @@
 
     <xsl:template match="mods:mods">
         <xsl:choose>
-          <xsl:when test="count(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))]) > 1">
+            <xsl:when test="count(.//mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))]) > 1">
                 <xsl:copy-of select="."/>
+
             </xsl:when>
             <xsl:when test="./mods:typeOfResource/@collection">
               <xsl:copy-of select="."/>
@@ -124,7 +125,8 @@
         </xsl:element>
     </xsl:template>
 
-    <xsl:template match="mods:location[mods:url/@access = 'raw object']">
+    <xsl:template match="mods:location[mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))]]">
+        <xsl:variable name="myUrl" select="mods:url[@access = 'raw object' and not(contains(.,'HUL.FIG')) and not(contains(.,'ebookbatch')) and not(contains(.,'ejournals'))][1]/text()" />
         <xsl:copy>
             <xsl:apply-templates select="*"/>
             <xsl:variable name="results" select="$param1"/>
@@ -133,14 +135,12 @@
             </xsl:variable>-->
             <xsl:variable name="urn">
                 <xsl:choose>
-                    <xsl:when test="contains(mods:url[@access = 'raw object'], '?')">
-                        <xsl:value-of
-                            select="substring-before(substring-after(mods:url[@access = 'raw object'], 'urn-3'), '?')"
-                        />
+                    <xsl:when test="contains($myUrl, '?')">
+                        <xsl:value-of select="substring-before(substring-after($myUrl, 'urn-3'), '?')" />
                     </xsl:when>
                     <xsl:otherwise>
                         <xsl:value-of
-                            select="substring-after(mods:url[@access = 'raw object'], 'urn-3')"/>
+                            select="substring-after($myUrl, 'urn-3')"/>
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:variable>
