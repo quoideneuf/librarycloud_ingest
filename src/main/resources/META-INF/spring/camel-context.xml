@@ -177,7 +177,7 @@
             <bean class="edu.harvard.libcomm.pipeline.enrich.CollectionUpdateProcessor"/>
         </property>
     </bean>
-    <bean id="removeRestrictedProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
+    <bean id="publishProcessor" class="edu.harvard.libcomm.pipeline.LibCommProcessor">
         <property name="processor">
             <bean class="edu.harvard.libcomm.pipeline.enrich.PublishProcessor"/>
         </property>
@@ -623,7 +623,7 @@
         </route>
         <route id="publish" errorHandlerRef="eh">
             <from uri="seda:enrich-end?concurrentConsumers=1" />
-            <process ref="removeRestrictedProcessor"/>
+            <process ref="publishProcessor"/>
 
             <multicast>
                 <to uri="direct:publish-delta"/>

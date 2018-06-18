@@ -18,13 +18,7 @@ import org.apache.log4j.Logger;
 import org.json.*;
 
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 
@@ -52,37 +46,18 @@ class PublishProcessorTests {
         LibCommMessage lcm = TestHelpers.buildLibCommMessage("mods", "publish-processor-tests-sample-1.xml");
 
         p.processMessage(lcm);
-        String result = lcm.getPayload().getData();
+        Document doc = TestHelpers.extractXmlDoc(lcm);
 
-        // byte[] xmlBytes = xml.getBytes();
-        // Path p1 = Paths.get("./tmp/publishprocessor_input.xml");
-        // Files.write(p1, xmlBytes);
-
-        // byte[] resultBytes = result.getBytes();
-        // Path p2 = Paths.get("./tmp/publishprocessor_output.xml");
-        // Files.write(p2, resultBytes);
-
-        InputStream modsIS = IOUtils.toInputStream(result, "UTF-8");
-
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setValidating(false);
-        builderFactory.setNamespaceAware(false);
-        DocumentBuilder builder = builderFactory.newDocumentBuilder();
-        Document mods = builder.parse(modsIS);
-        XPath xPath = XPathFactory.newInstance().newXPath();
-
-        String repositoryTextChanged = (String) xPath.compile("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']").evaluate(mods, XPathConstants.STRING);
-        String displayLabelAdded = (String) xPath.compile("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']/@displayLabel").evaluate(mods, XPathConstants.STRING);
-        String extensionValue = (String) xPath.compile("//*[local-name()='HarvardRepositories']/*[local-name()='HarvardRepository']/text()").evaluate(mods, XPathConstants.STRING);
+        String repositoryTextChanged = TestHelpers.getXPath("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']", doc);
+        String displayLabelAdded = TestHelpers.getXPath("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']/@displayLabel", doc);
+        String extensionValue = TestHelpers.getXPath("//*[local-name()='HarvardRepositories']/*[local-name()='HarvardRepository']/text()", doc);
 
         assertEquals("African and African American Studies Reading Room, Harvard University", repositoryTextChanged);
         assertEquals("Harvard repository", displayLabelAdded);
         assertEquals("Afro-American Studies", extensionValue);
 
 
-        String repositoryTextUnchanged = (String) xPath.compile("//*[local-name()='location'][2]/*[local-name()='physicalLocation'][@type = 'repository']").evaluate(mods, XPathConstants.STRING);
+        String repositoryTextUnchanged = TestHelpers.getXPath("//*[local-name()='location'][2]/*[local-name()='physicalLocation'][@type = 'repository']", doc);
         assertEquals("xxx", repositoryTextUnchanged);
-
-
     }
 }
