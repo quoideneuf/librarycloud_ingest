@@ -49,10 +49,22 @@
         <xsl:variable name="source" select="./text()" />
         <xsl:choose>
             <xsl:when test="@type = 'repository'">
-
                 <xsl:copy>
-                    <xsl:attribute name="displayLabel">Harvard repository</xsl:attribute>
-                    <xsl:apply-templates select="@*"/>
+                    <xsl:for-each select="@*">
+                        <xsl:choose>
+                            <xsl:when test="local-name() = 'displayLabel' and string-length($map//mapping[source=$source]/replacement)"></xsl:when>
+                            <xsl:when test="local-name() = 'valueURI' and string-length($map//mapping[source=$source]/valueURI)"></xsl:when>
+                            <xsl:otherwise><xsl:apply-templates select="." /></xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:for-each>
+                    <xsl:if test="string-length($map//mapping[source=$source]/replacement)">
+                        <xsl:attribute name="displayLabel">Harvard repository</xsl:attribute>
+                    </xsl:if>
+                    <xsl:if test="string-length($map//mapping[source=$source]/valueURI)">
+                        <xsl:attribute name="valueURI">
+                            <xsl:value-of select="$map//mapping[source=$source]/valueURI" />
+                        </xsl:attribute>
+                    </xsl:if>
                     <xsl:choose>
                         <xsl:when test="string-length($map//mapping[source=$source]/replacement) &gt; 0">
                             <xsl:value-of select="$map//mapping[source=$source]/replacement" />
@@ -63,9 +75,8 @@
             </xsl:when>
             <xsl:otherwise>
                 <xsl:copy-of select="." />
-                <!-- <xsl:copy-of select="."/> -->
-        </xsl:otherwise>
-      </xsl:choose>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template match="@* | *">

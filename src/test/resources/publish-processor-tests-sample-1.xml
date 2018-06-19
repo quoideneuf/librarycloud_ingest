@@ -4,7 +4,7 @@
                 xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd">
    <mods version="3.6">
      <location>
-       <physicalLocation type="repository">AFR</physicalLocation>
+       <physicalLocation displayLabel="replaceme" valueURI="replacemetoo" type="repository">AFR</physicalLocation>
        <shelfLocator>Mus 645.5.717</shelfLocator>
      </location>
      <location>

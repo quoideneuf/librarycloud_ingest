@@ -51,13 +51,17 @@ class PublishProcessorTests {
         String repositoryTextChanged = TestHelpers.getXPath("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']", doc);
         String displayLabelAdded = TestHelpers.getXPath("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']/@displayLabel", doc);
         String extensionValue = TestHelpers.getXPath("//*[local-name()='HarvardRepositories']/*[local-name()='HarvardRepository']/text()", doc);
+        String valueURI = TestHelpers.getXPath("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']/@valueURI", doc);
 
+        // System.out.println(lcm.getPayload().getData());
         assertEquals("African and African American Studies Reading Room, Harvard University", repositoryTextChanged);
         assertEquals("Harvard repository", displayLabelAdded);
         assertEquals("Afro-American Studies", extensionValue);
-
+        assertEquals("http://id.loc.gov/rwo/agents/no2018062623", valueURI);
 
         String repositoryTextUnchanged = TestHelpers.getXPath("//*[local-name()='location'][2]/*[local-name()='physicalLocation'][@type = 'repository']", doc);
         assertEquals("xxx", repositoryTextUnchanged);
+
+
     }
 }
