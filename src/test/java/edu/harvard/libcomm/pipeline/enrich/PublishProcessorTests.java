@@ -39,10 +39,16 @@ import edu.harvard.libcomm.test.TestMessageUtils;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PublishProcessorTests {
+    PublishProcessor p;
+
+    @BeforeAll
+    void setup() {
+        p = new PublishProcessor();
+    }
 
     @Test
     void expandRepositoryCodes() throws Exception {
-        PublishProcessor p = new PublishProcessor();
+
         LibCommMessage lcm = TestHelpers.buildLibCommMessage("mods", "publish-processor-tests-sample-1.xml");
 
         p.processMessage(lcm);
@@ -61,7 +67,17 @@ class PublishProcessorTests {
 
         String repositoryTextUnchanged = TestHelpers.getXPath("//*[local-name()='location'][2]/*[local-name()='physicalLocation'][@type = 'repository']", doc);
         assertEquals("xxx", repositoryTextUnchanged);
+    }
 
+    @Test
+    void mapContentModelToDigitalFormat() throws Exception {
+        LibCommMessage lcm = TestHelpers.buildLibCommMessage("mods", "publish-processor-tests-sample-1.xml");
 
+        p.processMessage(lcm);
+        Document doc = TestHelpers.extractXmlDoc(lcm);
+
+        String digitalFormat = TestHelpers.getXPath("//*[local-name()='digitalFormat'][1]", doc);
+
+        assertEquals("Books and documents", digitalFormat);
     }
 }

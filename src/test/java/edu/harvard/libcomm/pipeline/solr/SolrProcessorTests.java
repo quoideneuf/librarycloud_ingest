@@ -34,8 +34,6 @@ class SolrProcessorTests {
 
     @BeforeAll
     void buildSolrDoc() throws Exception {
-        // SolrProcessor sp = new SolrProcessor();
-
         LibCommMessage lcm = new LibCommMessage();
         LibCommMessage.Payload pl = new LibCommMessage.Payload();
 
@@ -108,9 +106,18 @@ class SolrProcessorTests {
 
     @Test
     void buildSolrRepositoryFields() throws Exception {
-
         String languageCode = (String) xPath.compile("//field[@name='repository']").evaluate(solrDoc, XPathConstants.STRING);
         assertEquals("Music Repository", languageCode);
     }
+
+    @Test
+    void buildSolrDigitalFormatFields() throws Exception {
+        String df1 = (String) xPath.compile("//field[@name='digitalFormat'][1]").evaluate(solrDoc, XPathConstants.STRING);
+        String df2 = (String) xPath.compile("//field[@name='digitalFormat'][2]").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("Audio", df1);
+        assertEquals("Images", df2);
+    }
+
+
 
 }

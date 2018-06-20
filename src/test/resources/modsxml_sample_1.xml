@@ -14,6 +14,12 @@
         <physicalLocation displayLabel="Harvard repository" type="repository">Music Repository</physicalLocation>
         <shelfLocator>Mus 645.5.717</shelfLocator>
       </location>
+      <extension>
+        <digitalFormats xmlns="http://lib.harvard.edu/TBD">
+          <digitalFormat>Audio</digitalFormat>
+          <digitalFormat>Images</digitalFormat>
+        </digitalFormats>
+      </extension>
    </mods>
    <mods version="3.6">
      <originInfo>
