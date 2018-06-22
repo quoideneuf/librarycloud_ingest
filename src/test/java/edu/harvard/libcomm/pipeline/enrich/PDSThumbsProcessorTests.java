@@ -88,7 +88,7 @@ class PDSThumbsProcessorTests {
 
         Document doc = TestHelpers.extractXmlDoc(lcm);
 
-        String thumb1Url = TestHelpers.getXPath("//*[local-name()='mods'][2]//*[local-name()='url'][@access='preview']", doc);
+        String thumb1Url = TestHelpers.getXPath("//mods:mods[2]//mods:url[@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/45562415?width=150&height=150&usethumb=y", thumb1Url);
     }
@@ -123,7 +123,7 @@ class PDSThumbsProcessorTests {
 
         Document doc = TestHelpers.extractXmlDoc(lcm);
 
-        String thumb1Url = TestHelpers.getXPath("//*[local-name()='mods'][1]//*[local-name()='url'][@access='preview']", doc);
+        String thumb1Url = TestHelpers.getXPath("//mods:mods[1]//mods:url[@access='preview']", doc);
 
         assertEquals("https://ids.lib.harvard.edu/ids/iiif/8316207/full/,150/0/native.jpg", thumb1Url);
     }

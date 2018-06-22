@@ -109,9 +109,8 @@ class LCCProcessorTests {
         builderFactory.setNamespaceAware(false);
         DocumentBuilder builder = builderFactory.newDocumentBuilder();
         Document mods = builder.parse(modsIS);
-        XPath xPath = XPathFactory.newInstance().newXPath();
 
-        String topic = (String) xPath.compile("//*[local-name()='subject'][@authority='LCC']//*[local-name()='topic']").evaluate(mods, XPathConstants.STRING);
+        String topic = TestHelpers.getXPath("//mods:subject[@authority='LCC']//mods:topic", mods);
 
         assertEquals("Music -- Music -- Collections -- Collected works of individual composers -- Selections", topic);
     }

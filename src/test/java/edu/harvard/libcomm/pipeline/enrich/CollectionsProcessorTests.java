@@ -118,20 +118,20 @@ class CollectionsProcessorTests {
         XPath xPath = XPathFactory.newInstance().newXPath();
 
 
-        String setName = (String) xPath.compile("//*[local-name()='setName']").evaluate(mods, XPathConstants.STRING);
+        String setName = TestHelpers.getXPath("//sets:setName", mods);
         assertEquals("scores", setName);
 
-        String systemIdentifier = (String) xPath.compile("//*[local-name()='systemId']").evaluate(mods, XPathConstants.STRING);
+        String systemIdentifier = TestHelpers.getXPath("//sets:systemId", mods);
         assertEquals("44001", systemIdentifier);
 
-        String setSpec = (String) xPath.compile("//*[local-name()='setSpec']").evaluate(mods, XPathConstants.STRING);
+        String setSpec = TestHelpers.getXPath("//sets:setSpec", mods);
         assertEquals("scores", setSpec);
 
-        String baseUrl = (String) xPath.compile("//*[local-name()='baseUrl']").evaluate(mods, XPathConstants.STRING);
+        String baseUrl = TestHelpers.getXPath("//sets:baseUrl", mods);
         assertEquals("http://dcp.lib.harvard.edu/spotlight/digital-scores-and-libretti", baseUrl);
 
 
-        Number setTagsCount = (Number) xPath.compile("count(//*[local-name()='set']/*)").evaluate(mods, XPathConstants.NUMBER);
+        Number setTagsCount = TestHelpers.getNodeCount("//sets:set[1]/*", mods);
         assertEquals(4.0, setTagsCount);
 
 

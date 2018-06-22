@@ -14,6 +14,15 @@
      <extension>
        <DRSMetadata xmlns="http://hul.harvard.edu/ois/xml/ns/HarvardDRS" xmlns:urlinfo="http://lib.harvard.edu/urlinfo" xmlns:marc="http://www.loc.gov/MARC21/slim" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:countries="info:lc/xmlns/codelist-v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
          <contentModel xmlns="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">PDS DOCUMENT</contentModel>
+         <accessFlag xmlns="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">R</accessFlag>
+       </DRSMetadata>
+     </extension>
+   </mods>
+   <mods version="3.6">
+     <extension>
+       <DRSMetadata xmlns="http://hul.harvard.edu/ois/xml/ns/HarvardDRS" xmlns:urlinfo="http://lib.harvard.edu/urlinfo" xmlns:marc="http://www.loc.gov/MARC21/slim" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:countries="info:lc/xmlns/codelist-v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+         <contentModel xmlns="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">PDS DOCUMENT</contentModel>
+         <accessFlag xmlns="http://hul.harvard.edu/ois/xml/ns/HarvardDRS">P</accessFlag>
        </DRSMetadata>
      </extension>
    </mods>

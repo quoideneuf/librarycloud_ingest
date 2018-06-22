@@ -54,18 +54,17 @@ class PublishProcessorTests {
         p.processMessage(lcm);
         Document doc = TestHelpers.extractXmlDoc(lcm);
 
-        String repositoryTextChanged = TestHelpers.getXPath("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']", doc);
-        String displayLabelAdded = TestHelpers.getXPath("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']/@displayLabel", doc);
-        String extensionValue = TestHelpers.getXPath("//*[local-name()='HarvardRepositories']/*[local-name()='HarvardRepository']/text()", doc);
-        String valueURI = TestHelpers.getXPath("//*[local-name()='location'][1]/*[local-name()='physicalLocation'][@type = 'repository']/@valueURI", doc);
+        String repositoryTextChanged = TestHelpers.getXPath("//mods:location[1]/mods:physicalLocation[@type = 'repository']", doc);
+        String displayLabelAdded = TestHelpers.getXPath("//mods:location[1]/mods:physicalLocation[@type = 'repository']/@displayLabel", doc);
+        String extensionValue = TestHelpers.getXPath("//tbd:HarvardRepositories/tbd:HarvardRepository/text()", doc);
+        String valueURI = TestHelpers.getXPath("//mods:location[1]/mods:physicalLocation[@type = 'repository']/@valueURI", doc);
 
-        // System.out.println(lcm.getPayload().getData());
         assertEquals("African and African American Studies Reading Room, Harvard University", repositoryTextChanged);
         assertEquals("Harvard repository", displayLabelAdded);
         assertEquals("Afro-American Studies", extensionValue);
         assertEquals("http://id.loc.gov/rwo/agents/no2018062623", valueURI);
 
-        String repositoryTextUnchanged = TestHelpers.getXPath("//*[local-name()='location'][2]/*[local-name()='physicalLocation'][@type = 'repository']", doc);
+        String repositoryTextUnchanged = TestHelpers.getXPath("//mods:location[2]/mods:physicalLocation[@type = 'repository']", doc);
         assertEquals("xxx", repositoryTextUnchanged);
     }
 
@@ -76,8 +75,22 @@ class PublishProcessorTests {
         p.processMessage(lcm);
         Document doc = TestHelpers.extractXmlDoc(lcm);
 
-        String digitalFormat = TestHelpers.getXPath("//*[local-name()='digitalFormat'][1]", doc);
+        String digitalFormat = TestHelpers.getXPath("//tbd:digitalFormat[1]", doc);
 
         assertEquals("Books and documents", digitalFormat);
+    }
+
+    @Test
+    void normalizeAccessFlagToAvailableTo() throws Exception {
+        LibCommMessage lcm = TestHelpers.buildLibCommMessage("mods", "publish-processor-tests-sample-1.xml");
+
+        p.processMessage(lcm);
+        Document doc = TestHelpers.extractXmlDoc(lcm);
+
+        String available1 = TestHelpers.getXPath("//mods:mods[1]/mods:extension/tbd:availableTo", doc);
+        String available2 = TestHelpers.getXPath("//mods:mods[2]/mods:extension/tbd:availableTo", doc);
+
+        assertEquals("Restricted", available1);
+        assertEquals("Everyone", available2);
     }
 }

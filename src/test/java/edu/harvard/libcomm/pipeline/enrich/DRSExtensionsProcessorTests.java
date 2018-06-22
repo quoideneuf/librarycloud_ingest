@@ -81,26 +81,26 @@ class DRSExtensionsProcessorTests {
         p.processMessage(lcm);
         Document doc = TestHelpers.extractXmlDoc(lcm);
 
-        String thumb1Url = TestHelpers.getXPath("//*[local-name()='mods'][1]//*[local-name()='url'][@access='preview']", doc);
+        String thumb1Url = TestHelpers.getXPath("//mods:mods[1]//mods:url[@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/8316207?width=150&height=150&usethumb=y", thumb1Url);
 
         //Test case with an empty <url access="preview" /> tag
-        String thumb2Url = TestHelpers.getXPath("//*[local-name()='mods'][2]//*[local-name()='url'][@access='preview']", doc);
+        String thumb2Url = TestHelpers.getXPath("//mods:mods[2]//mods:url[@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/8316207?width=150&height=150&usethumb=y", thumb2Url);
 
         // Test case with an existing non-empty <url access="preview"> tag
-        String thumb3Url = TestHelpers.getXPath("//*[local-name()='mods'][3]//*[local-name()='url'][@access='preview']", doc);
+        String thumb3Url = TestHelpers.getXPath("//mods:mods[3]//mods:url[@access='preview']", doc);
 
         assertEquals("http://dontreplaceme.com/55555", thumb3Url);
 
-        String thumb4Url = TestHelpers.getXPath("//*[local-name()='mods'][4]//*[local-name()='url'][@access='preview']", doc);
+        String thumb4Url = TestHelpers.getXPath("//mods:mods[4]//mods:url[@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/421568540?width=150&height=150&usethumb=y", thumb4Url);
 
         // Test case 2 <url> elements
-        String thumb5Url = TestHelpers.getXPath("//*[local-name()='mods'][5]//*[local-name()='url'][@access='preview']", doc);
+        String thumb5Url = TestHelpers.getXPath("//mods:mods[5]//mods:url[@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/421568540?width=150&height=150&usethumb=y", thumb5Url);
     }
@@ -133,7 +133,7 @@ class DRSExtensionsProcessorTests {
 
         Document doc = TestHelpers.extractXmlDoc(lcm);
 
-        String thumb1Url = TestHelpers.getXPath("//*[local-name()='mods'][2]//*[local-name()='url'][@access='preview']", doc);
+        String thumb1Url = TestHelpers.getXPath("//mods:mods[2]//mods:url[@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/45562415?width=150&height=150&usethumb=y", thumb1Url);
     }
