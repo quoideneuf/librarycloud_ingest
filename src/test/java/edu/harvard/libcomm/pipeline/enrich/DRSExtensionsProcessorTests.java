@@ -71,69 +71,36 @@ class DRSExtensionsProcessorTests {
 
         DRSExtensionsProcessor p = new DRSExtensionsProcessor();
 
-        LibCommMessage lcm = new LibCommMessage();
-        LibCommMessage.Payload pl = new LibCommMessage.Payload();
-
-        String xml = TestHelpers.readFile("enrich-05-modscollection.xml");
-
-        pl.setFormat("mods");
-        pl.setData(xml);
-        lcm.setPayload(pl);
+        LibCommMessage lcm = TestHelpers.buildLibCommMessage("mods", "enrich-05-modscollection.xml");
 
         String urns = MessageUtils.transformPayloadData(lcm,"src/main/resources/urns.xsl",null).replace(" ", "+");
+        String url = Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn_keyword:("+urns+")&rows=250";
 
-        String solrResponse = TestHelpers.readFile("solr_extensions_response_001490591.json");
-
-        String href = Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn_keyword:("+urns+")&rows=250";
-
-        URLConnection urlConnection = mock(URLConnection.class);
-        httpUrlStreamHandler.addConnection(new URL(href), urlConnection);
-
-        InputStream stream = new ByteArrayInputStream(solrResponse.getBytes(StandardCharsets.UTF_8));
-        when(urlConnection.getInputStream()).thenReturn(stream);
+        TestHelpers.mockResponse(url, 200, "solr_extensions_response_001490591.json");
 
         p.processMessage(lcm);
+        Document doc = TestHelpers.extractXmlDoc(lcm);
 
-        String result = lcm.getPayload().getData();
-        // System.out.println(result);
-
-        // byte[] xmlBytes = xml.getBytes();
-        // Path p1 = Paths.get("./tmp/extensions_input.xml");
-        // Files.write(p1, xmlBytes);
-
-        // byte[] resultBytes = result.getBytes();
-        // Path p2 = Paths.get("./tmp/extensions_output.xml");
-        // Files.write(p2, resultBytes);
-
-        InputStream modsIS = IOUtils.toInputStream(result, "UTF-8");
-
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setValidating(false);
-        builderFactory.setNamespaceAware(false);
-        DocumentBuilder builder = builderFactory.newDocumentBuilder();
-        Document mods = builder.parse(modsIS);
-        XPath xPath = XPathFactory.newInstance().newXPath();
-
-        String thumb1Url = (String) xPath.compile("//*[local-name()='mods'][1]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
+        String thumb1Url = TestHelpers.getXPath("//*[local-name()='mods'][1]//*[local-name()='url'][@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/8316207?width=150&height=150&usethumb=y", thumb1Url);
 
         //Test case with an empty <url access="preview" /> tag
-        String thumb2Url = (String) xPath.compile("//*[local-name()='mods'][2]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
+        String thumb2Url = TestHelpers.getXPath("//*[local-name()='mods'][2]//*[local-name()='url'][@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/8316207?width=150&height=150&usethumb=y", thumb2Url);
 
         // Test case with an existing non-empty <url access="preview"> tag
-        String thumb3Url = (String) xPath.compile("//*[local-name()='mods'][3]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
+        String thumb3Url = TestHelpers.getXPath("//*[local-name()='mods'][3]//*[local-name()='url'][@access='preview']", doc);
 
         assertEquals("http://dontreplaceme.com/55555", thumb3Url);
 
-        String thumb4Url = (String) xPath.compile("//*[local-name()='mods'][4]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
+        String thumb4Url = TestHelpers.getXPath("//*[local-name()='mods'][4]//*[local-name()='url'][@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/421568540?width=150&height=150&usethumb=y", thumb4Url);
 
         // Test case 2 <url> elements
-        String thumb5Url = (String) xPath.compile("//*[local-name()='mods'][5]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
+        String thumb5Url = TestHelpers.getXPath("//*[local-name()='mods'][5]//*[local-name()='url'][@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/421568540?width=150&height=150&usethumb=y", thumb5Url);
     }
@@ -143,23 +110,13 @@ class DRSExtensionsProcessorTests {
     void test001763319() throws Exception {
         DRSExtensionsProcessor p = new DRSExtensionsProcessor();
 
-        String cloudbody = TestHelpers.readFile("001763319.enrich-05.cloudbody.xml");
-        LibCommMessage lcm = TestMessageUtils.unmarshalLibCommMessage(IOUtils.toInputStream(cloudbody, "UTF-8"));
+        LibCommMessage lcm = TestHelpers.unmarshalLibCommMessage("001763319.enrich-05.cloudbody.xml");
 
         String urns = MessageUtils.transformPayloadData(lcm,"src/main/resources/urns.xsl",null).replace(" ", "+");
 
-        System.out.println(urns);
+        String url = Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn_keyword:("+urns+")&rows=250";
 
-        String solrResponse = TestHelpers.readFile("001763319.drsextensions.json");
-
-        String href = Config.getInstance().SOLR_EXTENSIONS_URL + "/select?q=urn_keyword:("+urns+")&rows=250";
-
-        System.out.println(href);
-        URLConnection urlConnection = mock(URLConnection.class);
-        httpUrlStreamHandler.addConnection(new URL(href), urlConnection);
-
-        InputStream stream = new ByteArrayInputStream(solrResponse.getBytes(StandardCharsets.UTF_8));
-        when(urlConnection.getInputStream()).thenReturn(stream);
+        TestHelpers.mockResponse(url, 200, "001763319.drsextensions.json");
         String input = lcm.getPayload().getData();
 
         p.processMessage(lcm);
@@ -174,19 +131,10 @@ class DRSExtensionsProcessorTests {
         Path p2 = Paths.get("./tmp/extensions_output.xml");
         Files.write(p2, resultBytes);
 
-        InputStream modsIS = IOUtils.toInputStream(result, "UTF-8");
+        Document doc = TestHelpers.extractXmlDoc(lcm);
 
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        builderFactory.setValidating(false);
-        builderFactory.setNamespaceAware(false);
-        DocumentBuilder builder = builderFactory.newDocumentBuilder();
-        Document mods = builder.parse(modsIS);
-        XPath xPath = XPathFactory.newInstance().newXPath();
-
-        String thumb1Url = (String) xPath.compile("//*[local-name()='mods'][2]//*[local-name()='url'][@access='preview']").evaluate(mods, XPathConstants.STRING);
+        String thumb1Url = TestHelpers.getXPath("//*[local-name()='mods'][2]//*[local-name()='url'][@access='preview']", doc);
 
         assertEquals("http://ids.lib.harvard.edu/ids/view/45562415?width=150&height=150&usethumb=y", thumb1Url);
-
-
     }
 }

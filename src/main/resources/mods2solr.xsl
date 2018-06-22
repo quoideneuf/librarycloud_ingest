@@ -5,6 +5,7 @@
     xmlns:usage="http://lib.harvard.edu/usagedata" version="1.0"
     xmlns:set="http://hul.harvard.edu/ois/xml/ns/libraryCloud"
     xmlns:HarvardDRS="http://hul.harvard.edu/ois/xml/ns/HarvardDRS"
+    xmlns:tbd="http://lib.harvard.edu/TBD"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:ext="http://exslt.org/common"
     >
@@ -54,6 +55,8 @@
             <xsl:apply-templates select="mods:extension/set:sets/set:set/set:setName"/>
             <xsl:apply-templates select="mods:extension/set:sets/set:set/set:setSpec"/>
             <xsl:apply-templates select="mods:extension/set:sets/set:set/set:systemId"/>
+            <xsl:apply-templates select="mods:extension/tbd:digitalFormats/tbd:digitalFormat"/>
+
             <xsl:choose>
                 <xsl:when test="mods:extension/HarvardDRS:DRSMetadata">
                     <xsl:element name="field">
@@ -433,6 +436,16 @@
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
+
+        <xsl:if test="@type = 'repository'">
+          <xsl:element name="field">
+            <xsl:attribute name="name">
+              <xsl:text>repository</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+          </xsl:element>
+        </xsl:if>
+
     </xsl:template>
 
     <xsl:template match="mods:shelfLocator">
@@ -698,6 +711,15 @@
         <xsl:element name="field">
             <xsl:attribute name="name">
                 <xsl:text>lastModifiedDate</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="tbd:digitalFormat">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>digitalFormat</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
