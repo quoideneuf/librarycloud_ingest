@@ -1,4 +1,4 @@
-package edu.harvard.libcomm.pipeline.marc;
+package edu.harvard.libcomm.pipeline.ead;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -54,19 +54,25 @@ import edu.harvard.libcomm.test.TestHelpers;
 import edu.harvard.libcomm.test.TestMessageUtils;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class MarcFileIteratorTests {
+class EADComponentIteratorTests {
 
     @Test
-    void filterIllegalChars() throws Exception {
-        InputStream is = new FileInputStream(this.getClass().getResource("/badmarc.mrc").getFile());
+    void useResourceLanguageCode() throws Exception {
+        InputStream is = new FileInputStream(this.getClass().getResource("/sample-oasis-ead.xml").getFile());
 
-        MarcReader r = new MarcStreamReader(is);
-        Iterator i = new MarcFileIterator(r, 5000000);
+        EADReader r = new EADReader(is);
+        Iterator i = new EADComponentIterator(r);
         String lcmString = (String) i.next();
         LibCommMessage lcm = TestMessageUtils.unmarshalLibCommMessage(IOUtils.toInputStream(lcmString, "UTF-8"));
-        String xml = lcm.getPayload().getData();
 
-        //        System.out.println(xml);
-        assertFalse(xml.contains("&#x19;"));
+        // String xml = lcm.getPayload().getData();
+        // System.out.println(xml);
+
+        Document mods = TestHelpers.extractXmlDoc(lcm);
+
+        String languageCode = TestHelpers.getXPath("//mods:languageTerm[@type='code']", mods);
+        String languageText = TestHelpers.getXPath("//mods:languageTerm[@type='text']", mods);
+        assertEquals("eng", languageCode);
+        assertEquals("English", languageText);
     }
 }

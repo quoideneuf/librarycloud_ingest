@@ -113,10 +113,9 @@ class HoldingsProcessorTests {
         builderFactory.setNamespaceAware(false);
         DocumentBuilder builder = builderFactory.newDocumentBuilder();
         Document mods = builder.parse(modsIS);
-        XPath xPath = XPathFactory.newInstance().newXPath();
 
 
-        String rawObjectUrn = (String) xPath.compile("//*[local-name()='url'][@access='raw object']").evaluate(mods, XPathConstants.STRING);
+        String rawObjectUrn = TestHelpers.getXPath("//mods:url[@access='raw object']", mods);
 
         assertEquals("http://nrs.harvard.edu/urn-3:fhcl.loeb:1269248", rawObjectUrn);
     }

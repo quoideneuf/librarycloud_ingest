@@ -2,4 +2,7 @@
 <marc:record><marc:leader>01207cam a2200349 i 4500</marc:leader>
 <marc:controlfield tag="001">000005977-3</marc:controlfield>
 <marc:controlfield tag="005">20020606090541.3</marc:controlfield><marc:controlfield tag="008">790803s1979    nyua   j      000 1 eng  </marc:controlfield></marc:record>
+<marc:record><marc:leader>01207cam a2200349 i 4500</marc:leader>
+<marc:controlfield tag="001">000005977-3</marc:controlfield>
+<marc:controlfield tag="005">20020606090541.3</marc:controlfield><marc:controlfield tag="008">790803s1979    nyua   j      000 1   </marc:controlfield></marc:record>
 </marc:collection>

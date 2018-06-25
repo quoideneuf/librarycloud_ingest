@@ -76,6 +76,7 @@
                 </xsl:element>
             </xsl:element>
             <xsl:apply-templates select="//c[@id=$cid_legacy_or_new]"/>
+            <xsl:apply-templates select="/ead/eadheader/profiledesc/langusage" />
         </mods>
     </xsl:template>
 
@@ -305,4 +306,20 @@
         </xsl:element>
     </xsl:template>
 
+    <xsl:template match="langusage">
+      <xsl:for-each select="language[string-length(@langcode) and string-length(text())]">
+        <xsl:element name="language">
+          <xsl:element name="languageTerm">
+            <xsl:attribute name="authority">iso639-2b</xsl:attribute>
+            <xsl:attribute name="type">code</xsl:attribute>
+            <xsl:value-of select="@langcode" />
+          </xsl:element>
+          <xsl:element name="languageTerm">
+            <xsl:attribute name="authority">iso639-2b</xsl:attribute>
+            <xsl:attribute name="type">text</xsl:attribute>
+            <xsl:value-of select="text()" />
+          </xsl:element>
+        </xsl:element>
+      </xsl:for-each>
+    </xsl:template>
 </xsl:stylesheet>

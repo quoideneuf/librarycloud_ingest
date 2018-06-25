@@ -47,6 +47,18 @@
             </xsl:for-each>
         </xsl:variable>
 
+        <xsl:variable name="availableTo">
+          <xsl:choose>
+            <xsl:when test="mods:extension/HarvardDRS:DRSMetadata/HarvardDRS:accessFlag = 'R'">
+              <xsl:text>Restricted</xsl:text>
+            </xsl:when>
+            <xsl:when test="mods:extension/HarvardDRS:DRSMetadata/HarvardDRS:accessFlag = 'P'">
+              <xsl:text>Everyone</xsl:text>
+            </xsl:when>
+            <xsl:otherwise></xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+
         <xsl:if test="not(mods:recordInfo/mods:recordOrigin='Open Metadata Status: RES-C') and not(mods:recordInfo/mods:recordOrigin='Open Metadata Status: RES-D')">
             <xsl:copy>
                 <xsl:copy-of select="@*"/>
@@ -59,6 +71,14 @@
                           <xsl:value-of select="." />
                         </xsl:element>
                       </xsl:for-each>
+                    </xsl:element>
+                  </xsl:element>
+                </xsl:if>
+
+                <xsl:if test="string-length($availableTo)">
+                  <xsl:element name="extension" namespace="http://www.loc.gov/mods/v3">
+                    <xsl:element name="availableTo" namespace="http://lib.harvard.edu/TBD">
+                      <xsl:value-of select="$availableTo" />
                     </xsl:element>
                   </xsl:element>
                 </xsl:if>

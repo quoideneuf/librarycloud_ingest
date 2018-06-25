@@ -80,6 +80,12 @@
 					<languageTerm>eng</languageTerm>
 				</languageOfCataloging>
 			</recordInfo>
+      <language>
+        <languageTerm type="code">zxx</languageTerm>
+      </language>
+      <language>
+        <languageTerm type="text">No linguistic content</languageTerm>
+      </language>
 		</mods>
 	</xsl:template>
 

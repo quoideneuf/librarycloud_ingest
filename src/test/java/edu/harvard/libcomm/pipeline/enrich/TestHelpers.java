@@ -1,6 +1,8 @@
 package edu.harvard.libcomm.test;
 
 import java.io.*;
+import java.util.Iterator;
+import javax.xml.XMLConstants;
 import java.nio.charset.StandardCharsets;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -18,6 +20,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.namespace.NamespaceContext;
 
 import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilder;
@@ -30,7 +33,31 @@ public class TestHelpers {
     private static HttpUrlStreamHandler httpUrlStreamHandler;
 
     private static XPath xPath = XPathFactory.newInstance().newXPath();
+    private static boolean namespaces = false;
 
+    private static void setNamespaces() {
+        xPath.setNamespaceContext(new NamespaceContext() {
+                public String getNamespaceURI(String prefix) {
+                    if (prefix == null) throw new NullPointerException("Null prefix");
+                    else if ("mods".equals(prefix)) return "http://www.loc.gov/mods/v3";
+                    else if ("tbd".equals(prefix)) return "http://lib.harvard.edu/TBD";
+                    else if ("sets".equals(prefix)) return "http://hul.harvard.edu/ois/xml/ns/libraryCloud";
+                    return XMLConstants.NULL_NS_URI;
+                }
+
+                // This method isn't necessary for XPath processing.
+                public String getPrefix(String uri) {
+                    throw new UnsupportedOperationException();
+                }
+
+                // This method isn't necessary for XPath processing either.
+                public Iterator getPrefixes(String uri) {
+                    throw new UnsupportedOperationException();
+                }
+            });
+
+        namespaces = true;
+    }
 
     public static LibCommMessage buildLibCommMessage(String format, String filePath) throws IOException {
         LibCommMessage lcm = new LibCommMessage();
@@ -63,7 +90,16 @@ public class TestHelpers {
     }
 
     public static String getXPath(String xPathPath, Document doc) throws Exception {
+        if (!namespaces)
+            setNamespaces();
         String result = (String) xPath.compile(xPathPath).evaluate(doc, XPathConstants.STRING);
+        return result;
+    }
+
+    public static Number getNodeCount(String xPathPath, Document doc) throws Exception {
+        if (!namespaces)
+            setNamespaces();
+        Number result = (Number) xPath.compile("count("+xPathPath+")").evaluate(doc, XPathConstants.NUMBER);
         return result;
     }
 
@@ -73,7 +109,7 @@ public class TestHelpers {
         return lcm;
     }
 
-        public static void mockResponse(String url, int code) throws Exception {
+    public static void mockResponse(String url, int code) throws Exception {
         mockResponse(url, code, null);
     }
 

@@ -117,7 +117,4 @@ class SolrProcessorTests {
         assertEquals("Audio", df1);
         assertEquals("Images", df2);
     }
-
-
-
 }

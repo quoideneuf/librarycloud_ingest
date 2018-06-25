@@ -1346,17 +1346,23 @@
 
     <!-- language 041 -->
     <xsl:variable name="controlField008-35-37" select="normalize-space(translate(substring($controlField008,36,3),'|#',''))"/>
-    <xsl:if test="$controlField008-35-37">
-      <xsl:variable name="languageText" select="normalize-space(document($iso639-2-file)//entry[code=$controlField008-35-37]/text/text())" />
-      <language>
-        <languageTerm authority="iso639-2b" type="code">
-          <xsl:value-of select="substring($controlField008,36,3)"/>
-        </languageTerm>
-        <languageTerm authority="iso639-2b" type="text">
-          <xsl:value-of select="$languageText"/>
-        </languageTerm>
-      </language>
-    </xsl:if>
+    <xsl:variable name="languageText" select="normalize-space(document($iso639-2-file)//entry[code=$controlField008-35-37]/text/text())" />
+    <language>
+      <xsl:choose>
+        <xsl:when test="string-length($languageText)">
+          <languageTerm authority="iso639-2b" type="code">
+            <xsl:value-of select="substring($controlField008,36,3)"/>
+          </languageTerm>
+          <languageTerm authority="iso639-2b" type="text">
+            <xsl:value-of select="$languageText"/>
+          </languageTerm>
+        </xsl:when>
+        <xsl:otherwise>
+          <languageTerm authority="iso639-2b" type="code">und</languageTerm>
+          <languageTerm authority="iso639-2b" type="text">Undefined</languageTerm>
+        </xsl:otherwise>
+      </xsl:choose>
+    </language>
     <xsl:for-each select="marc:datafield[@tag=041]">
       <xsl:for-each select="marc:subfield[@code='a' or @code='b' or @code='d' or @code='e' or @code='f' or @code='g' or @code='h']">
         <xsl:variable name="langCodes" select="."/>
