@@ -185,4 +185,14 @@ public class MessageUtils {
         return writer.toString();
 	}
 
+  public static boolean hasResolveableFilepath(LibCommMessage libCommMessage) {
+    if ((libCommMessage.getPayload() != null) &&
+            ((libCommMessage.getPayload().getData() == null) || libCommMessage.getPayload().getData().isEmpty()) &&
+            ((libCommMessage.getPayload().getFilepath() != null) && !libCommMessage.getPayload().getFilepath().isEmpty())) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 }

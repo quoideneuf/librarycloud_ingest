@@ -77,4 +77,30 @@
    <mods>
      <originInfo><dateIssued encoding="marc" point="start">1966</dateIssued><dateIssued encoding="marc" point="end">1965</dateIssued></originInfo>
    </mods>
+   <mods>
+     <titleInfo><title>originDateTest</title></titleInfo>
+     <originInfo>
+       <dateIssued>2001</dateIssued>
+       <dateCreated>2002</dateCreated>
+       <dateCaptured>2003</dateCaptured>
+       <copyrightDate>2004</copyrightDate>
+       <dateOther>2005</dateOther>
+     </originInfo>
+   </mods>
+   <mods>
+     <titleInfo><title>urlAccessTest</title></titleInfo>
+     <location>
+       <url note="Provides access to page images of entire work" access="raw object">http://nrs.harvard.edu/urn-3:FHCL.Loeb:7671625</url>
+       <url access="preview">http://ids.lib.harvard.edu/ids/view/42674663?width=150&amp;height=150&amp;usethumb=y</url>
+     </location>
+   </mods>
+   <mods>
+     <titleInfo><title>subjectHierarchicalGeographicTest</title></titleInfo>
+     <subject>
+         <hierarchicalGeographic>
+             <country>Germany</country>
+             <city>Cologne</city>
+         </hierarchicalGeographic>
+     </subject>
+   </mods>
 </modsCollection>

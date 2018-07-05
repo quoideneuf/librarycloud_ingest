@@ -106,6 +106,34 @@
                 <xsl:value-of select="$dateRange" />
               </xsl:element>
             </xsl:if>
+
+            <xsl:element name="field">
+                <xsl:attribute name="name">
+                    <xsl:text>url.access.preview</xsl:text>
+                </xsl:attribute>
+                <xsl:choose>
+                    <xsl:when test="mods:location/mods:url[@access='preview']">
+                        <xsl:text>true</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text>false</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:element>
+            <xsl:element name="field">
+                <xsl:attribute name="name">
+                    <xsl:text>url.access.raw_object</xsl:text>
+                </xsl:attribute>
+                <xsl:choose>
+                    <xsl:when test="mods:location/mods:url[@access='raw object']">
+                        <xsl:text>true</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text>false</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:element>
+
         </xsl:element>
     </xsl:template>
 
@@ -201,6 +229,7 @@
         <xsl:apply-templates select="mods:dateCreated"/>
         <xsl:apply-templates select="mods:dateCaptured"/>
         <xsl:apply-templates select="mods:copyrightDate"/>
+        <xsl:apply-templates select="mods:dateOther"/>
         <xsl:apply-templates select="mods:edition"/>
         <xsl:apply-templates select="mods:issuance"/>
     </xsl:template>
@@ -230,6 +259,12 @@
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>originDate</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="mods:dateCreated">
@@ -239,12 +274,24 @@
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
+        <xsl:element name="field">
+          <xsl:attribute name="name">
+            <xsl:text>originDate</xsl:text>
+          </xsl:attribute>
+          <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template match="mods:dateCaptured">
         <xsl:element name="field">
             <xsl:attribute name="name">
                 <xsl:text>dateCaptured</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>originDate</xsl:text>
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
@@ -257,7 +304,23 @@
             </xsl:attribute>
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>originDate</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
     </xsl:template>
+
+    <xsl:template match="mods:dateOther">
+        <xsl:element name="field">
+            <xsl:attribute name="name">
+                <xsl:text>originDate</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="normalize-space(.)"/>
+        </xsl:element>
+    </xsl:template>
+
 
     <xsl:template match="mods:edition">
         <xsl:element name="field">
@@ -373,6 +436,14 @@
             </xsl:attribute>
             <xsl:apply-templates select="mods:namePart"/>
         </xsl:element>
+        <xsl:for-each select="mods:role/mods:roleTerm">
+          <xsl:element name="field">
+            <xsl:attribute name="name">
+              <xsl:text>subject.name.role</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="text()" />
+          </xsl:element>
+        </xsl:for-each>
     </xsl:template>
 
     <xsl:template match="mods:hierarchicalGeographic">
@@ -385,18 +456,7 @@
         <xsl:apply-templates mode="hierarchicalGeographic"/>
     </xsl:template>
 
-<!--     <xsl:template match="*" mode="hierarchicalGeographic">
-            <xsl:apply-templates/>
-        </xsl:element>
-    </xsl:template>
-            <xsl:value-of select="normalize-space(.)"/>
-        </xsl:element>
-        <xsl:element name="field">
-            <xsl:attribute name="name">
-                <xsl:text>subject.hierarchicalGeographic</xsl:text>
-            </xsl:attribute>
-            <xsl:value-of select="normalize-space(.)"/>
-        </xsl:element>
+    <xsl:template match="*" mode="hierarchicalGeographic">
         <xsl:element name="field">
             <xsl:attribute name="name">
                 <xsl:text>subject.hierarchicalGeographic.</xsl:text><xsl:value-of select="local-name(.)"/>
@@ -404,7 +464,7 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
     </xsl:template>
- -->
+
     <xsl:template match="mods:classification">
         <xsl:element name="field">
             <xsl:attribute name="name">

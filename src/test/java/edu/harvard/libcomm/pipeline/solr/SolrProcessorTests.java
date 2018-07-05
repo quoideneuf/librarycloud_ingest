@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 
 import edu.harvard.libcomm.message.*;
 import edu.harvard.libcomm.pipeline.MessageUtils;
-
+import edu.harvard.libcomm.test.TestHelpers;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SolrProcessorTests {
@@ -45,7 +45,6 @@ class SolrProcessorTests {
         lcm.setPayload(pl);
 
         String result = MessageUtils.transformPayloadData(lcm, "src/main/resources/mods2solr.xsl", null);
-
         InputStream solrIS = IOUtils.toInputStream(result, "UTF-8");
 
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -116,5 +115,39 @@ class SolrProcessorTests {
         String df2 = (String) xPath.compile("//field[@name='digitalFormat'][2]").evaluate(solrDoc, XPathConstants.STRING);
         assertEquals("Audio", df1);
         assertEquals("Images", df2);
+    }
+
+    @Test
+    void buildSolrOriginDate() throws Exception {
+        String originDate1 = (String) xPath.compile("//doc[field[@name='title'] = 'originDateTest']//field[@name='originDate'][1]").evaluate(solrDoc, XPathConstants.STRING);
+        String originDate2 = (String) xPath.compile("//doc[field[@name='title'] = 'originDateTest']//field[@name='originDate'][2]").evaluate(solrDoc, XPathConstants.STRING);
+        String originDate3 = (String) xPath.compile("//doc[field[@name='title'] = 'originDateTest']//field[@name='originDate'][3]").evaluate(solrDoc, XPathConstants.STRING);
+        String originDate4 = (String) xPath.compile("//doc[field[@name='title'] = 'originDateTest']//field[@name='originDate'][4]").evaluate(solrDoc, XPathConstants.STRING);
+        String originDate5 = (String) xPath.compile("//doc[field[@name='title'] = 'originDateTest']//field[@name='originDate'][5]").evaluate(solrDoc, XPathConstants.STRING);
+        assertEquals("2001", originDate1);
+        assertEquals("2002", originDate2);
+        assertEquals("2003", originDate3);
+        assertEquals("2004", originDate4);
+        assertEquals("2005", originDate5);
+
+    }
+
+
+    @Test
+    void buildUrlsAccess() throws Exception {
+        String preview = (String) xPath.compile("//doc[field[@name='title'] = 'urlAccessTest']//field[@name='url.access.preview'][1]").evaluate(solrDoc, XPathConstants.STRING);
+        String rawObject = (String) xPath.compile("//doc[field[@name='title'] = 'urlAccessTest']//field[@name='url.access.raw_object'][1]").evaluate(solrDoc, XPathConstants.STRING);
+
+        assertEquals("true", preview);
+        assertEquals("true", rawObject);
+    }
+
+    @Test
+    void buildSubjectHierarchicalGeographic() throws Exception {
+        String country = (String) xPath.compile("//doc[field[@name='title'] = 'subjectHierarchicalGeographicTest']//field[@name='subject.hierarchicalGeographic.country'][1]").evaluate(solrDoc, XPathConstants.STRING);
+        String city = (String) xPath.compile("//doc[field[@name='title'] = 'subjectHierarchicalGeographicTest']//field[@name='subject.hierarchicalGeographic.city'][1]").evaluate(solrDoc, XPathConstants.STRING);
+
+        assertEquals("Germany", country);
+        assertEquals("Cologne", city);
     }
 }
